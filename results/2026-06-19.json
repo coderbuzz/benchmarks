@@ -153,11 +153,11 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "set('k','v')", "value": 215056, "winner": true },
-        { "name": "get() hit", "value": 1188740, "winner": true },
-        { "name": "get() miss", "value": 1999777, "winner": true },
-        { "name": "delete()", "value": 1602493, "winner": true },
-        { "name": "increment()", "value": 162174, "winner": true }
+        { "name": "set('k','v')", "value": 218575, "winner": true },
+        { "name": "get() hit", "value": 1293833, "winner": true },
+        { "name": "get() miss", "value": 2212557, "winner": true },
+        { "name": "delete()", "value": 1892127, "winner": true },
+        { "name": "increment()", "value": 170802, "winner": true }
       ]
     },
     {

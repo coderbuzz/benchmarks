@@ -43,11 +43,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Operation | ops/s |
 |---|---|
-| set('k', 'v') | 215,056 |
-| get() — hit | 1,188,740 |
-| get() — miss | 1,999,777 |
-| delete() | 1,602,493 |
-| increment() | 162,174 |
+| set('k', 'v') | 218,575 |
+| get() — hit | 1,293,833 |
+| get() — miss | 2,212,557 |
+| delete() | 1,892,127 |
+| increment() | 170,802 |
 
 ### Proto
 

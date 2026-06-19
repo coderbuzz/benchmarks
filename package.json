@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@coderbuzz/ken": "^0.3.4",
-    "@coderbuzz/kvs": "^0.2.5",
+    "@coderbuzz/kvs": "^0.2.6",
     "@coderbuzz/kyo": "^0.2.4",
     "@coderbuzz/msgpack": "^0.1.4",
     "@coderbuzz/proto": "^0.1.9",
