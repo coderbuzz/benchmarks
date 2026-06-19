@@ -52,10 +52,10 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 ### Proto
 
 | Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|---|
-| Encode (ops/s) | **3,974,629** | 3,646,308 | 6,952,693 | 1,464,844 | JSON.stringify |
-| Decode (ops/s) | **3,007,406** | 1,439,044 | 3,468,298 | 1,112,222 | JSON.parse |
-| Wire size | 139 B | **111 B** | 139 B | 111 B | msgpack libs (20% < JSON/proto) |
+|---|---|---|---|---|---|---|
+| Encode (ops/s) | **4,365,748** | 3,129,270 | 5,097,684 | 1,240,514 | JSON.stringify |
+| Decode (ops/s) | **2,560,432** | 1,486,442 | 3,256,030 | 1,044,493 | JSON.parse |
+| Wire size | **65 B** | 111 B | 139 B | 111 B | **proto** (53% < JSON) |
 
 *ops/s higher is better, wire size smaller is better*
 
@@ -189,13 +189,21 @@ class KVStore {
 }
 ```
 
-### Proto — Proto-style codec
+### Proto — Binary codec
 
 ```ts
-class ProtoCodec {
-  static encode(obj: any) { return Buffer.from(JSON.stringify(obj)); }
-  static decode(buf: Buffer) { return JSON.parse(buf.toString()); }
-}
+import { object, string, number, boolean, array } from "@coderbuzz/kyo";
+import { proto } from "@coderbuzz/proto";
+
+const schema = object({
+  id: number(), name: string(), active: boolean(),
+  tags: array(string()),
+  metadata: object({ createdAt: string(), score: number() }),
+});
+const codec = proto(schema);
+
+const bytes = codec.encode(obj);   // 65B — 53% < JSON
+const val = codec.decode(bytes);   // 2.6M ops/s
 ```
 
 ## Methodology
