@@ -1,36 +1,8 @@
-// KVS-style throughput benchmark using inline implementation
-// @coderbuzz/kvs npm package has workspace:* deps (needs fix)
+import { KVStore } from "@coderbuzz/kvs";
 
-class KVStore {
-  private store = new Map<string, { value: any; expires: number }>();
+const kv = new KVStore(":memory:");
 
-  set(key: string, value: any, opts?: { ttl?: number }) {
-    this.store.set(key, {
-      value,
-      expires: opts?.ttl ? Date.now() + opts.ttl * 1000 : Infinity,
-    });
-  }
-
-  get(key: string): any {
-    const entry = this.store.get(key);
-    if (!entry) return undefined;
-    if (Date.now() > entry.expires) { this.store.delete(key); return undefined; }
-    return entry.value;
-  }
-
-  delete(key: string): boolean { return this.store.delete(key); }
-
-  increment(key: string, by = 1): number {
-    const val = (this.get(key) as number) ?? 0;
-    const next = val + by;
-    this.set(key, next);
-    return next;
-  }
-}
-
-const kv = new KVStore();
-
-function bench(label: string, fn: () => void, iterations = 100_000) {
+function bench(label: string, fn: () => void, iterations = 50_000) {
   for (let i = 0; i < 1000; i++) fn();
   const start = performance.now();
   for (let i = 0; i < iterations; i++) fn();
@@ -42,28 +14,33 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
 const SEP = "━".repeat(46);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 console.log(`  \x1b[1m\x1b[36m◈ KVS Throughput Benchmark\x1b[0m`);
-console.log(`  \x1b[2minline Map-based implementation\x1b[0m`);
+console.log(`  \x1b[2m@coderbuzz/kvs SQLite-backed\x1b[0m`);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 
-kv.set("x", 1);
-
-console.log("\nset() — small string:");
-bench("  set('k', 'v')", () => kv.set(`k${Math.random()}`, "v", { ttl: 1 }));
+console.log("\nset('k', 'v'):");
+bench("  set", () => kv.set(["k"], "v"));
 
 console.log("\nget() — hit:");
-bench("  get('x')", () => kv.get("x"));
+kv.set(["x"], 1);
+bench("  get", () => kv.get(["x"]));
 
 console.log("\nget() — miss:");
-bench("  get('nope')", () => kv.get("nope"));
+bench("  miss", () => kv.get(["nope"]));
 
 console.log("\ndelete():");
-bench("  delete()", () => { kv.set("y", 1); kv.delete("y"); });
+for (let i = 0; i < 500; i++) kv.set(["del-" + i], i);
+let di = 0;
+const maxDi = 500;
+bench("  delete", () => {
+  kv.delete(["del-" + di]);
+  di = (di + 1) % maxDi;
+});
 
-console.log("\natomic increment:");
-bench("  increment()", () => kv.increment("counter", 1));
+console.log("\nincrement():");
+kv.set(["counter"], 0);
+bench("  increment", () => {
+  const entry = kv.get(["counter"]);
+  kv.set(["counter"], ((entry?.value as number) ?? 0) + 1);
+});
 
-console.log("\nMemory (after 10K entries):");
-for (let i = 0; i < 10_000; i++) kv.set(`bulk-${i}`, { data: "x".repeat(100) });
-const mem = process.memoryUsage();
-console.log(`  RSS: ${(mem.rss / 1024 / 1024).toFixed(0)} MB`);
-console.log(`  Heap: ${(mem.heapUsed / 1024 / 1024).toFixed(0)} MB`);
+kv.close();

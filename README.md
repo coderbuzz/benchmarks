@@ -43,11 +43,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Operation | ops/s |
 |---|---|
-| set('k', 'v') | 6,138,798 |
-| get() — hit | 34,509,533 |
-| get() — miss | 136,783,375 |
-| delete() | 24,999 |
-| increment() | 27,760,743 |
+| set('k', 'v') | 215,056 |
+| get() — hit | 1,188,740 |
+| get() — miss | 1,999,777 |
+| delete() | 1,602,493 |
+| increment() | 162,174 |
 
 ### Proto
 
@@ -177,16 +177,15 @@ const buf = encode(obj);
 const val = decode(buf);
 ```
 
-### KVS — In-memory KV store
+### KVS — SQLite-backed KV store
 
 ```ts
-class KVStore {
-  private store = new Map<string, { value: any; expires: number }>();
-  set(key: string, value: any, opts?: { ttl?: number }) { /* ... */ }
-  get(key: string): any { /* ... */ }
-  delete(key: string): boolean { /* ... */ }
-  increment(key: string, by = 1): number { /* ... */ }
-}
+import { KVStore } from "@coderbuzz/kvs";
+
+const kv = new KVStore("kv.db");
+kv.set(["users", "alice"], { name: "Alice", plan: "pro" });  // 215K ops/s
+const entry = kv.get(["users", "alice"]);                      // 1.2M ops/s
+kv.delete(["users", "alice"]);                                 // 1.6M ops/s
 ```
 
 ### Proto — Binary codec

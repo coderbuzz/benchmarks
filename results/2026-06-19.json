@@ -148,16 +148,16 @@
       "id": "kvs-throughput",
       "library": "@coderbuzz/kvs",
       "type": "throughput",
-      "description": "Inline Map-based KV store operations",
-      "code": "kv.set('k', 'v'); kv.get('k'); kv.delete('k'); kv.increment('c', 1)",
+      "description": "SQLite-backed KV store operations",
+      "code": "kv.set(['k'], 'v'); kv.get(['k']); kv.delete(['k']); kv.get(['counter']); kv.set(['counter'], n+1)",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "set('k','v')", "value": 6138798, "winner": true },
-        { "name": "get() hit", "value": 34509533, "winner": true },
-        { "name": "get() miss", "value": 136783375, "winner": true },
-        { "name": "delete()", "value": 24999, "winner": true },
-        { "name": "increment()", "value": 27760743, "winner": true }
+        { "name": "set('k','v')", "value": 215056, "winner": true },
+        { "name": "get() hit", "value": 1188740, "winner": true },
+        { "name": "get() miss", "value": 1999777, "winner": true },
+        { "name": "delete()", "value": 1602493, "winner": true },
+        { "name": "increment()", "value": 162174, "winner": true }
       ]
     },
     {
