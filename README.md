@@ -72,6 +72,20 @@ const app = new AppServer({ port: 3000 });
 app.get("/hello", { message: "Hello, World" });
 app.run();
 
+// Elysia — GET /hello
+import { Elysia } from "elysia";
+new Elysia().get("/hello", () => ({ message: "Hello, World" })).listen(3000);
+
+// Express — GET /hello
+import express from "express";
+express().get("/hello", (_, res) => res.json({ message: "Hello, World" })).listen(3000);
+
+// Hono — GET /hello
+import { Hono } from "hono";
+new Hono().get("/hello", (c) => c.json({ message: "Hello, World" }));
+```
+
+```ts
 // @coderbuzz/ken — POST /hello/:par1/:par2 with validation
 app.post("/hello/:par1/:par2", {
   json: object({
@@ -86,20 +100,39 @@ app.post("/hello/:par1/:par2", {
   await ctx.json;
   return Response.json({ message: "Hello, World" });
 });
-```
 
-```ts
-// Elysia — GET /hello
-import { Elysia } from "elysia";
-new Elysia().get("/hello", () => ({ message: "Hello, World" })).listen(3000);
+// Elysia — POST /hello/:par1/:par2 with validation (built-in TypeBox)
+import { Elysia, t } from "elysia";
+new Elysia().post("/hello/:par1/:par2", () => ({ message: "Hello, World" }), {
+  body: t.Object({ someKey: t.Optional(t.String()), requiredKey: t.Array(t.Integer(), { maxItems: 3 }) }),
+  query: t.Object({ name: t.Optional(t.String()) }),
+  params: t.Object({ par1: t.Optional(t.String()), par2: t.Optional(t.Number()) }),
+  headers: t.Object({ "x-foo": t.String() }),
+}).listen(3000);
 
-// Express — GET /hello
-import express from "express";
-express().get("/hello", (_, res) => res.json({ message: "Hello, World" })).listen(3000);
-
-// Hono — GET /hello
+// Hono — POST /hello/:par1/:par2 with validation (TypeBox via @hono/typebox-validator)
 import { Hono } from "hono";
-new Hono().get("/hello", (c) => c.json({ message: "Hello, World" }));
+import { tbValidator } from "@hono/typebox-validator";
+import { Type as t } from "@sinclair/typebox";
+const app = new Hono();
+app.post("/hello/:par1/:par2",
+  tbValidator("json", bodySchema),
+  tbValidator("query", querySchema),
+  tbValidator("param", paramsSchema),
+  tbValidator("header", headersSchema),
+  (c) => c.json({ message: "Hello, World" }),
+);
+
+// Express — POST /hello/:par1/:par2 with validation (Zod)
+import express from "express";
+import { z } from "zod";
+express().post("/hello/:par1/:par2", (req, res) => {
+  bodySchema.parse(req.body);
+  querySchema.parse(req.query);
+  paramsSchema.parse(req.params);
+  headersSchema.parse(req.headers);
+  res.json({ message: "Hello, World" });
+});
 ```
 
 ### Kyo — Validation libraries
@@ -164,9 +197,6 @@ class ProtoCodec {
   static decode(buf: Buffer) { return JSON.parse(buf.toString()); }
 }
 ```
-
-Machine-readable data at [`results/latest.json`](./results/latest.json)
-([raw](https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json)).
 
 ## Methodology
 
