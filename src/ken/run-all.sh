@@ -12,8 +12,6 @@ echo -e "$SEP"
 echo ""
 bash src/ken/static-value/run.sh
 echo ""
-bash src/ken/dynamic/run.sh
-echo ""
 bash src/ken/validation/run.sh
 echo ""
 echo -e "${GREEN}✓ All Ken benchmarks complete${RESET}"

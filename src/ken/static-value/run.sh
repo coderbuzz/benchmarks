@@ -14,11 +14,12 @@ echo -e "  ${BOLD}${CYAN}◈ Static Value Benchmark${RESET}"
 echo -e "  ${DIM}app.get('/hello', { message: ... })${RESET}"
 echo -e "$SEP"
 
-for framework in "Ken" "Elysia" "Hono"; do
+for framework in "Ken" "Elysia" "Hono" "Express"; do
   case $framework in
-    Ken)   cmd="bun src/ken/static-value/server-ken.ts" ;;
+    Ken)    cmd="bun src/ken/static-value/server-ken.ts" ;;
     Elysia) cmd="bun src/ken/static-value/server-elysia.ts" ;;
-    Hono)  cmd="bun src/ken/static-value/server-hono.ts" ;;
+    Hono)   cmd="bun src/ken/static-value/server-hono.ts" ;;
+    Express) cmd="bun src/ken/static-value/server-express.ts" ;;
   esac
 
   $cmd &

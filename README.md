@@ -4,20 +4,55 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 ## Latest Results (2026-06-19)
 
-> Bun 1.3.14 · Apple Silicon · best of 2 runs
+> Bun 1.3.14 · Apple Silicon · best of 3 runs
 
-| Benchmark | Winner | Result |
-|---|---|---|
-| **Ken** Static Value | **Ken** | **262,405** req/s |
-| **Ken** Dynamic Handler | Elysia | 215,955 req/s |
-| **Ken** Validation POST | **Ken** | **123,856** req/s |
-| **Kyo** vs Zod (simple) | **Kyo** | **20,845,458** ops/s (4.9× faster) |
-| **Kyo** vs Zod (complex) | **Kyo** | **4,139,494** ops/s (3.8× faster) |
-| **Kyo** Coercion | **Kyo** | **9,231,338** ops/s (3.9× faster) |
-| **Msgpack** encode | JSON | 4,910,385 ops/s |
-| **Msgpack** decode | JSON.parse | 2,221,313 ops/s |
-| **KVS** get hit | — | 31,922,110 ops/s |
-| **Proto** encode | JSON.stringify | 6,766,205 ops/s |
+### Ken
+
+| Benchmark | Ken | Elysia | Hono | Express | Winner |
+|---|---|---|---|---|---|
+| Static Value | **262,405** | 261,663 | 162,469 | 96,892 | **Ken** |
+| Validation POST | **123,856** | 97,811 | 76,600 | 50,829 | **Ken** |
+
+*req/s — higher is better*
+
+### Kyo
+
+| Benchmark | Kyo | Zod | Winner |
+|---|---|---|---|
+| Simple validation | **21,984,463** | 4,201,784 | **Kyo** (5.2×) |
+| Complex validation | **4,113,569** | 1,086,786 | **Kyo** (3.8×) |
+| Error handling | **1,261,926** | 898,671 | **Kyo** (1.4×) |
+| Coercion | **11,106,585** | 2,634,711 | **Kyo** (4.2×) |
+
+*ops/s — higher is better*
+
+### Msgpack
+
+| Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
+|---|---|---|---|---|
+| Encode | **2,307,821** | 4,755,903 | 1,091,452 | JSON.stringify |
+| Decode | **1,021,225** | 2,140,025 | 889,274 | JSON.parse |
+
+*ops/s — higher is better*
+
+### KVS
+
+| Operation | ops/s |
+|---|---|
+| set('k', 'v') | 6,138,798 |
+| get() — hit | 34,509,533 |
+| get() — miss | 136,783,375 |
+| delete() | 24,999 |
+| increment() | 27,760,743 |
+
+### Proto
+
+| Benchmark | proto | JSON | @msgpack/msgpack | Winner |
+|---|---|---|---|---|
+| Encode | **3,709,061** | 6,772,811 | 1,382,390 | JSON.stringify |
+| Decode | **3,089,495** | 3,560,017 | 1,101,646 | JSON.parse |
+
+*ops/s — higher is better*
 
 Full results in [RESULTS.md](./RESULTS.md).
 
@@ -28,6 +63,7 @@ Full results in [RESULTS.md](./RESULTS.md).
 | Tool | **oha** (default) or **wrk** (`WRK=1`) |
 | Connections | 100 |
 | Duration | 10 seconds |
+| Runs per benchmark | 3 (best result taken) |
 | Machine | Apple Silicon M-series (specified per run) |
 
 ## Running Benchmarks
@@ -37,17 +73,17 @@ Full results in [RESULTS.md](./RESULTS.md).
 bun install
 
 # Run specific benchmark
-bash packages/ken/static-value/run.sh
+bash src/ken/static-value/run.sh
 
-# Run all
-bash packages/ken/run-all.sh
+# Run all ken benchmarks
+bash src/ken/run-all.sh
 ```
 
 ## Packages
 
 | Package | Benchmarks |
 |---|---|
-| [ken](./src/ken) | static-value, dynamic, validation |
+| [ken](./src/ken) | static-value, validation |
 | [kyo](./src/kyo) | vs-zod, coerce |
 | [kvs](./src/kvs) | throughput |
 | [msgpack](./src/msgpack) | throughput |

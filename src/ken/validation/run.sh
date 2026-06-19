@@ -16,11 +16,12 @@ echo -e "$SEP"
 
 DATA=$(cat src/ken/validation/post-data.json)
 
-for framework in "Ken" "Elysia" "Hono"; do
+for framework in "Ken" "Elysia" "Hono" "Express"; do
   case $framework in
-    Ken)   cmd="bun src/ken/validation/server-ken.ts" ;;
+    Ken)    cmd="bun src/ken/validation/server-ken.ts" ;;
     Elysia) cmd="bun src/ken/validation/server-elysia.ts" ;;
-    Hono)  cmd="bun src/ken/validation/server-hono.ts" ;;
+    Hono)   cmd="bun src/ken/validation/server-hono.ts" ;;
+    Express) cmd="bun src/ken/validation/server-express.ts" ;;
   esac
 
   $cmd &

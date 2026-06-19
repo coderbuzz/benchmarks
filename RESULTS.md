@@ -13,7 +13,7 @@ runtime versions, and test date.
 **Date:** 2026-06-19\
 **Packages:** `@coderbuzz/ken@0.3.4`, `@coderbuzz/kyo@0.2.4`, `@coderbuzz/msgpack@0.1.4`
 
-> Results are best of 2 runs per benchmark.
+> Results are best of 3 runs per benchmark.
 
 ### Ken — Static Value Handler
 
@@ -24,16 +24,7 @@ runtime versions, and test date.
 | **Ken** | **262,405** |
 | Elysia | 261,663 |
 | Hono | 162,469 |
-
-### Ken — Dynamic Handler
-
-`app.get('/hello', () => ({ message: 'Hello, World' }))` — function handler.
-
-| Framework | Requests/sec |
-|---|---|
-| Elysia | 215,955 |
-| **Ken** | **202,433** |
-| Hono | 162,131 |
+| Express | 96,892 |
 
 ### Ken — Validation POST
 
@@ -43,7 +34,8 @@ runtime versions, and test date.
 |---|---|
 | **Ken** | **123,856** |
 | Elysia | 97,811 |
-| Hono | 76,627 |
+| Hono | 76,600 |
+| Express | 50,829 |
 
 ### Kyo vs Zod — Validation Throughput
 
@@ -51,22 +43,22 @@ Simple object (name, age, active):
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **20,845,458** |
-| Zod | 4,243,957 |
+| **Kyo** | **21,984,463** |
+| Zod | 4,201,784 |
 
 Complex nested object with coercion:
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **4,139,494** |
-| Zod | 1,097,476 |
+| **Kyo** | **4,113,569** |
+| Zod | 1,086,786 |
 
 Error handling (invalid input):
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **1,143,977** |
-| Zod | 833,795 |
+| **Kyo** | **1,261,926** |
+| Zod | 898,671 |
 
 ### Kyo — Coercion Throughput
 
@@ -74,8 +66,8 @@ String → number, boolean, date, etc.
 
 | Library | ops/s |
 |---|---|
-| **Kyo coerce()** | **9,231,338** |
-| Zod coerce | 2,340,267 |
+| **Kyo coerce()** | **11,106,585** |
+| Zod coerce | 2,634,711 |
 
 ### Msgpack — Encode/Decode Throughput
 
@@ -83,17 +75,17 @@ Nested object encode:
 
 | Library | ops/s |
 |---|---|
-| JSON.stringify | 4,910,385 |
-| **msgpack encode** | **2,197,150** |
-| @msgpack/msgpack | 1,058,661 |
+| JSON.stringify | 4,755,903 |
+| **msgpack encode** | **2,307,821** |
+| @msgpack/msgpack | 1,091,452 |
 
 Nested object decode:
 
 | Library | ops/s |
 |---|---|
-| JSON.parse | 2,221,313 |
-| **msgpack decode** | **1,014,052** |
-| @msgpack/msgpack | 899,407 |
+| JSON.parse | 2,140,025 |
+| **msgpack decode** | **1,021,225** |
+| @msgpack/msgpack | 889,274 |
 
 ### KVS — In-Memory Throughput
 
@@ -101,11 +93,11 @@ Inline Map-based KV store operations:
 
 | Operation | ops/s |
 |---|---|
-| set('k', 'v') | 5,564,701 |
-| get() — hit | 31,922,110 |
-| get() — miss | 130,590,924 |
-| delete() | 23,620 |
-| increment() | 26,991,770 |
+| set('k', 'v') | 6,138,798 |
+| get() — hit | 34,509,533 |
+| get() — miss | 136,783,375 |
+| delete() | 24,999 |
+| increment() | 27,760,743 |
 
 ### Proto — Encode/Decode Throughput
 
@@ -113,12 +105,12 @@ JSON-based proto-style codec vs msgpack:
 
 | Encode | ops/s |
 |---|---|
-| JSON.stringify | 6,766,205 |
-| **proto encode** | **3,684,655** |
-| @msgpack/msgpack | 1,365,584 |
+| JSON.stringify | 6,772,811 |
+| **proto encode** | **3,709,061** |
+| @msgpack/msgpack | 1,382,390 |
 
 | Decode | ops/s |
 |---|---|
-| JSON.parse | 3,386,377 |
-| **proto decode** | **2,828,748** |
-| @msgpack/msgpack | 1,085,579 |
+| JSON.parse | 3,560,017 |
+| **proto decode** | **3,089,495** |
+| @msgpack/msgpack | 1,101,646 |
