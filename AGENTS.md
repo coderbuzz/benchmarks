@@ -46,14 +46,6 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 5. If you accidentally commit to `main`: branch from that commit, reset `main` to previous, then proceed via PR.
 6. After PR merged: DELETE branch (local + remote). DO NOT REUSE.
 
-## SESSION MEMORY
-
-- STORE at `memory/<YYYY-MM-DD>_<topic>.md`
-- INCLUDE: what was done, decisions made, key files touched.
-- USE flat structure — no subfolders.
-- REFERENCE prior sessions: `@memory/<filename>`.
-- PURPOSE: carry context between sessions. Audit trail.
-
 ## RESULTS ARCHITECTURE
 
 Two formats, two audiences:
@@ -90,7 +82,6 @@ const winner = suite.entries.find(e => e.winner)
 ## FILE LAYOUT
 
 ```
-memory/                    # session logs
 results/                   # JSON (latest.json + dated historical)
 src/
 ├── ken/
