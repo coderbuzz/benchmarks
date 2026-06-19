@@ -1,0 +1,27 @@
+{
+  "name": "@coderbuzz/benchmarks",
+  "private": true,
+  "scripts": {
+    "ken:static": "bash packages/ken/static-value/run.sh",
+    "ken:dynamic": "bash packages/ken/dynamic/run.sh",
+    "ken:validation": "bash packages/ken/validation/run.sh",
+    "kyo:vs-zod": "bash packages/kyo/vs-zod/run.sh",
+    "kyo:coerce": "bash packages/kyo/coerce/run.sh",
+    "kvs:throughput": "bash packages/kvs/throughput/run.sh",
+    "msgpack:throughput": "bash packages/msgpack/throughput/run.sh",
+    "proto:throughput": "bash packages/proto/throughput/run.sh"
+  },
+  "dependencies": {
+    "@coderbuzz/ken": "latest",
+    "@coderbuzz/kyo": "latest",
+    "@coderbuzz/kvs": "latest",
+    "@coderbuzz/msgpack": "latest",
+    "@coderbuzz/proto": "latest",
+    "elysia": "^1.0.0",
+    "hono": "^4.0.0",
+    "zod": "^3.22.0",
+    "@msgpack/msgpack": "^3.0.0",
+    "@hono/typebox-validator": "^0.2.0",
+    "@sinclair/typebox": "^0.32.0"
+  }
+}

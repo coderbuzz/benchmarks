@@ -1,0 +1,44 @@
+/**
+ * KVS throughput benchmark (in-process)
+ * Tests get/set/atomic operations per second.
+ */
+
+import { createKV } from "@coderbuzz/kvs";
+
+const kv = createKV();
+
+function bench(label: string, fn: () => void, iterations = 100_000) {
+  for (let i = 0; i < 1000; i++) fn();
+  const start = performance.now();
+  for (let i = 0; i < iterations; i++) fn();
+  const elapsed = performance.now() - start;
+  const ops = Math.round((iterations / elapsed) * 1000);
+  console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
+}
+
+console.log("══════════════════════════════════════");
+console.log("  KVS Throughput Benchmark");
+console.log("══════════════════════════════════════");
+
+kv.set("x", 1);
+
+console.log("\nset() — small string:");
+bench("  set('k', 'v')", () => kv.set(`k${Math.random()}`, "v", { ttl: 1 }));
+
+console.log("\nget() — hit:");
+bench("  get('x')", () => kv.get("x"));
+
+console.log("\nget() — miss:");
+bench("  get('nope')", () => kv.get("nope"));
+
+console.log("\ndelete():");
+bench("  delete()", () => { kv.set("y", 1); kv.delete("y"); });
+
+console.log("\natomic increment:");
+bench("  increment()", () => kv.increment("counter", 1));
+
+console.log("\nMemory (after 10K entries):");
+for (let i = 0; i < 10_000; i++) kv.set(`bulk-${i}`, { data: "x".repeat(100) });
+const mem = process.memoryUsage();
+console.log(`  RSS: ${(mem.rss / 1024 / 1024).toFixed(0)} MB`);
+console.log(`  Heap: ${(mem.heapUsed / 1024 / 1024).toFixed(0)} MB`);
