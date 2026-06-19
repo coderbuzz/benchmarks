@@ -9,38 +9,70 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 > Bun 1.3.14 · Apple Silicon · best of 3 runs
 
-### Ken — Static Value Handler
+### Ken
 
-`app.get('/hello', { message: 'Hello, World' })` — inline JSON response (pre-compiled).
+| Benchmark | Ken | Elysia | Hono | Express | Winner |
+|---|---|---|---|---|---|
+| Static Value | **262,405** | 261,663 | 162,469 | 96,892 | **Ken** |
+| Validation POST | **123,856** | 97,811 | 76,600 | 50,829 | **Ken** |
 
-| Framework | Requests/sec |
+*req/s — higher is better*
+
+### Kyo
+
+| Benchmark | Kyo | Zod | Joi | Yup | Winner |
+|---|---|---|---|---|---|
+| Simple validation | **24,750,686** | 4,129,736 | 1,545,601 | 311,045 | **Kyo** (6.0× vs Zod) |
+| Complex validation | **4,156,600** | 1,075,241 | 306,226 | 68,293 | **Kyo** (3.9× vs Zod) |
+| Error handling | **1,245,263** | 844,156 | 752,924 | 236,106 | **Kyo** (1.5× vs Zod) |
+| Coercion | **11,633,204** | 2,398,513 | 659,241 | 251,877 | **Kyo** (4.9× vs Zod) |
+
+*ops/s — higher is better*
+
+### Msgpack
+
+| Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
+|---|---|---|---|---|
+| Encode (ops/s) | **2,459,878** | 5,061,391 | 1,190,036 | JSON.stringify |
+| Decode (ops/s) | **1,074,505** | 2,243,641 | 945,611 | JSON.parse |
+| Wire size | **133 B** | 178 B | 133 B | **msgpack** (25% < JSON) |
+
+*ops/s higher is better, wire size smaller is better*
+
+### KVS
+
+| Operation | ops/s |
 |---|---|
-| **Ken** | **262,405** |
-| Elysia | 261,663 |
-| Hono | 162,469 |
-| Express | 96,892 |
+| set('k', 'v') | 6,138,798 |
+| get() — hit | 34,509,533 |
+| get() — miss | 136,783,375 |
+| delete() | 24,999 |
+| increment() | 27,760,743 |
+
+### Proto
+
+| Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
+|---|---|---|---|---|---|
+| Encode (ops/s) | **3,974,629** | 3,646,308 | 6,952,693 | 1,464,844 | JSON.stringify |
+| Decode (ops/s) | **3,007,406** | 1,439,044 | 3,468,298 | 1,112,222 | JSON.parse |
+| Wire size | 139 B | **111 B** | 139 B | 111 B | msgpack libs (20% < JSON/proto) |
+
+*ops/s higher is better, wire size smaller is better*
+
+## Code Snippets
+
+What each benchmark actually measures:
+
+### Ken — HTTP frameworks
 
 ```ts
+// @coderbuzz/ken — GET /hello
 import { AppServer } from "@coderbuzz/ken";
 const app = new AppServer({ port: 3000 });
 app.get("/hello", { message: "Hello, World" });
 app.run();
-```
 
-*req/s — higher is better*
-
-### Ken — Validation POST
-
-`POST /hello/:par1/:par2` — body + query + params + headers validation with `@coderbuzz/kyo`.
-
-| Framework | Requests/sec |
-|---|---|
-| **Ken** | **123,856** |
-| Elysia | 97,811 |
-| Hono | 76,600 |
-| Express | 50,829 |
-
-```ts
+// @coderbuzz/ken — POST /hello/:par1/:par2 with validation
 app.post("/hello/:par1/:par2", {
   json: object({
     someKey: optional(string()),
@@ -56,102 +88,75 @@ app.post("/hello/:par1/:par2", {
 });
 ```
 
-*req/s — higher is better*
+```ts
+// Elysia — GET /hello
+import { Elysia } from "elysia";
+new Elysia().get("/hello", () => ({ message: "Hello, World" })).listen(3000);
 
-### Kyo — Validation Throughput
+// Express — GET /hello
+import express from "express";
+express().get("/hello", (_, res) => res.json({ message: "Hello, World" })).listen(3000);
 
-Simple object `{ name: string, age: number, active: boolean }`:
+// Hono — GET /hello
+import { Hono } from "hono";
+new Hono().get("/hello", (c) => c.json({ message: "Hello, World" }));
+```
 
-| Library | ops/s |
-|---|---|
-| **Kyo** | **24,750,686** |
-| Zod | 4,129,736 |
-| Joi | 1,545,601 |
-| Yup | 311,045 |
+### Kyo — Validation libraries
 
 ```ts
-// Kyo
+// @coderbuzz/kyo — simple validation
 object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })
-// Zod
+
+// Zod — simple validation
 z.object({ name: z.string().min(2).max(100), age: z.number().min(0).max(150), active: z.boolean() })
+
+// Joi — simple validation
+Joi.object({ name: Joi.string().min(2).max(100).required(), age: Joi.number().min(0).max(150).required(), active: Joi.boolean().required() })
+
+// Yup — simple validation
+yup.object({ name: yup.string().min(2).max(100).required(), age: yup.number().min(0).max(150).required(), active: yup.boolean().required() })
 ```
 
-Complex nested with coercion:
-
-| Library | ops/s |
-|---|---|
-| **Kyo** | **4,156,600** |
-| Zod | 1,075,241 |
-| Joi | 306,226 |
-| Yup | 68,293 |
-
-Error handling (invalid input):
-
-| Library | ops/s |
-|---|---|
-| **Kyo** | **1,245,263** |
-| Zod | 844,156 |
-| Joi | 752,924 |
-| Yup | 236,106 |
-
-### Kyo — Coercion
-
-String → number, boolean, date:
-
-| Library | ops/s |
-|---|---|
-| **Kyo coerce()** | **11,633,204** |
-| Zod coerce | 2,398,513 |
-| Joi coerce | 659,241 |
-| Yup coerce | 251,877 |
-
 ```ts
-import { boolean, coerce, date, number, object, string } from "@coderbuzz/kyo";
-object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) });
+// @coderbuzz/kyo — coercion
+object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) })
+
+// Zod — coercion
+z.object({ id: z.coerce.number(), active: z.coerce.boolean(), label: z.coerce.string(), born: z.coerce.date() })
 ```
 
-*ops/s — higher is better*
-
-### Msgpack
-
-| Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|
-| Encode (ops/s) | **2,459,878** | 5,061,391 | 1,190,036 | JSON.stringify |
-| Decode (ops/s) | **1,074,505** | 2,243,641 | 945,611 | JSON.parse |
-| Wire size | **133 B** | 178 B | 133 B | **msgpack** (25% < JSON) |
+### Msgpack — Codec libraries
 
 ```ts
+// @coderbuzz/msgpack
 import { encode, decode } from "@coderbuzz/msgpack";
-const buf = encode(obj);   // 2.5M ops/s
-const val = decode(buf);   // 1.1M ops/s
+const buf = encode(obj);
+const val = decode(buf);
+
+// JSON
+const buf = JSON.stringify(obj);
+const val = JSON.parse(json);
+
+// @msgpack/msgpack
+import { encode, decode } from "@msgpack/msgpack";
+const buf = encode(obj);
+const val = decode(buf);
 ```
 
-*ops/s higher is better, wire size smaller is better*
-
-### KVS
-
-| Operation | ops/s |
-|---|---|
-| set('k', 'v') | 6,138,798 |
-| get() — hit | 34,509,533 |
-| get() — miss | 136,783,375 |
-| delete() | 24,999 |
-| increment() | 27,760,743 |
+### KVS — In-memory KV store
 
 ```ts
-kv.set('k', 'v');           // 6.1M ops/s
-kv.get('k');                // 34.5M ops/s
-kv.delete('k');             // 25K ops/s
-kv.increment('counter', 1); // 27.8M ops/s
+class KVStore {
+  private store = new Map<string, { value: any; expires: number }>();
+  set(key: string, value: any, opts?: { ttl?: number }) { /* ... */ }
+  get(key: string): any { /* ... */ }
+  delete(key: string): boolean { /* ... */ }
+  increment(key: string, by = 1): number { /* ... */ }
+}
 ```
 
-### Proto
-
-| Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|---|
-| Encode (ops/s) | **3,974,629** | 3,646,308 | 6,952,693 | 1,464,844 | JSON.stringify |
-| Decode (ops/s) | **3,007,406** | 1,439,044 | 3,468,298 | 1,112,222 | JSON.parse |
-| Wire size | 139 B | **111 B** | 139 B | 111 B | msgpack libs (20% < JSON/proto) |
+### Proto — Proto-style codec
 
 ```ts
 class ProtoCodec {
@@ -160,9 +165,8 @@ class ProtoCodec {
 }
 ```
 
-*ops/s higher is better, wire size smaller is better*
-
-Machine-readable data at [`results/latest.json`](./results/latest.json).
+Machine-readable data at [`results/latest.json`](./results/latest.json)
+([raw](https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json)).
 
 ## Methodology
 
