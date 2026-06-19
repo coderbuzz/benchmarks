@@ -1,7 +1,8 @@
+import { AppServer } from "@coderbuzz/ken";
 import {
-  AppServer, array, boolean, coerce, literal, nullable, number,
+  array, boolean, coerce, literal, nullable, number,
   object, optional, string, union
-} from "@coderbuzz/ken";
+} from "@coderbuzz/kyo";
 
 const app = new AppServer({ port: 3000 });
 app.post("/hello/:par1/:par2", {

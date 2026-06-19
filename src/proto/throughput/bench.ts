@@ -36,10 +36,11 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  Proto Throughput Benchmark");
-console.log("  (inline JSON-based — @coderbuzz/proto npm broken)");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Proto Throughput Benchmark\x1b[0m`);
+console.log(`  \x1b[2minline JSON-based codec\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nEncode:");
 bench("JSON.stringify",       () => JSON.stringify(obj));

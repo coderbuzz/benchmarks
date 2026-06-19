@@ -1,10 +1,18 @@
 #!/bin/bash
+BOLD='\033[1m'
+DIM='\033[2m'
+CYAN='\033[36m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+RESET='\033[0m'
+SEP="${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+
 lsof -ti :3000 | xargs kill -9 2>/dev/null
 
-echo "══════════════════════════════════════"
-echo "  Static Value Benchmark"
-echo "  app.get('/hello', { message: ... })"
-echo "══════════════════════════════════════"
+echo -e "$SEP"
+echo -e "  ${BOLD}${CYAN}◈ Static Value Benchmark${RESET}"
+echo -e "  ${DIM}app.get('/hello', { message: ... })${RESET}"
+echo -e "$SEP"
 
 for framework in "Ken" "Elysia" "Hono"; do
   case $framework in
@@ -18,7 +26,8 @@ for framework in "Ken" "Elysia" "Hono"; do
   sleep 1
 
   echo ""
-  echo "--- $framework ---"
+  echo -e "  ${BOLD}${YELLOW}▸ $framework${RESET}"
+  echo ""
   if [ "$WRK" = "1" ]; then
     wrk -t4 -c100 -d10s http://127.0.0.1:3000/hello
   else
@@ -31,4 +40,4 @@ for framework in "Ken" "Elysia" "Hono"; do
 done
 
 echo ""
-echo "Static value benchmark complete."
+echo -e "${GREEN}✓ Static value benchmark complete${RESET}"

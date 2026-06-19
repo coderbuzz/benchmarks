@@ -62,9 +62,10 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s (${elapsed.toFixed(1)}ms for ${iterations.toLocaleString()} runs)`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  Kyo vs Zod Validation Benchmark");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Kyo vs Zod Validation Benchmark\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nSimple object (name, age, active):");
 bench("Kyo", () => kyoSimple(simpleData));
