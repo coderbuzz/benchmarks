@@ -121,15 +121,17 @@ JSON-based proto-style codec vs msgpack:
 
 | Encode | ops/s |
 |---|---|
-| JSON.stringify | 7,170,472 |
-| **proto encode** | **3,894,132** |
-| @msgpack/msgpack | 1,301,376 |
+| JSON.stringify | 6,952,693 |
+| **proto encode** | **3,974,629** |
+| @coderbuzz/msgpack | 3,646,308 |
+| @msgpack/msgpack | 1,464,844 |
 
 | Decode | ops/s |
 |---|---|
-| JSON.parse | 3,619,986 |
-| **proto decode** | **3,071,701** |
-| @msgpack/msgpack | 1,131,733 |
+| JSON.parse | 3,468,298 |
+| **proto decode** | **3,007,406** |
+| @coderbuzz/msgpack | 1,439,044 |
+| @msgpack/msgpack | 1,112,222 |
 
 Wire size (smaller is better):
 
@@ -137,4 +139,5 @@ Wire size (smaller is better):
 |---|---|---|
 | JSON | 139 | 0.14 KB |
 | proto (JSON-based) | 139 | 0.14 KB |
-| **@msgpack/msgpack** | **111** | **0.11 KB** (20% smaller) |
+| **@coderbuzz/msgpack** | **111** | **0.11 KB** (20% < JSON) |
+| @msgpack/msgpack | 111 | 0.11 KB |
