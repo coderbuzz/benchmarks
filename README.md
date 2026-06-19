@@ -30,10 +30,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|
-| Encode | **2,307,821** | 4,755,903 | 1,091,452 | JSON.stringify |
-| Decode | **1,021,225** | 2,140,025 | 889,274 | JSON.parse |
+| Encode (ops/s) | **2,459,878** | 5,061,391 | 1,190,036 | JSON.stringify |
+| Decode (ops/s) | **1,074,505** | 2,243,641 | 945,611 | JSON.parse |
+| Wire size | **133 B** | 178 B | 133 B | **msgpack** (25% < JSON) |
 
-*ops/s — higher is better*
+*ops/s higher is better, wire size smaller is better*
 
 ### KVS
 
@@ -49,10 +50,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | proto | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|
-| Encode | **3,709,061** | 6,772,811 | 1,382,390 | JSON.stringify |
-| Decode | **3,089,495** | 3,560,017 | 1,101,646 | JSON.parse |
+| Encode (ops/s) | **3,894,132** | 7,170,472 | 1,301,376 | JSON.stringify |
+| Decode (ops/s) | **3,071,701** | 3,619,986 | 1,131,733 | JSON.parse |
+| Wire size | 139 B | 139 B | **111 B** | **@msgpack/msgpack** (20% < proto) |
 
-*ops/s — higher is better*
+*ops/s higher is better, wire size smaller is better*
 
 Full results in [RESULTS.md](./RESULTS.md).
 

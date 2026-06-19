@@ -77,23 +77,31 @@ String → number, boolean, date, etc.
 | Joi coerce | 659,241 |
 | Yup coerce | 251,877 |
 
-### Msgpack — Encode/Decode Throughput
+### Msgpack — Encode/Decode Throughput + Wire Size
 
 Nested object encode:
 
 | Library | ops/s |
 |---|---|
-| JSON.stringify | 4,755,903 |
-| **msgpack encode** | **2,307,821** |
-| @msgpack/msgpack | 1,091,452 |
+| JSON.stringify | 5,061,391 |
+| **msgpack encode** | **2,459,878** |
+| @msgpack/msgpack | 1,190,036 |
 
 Nested object decode:
 
 | Library | ops/s |
 |---|---|
-| JSON.parse | 2,140,025 |
-| **msgpack decode** | **1,021,225** |
-| @msgpack/msgpack | 889,274 |
+| JSON.parse | 2,243,641 |
+| **msgpack decode** | **1,074,505** |
+| @msgpack/msgpack | 945,611 |
+
+Wire size (smaller is better):
+
+| Library | Bytes | Size |
+|---|---|---|
+| JSON | 178 | 0.17 KB |
+| **msgpack** | **133** | **0.13 KB** (25% smaller vs JSON) |
+| @msgpack/msgpack | 133 | 0.13 KB |
 
 ### KVS — In-Memory Throughput
 
@@ -107,18 +115,26 @@ Inline Map-based KV store operations:
 | delete() | 24,999 |
 | increment() | 27,760,743 |
 
-### Proto — Encode/Decode Throughput
+### Proto — Encode/Decode Throughput + Wire Size
 
 JSON-based proto-style codec vs msgpack:
 
 | Encode | ops/s |
 |---|---|
-| JSON.stringify | 6,772,811 |
-| **proto encode** | **3,709,061** |
-| @msgpack/msgpack | 1,382,390 |
+| JSON.stringify | 7,170,472 |
+| **proto encode** | **3,894,132** |
+| @msgpack/msgpack | 1,301,376 |
 
 | Decode | ops/s |
 |---|---|
-| JSON.parse | 3,560,017 |
-| **proto decode** | **3,089,495** |
-| @msgpack/msgpack | 1,101,646 |
+| JSON.parse | 3,619,986 |
+| **proto decode** | **3,071,701** |
+| @msgpack/msgpack | 1,131,733 |
+
+Wire size (smaller is better):
+
+| Library | Bytes | Size |
+|---|---|---|
+| JSON | 139 | 0.14 KB |
+| proto (JSON-based) | 139 | 0.14 KB |
+| **@msgpack/msgpack** | **111** | **0.11 KB** (20% smaller) |
