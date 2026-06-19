@@ -55,15 +55,46 @@ Output: ANSI-colored. Run directly in terminal, not piped.
 - Flat structure — no subfolders.
 - Reference previous: `@memory/<filename>`.
 
-## Results
+## Results Architecture
 
-- Summary: `README.md`
-- Full data: `RESULTS.md`
+**Dua target audience — dua format:**
+
+| Format | Untuk | Lokasi |
+|---|---|---|
+| Markdown tables | Manusia (README) | `README.md` |
+| JSON structured | Agentic AI | `results/latest.json` |
+
+### `results/latest.json`
+
+- Source of truth untuk AI agent di monorepo terpisah.
+- Fetch via raw URL: `https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json`
+- Setiap entry punya: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code` field.
+- Agent langsung tahu juara dan seberapa jauh tanpa perlu parse tabel.
+- Historical: `results/<YYYY-MM-DD>.json`
+
+### `README.md`
+
+- Human-friendly summary via markdown tables.
+- Setiap tabel disertai code snippet yang di-benchmark.
+- TIDAK untuk AI parse — arahkan AI ke `results/latest.json`.
+
+### Contoh konsumsi oleh AI agent
+
+```ts
+const res = await fetch(
+  'https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json'
+)
+const data = await res.json()
+const suite = data.suites.find(s => s.id === 'kyo-simple')
+const winner = suite.entries.find(e => e.winner)
+console.log(`${winner.name}: ${winner.value} ops/s`)
+```
 
 ## File Structure
 
 ```
 memory/                    # session logs
+results/                   # JSON results (latest.json + historical dates)
 src/
 ├── ken/
 │   ├── static-value/       # GET /hello inline
