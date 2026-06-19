@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "══════════════════════════════════════"
-echo "  KVS Throughput Benchmark"
+echo "  Coercion Benchmark"
+echo "  Kyo coerce() vs Zod coerce"
 echo "══════════════════════════════════════"
-
-bun packages/kvs/throughput/bench.ts
+bun src/kyo/coerce/bench.ts

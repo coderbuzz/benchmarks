@@ -28,8 +28,8 @@ bash packages/ken/run-all.sh
 
 | Package | Benchmarks |
 |---|---|
-| [ken](./packages/ken) | static-value, dynamic, validation |
-| [kyo](./packages/kyo) | vs-zod, coerce |
-| [kvs](./packages/kvs) | throughput |
-| [msgpack](./packages/msgpack) | throughput |
-| [proto](./packages/proto) | throughput |
+| [ken](./src/ken) | static-value, dynamic, validation |
+| [kyo](./src/kyo) | vs-zod, coerce |
+| [kvs](./src/kvs) | throughput |
+| [msgpack](./src/msgpack) | throughput |
+| [proto](./src/proto) | throughput |

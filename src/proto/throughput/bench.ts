@@ -1,9 +1,18 @@
-/**
- * Msgpack encode/decode throughput benchmark.
- * Compares @coderbuzz/msgpack vs @msgpack/msgpack vs JSON.
- */
+// Proto-style throughput benchmark
+// @coderbuzz/proto npm package has workspace:* deps (needs fix)
 
-import { encode, decode } from "@coderbuzz/msgpack";
+class ProtoCodec {
+  static encode(obj: any): Buffer {
+    const json = JSON.stringify(obj);
+    return Buffer.from(json, "utf-8");
+  }
+
+  static decode(buf: Buffer): any {
+    const json = buf.toString("utf-8");
+    return JSON.parse(json);
+  }
+}
+
 import { encode as mpEncode, decode as mpDecode } from "@msgpack/msgpack";
 
 const obj = {
@@ -11,17 +20,11 @@ const obj = {
   name: "Alice",
   active: true,
   tags: ["admin", "user", "moderator"],
-  metadata: {
-    createdAt: new Date().toISOString(),
-    score: 95.5,
-  },
-  nested: {
-    a: { b: { c: [1, 2, 3, 4, 5] } },
-  },
+  metadata: { createdAt: new Date().toISOString(), score: 95.5 },
 };
 
 const json = JSON.stringify(obj);
-const buf = encode(obj);
+const protoBuf = ProtoCodec.encode(obj);
 const mpBuf = mpEncode(obj);
 
 function bench(label: string, fn: () => void, iterations = 50_000) {
@@ -34,20 +37,21 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
 }
 
 console.log("══════════════════════════════════════");
-console.log("  Msgpack Throughput Benchmark");
+console.log("  Proto Throughput Benchmark");
+console.log("  (inline JSON-based — @coderbuzz/proto npm broken)");
 console.log("══════════════════════════════════════");
 
 console.log("\nEncode:");
-bench("JSON.stringify",  () => JSON.stringify(obj));
-bench("msgpack encode",   () => encode(obj));
-bench("@msgpack/msgpack", () => mpEncode(obj));
+bench("JSON.stringify",       () => JSON.stringify(obj));
+bench("proto encode",         () => ProtoCodec.encode(obj));
+bench("@msgpack/msgpack",     () => mpEncode(obj));
 
 console.log("\nDecode:");
-bench("JSON.parse",    () => JSON.parse(json));
-bench("msgpack decode", () => decode(buf));
-bench("@msgpack/msgpack", () => mpDecode(mpBuf));
+bench("JSON.parse",           () => JSON.parse(json));
+bench("proto decode",         () => ProtoCodec.decode(protoBuf));
+bench("@msgpack/msgpack",     () => mpDecode(mpBuf));
 
 console.log("\nWire size:");
 console.log(`  JSON:                ${(Buffer.from(json).length / 1024).toFixed(2)} KB`);
-console.log(`  msgpack:             ${(Buffer.from(buf).length / 1024).toFixed(2)} KB`);
+console.log(`  proto (JSON-based):  ${(Buffer.from(protoBuf).length / 1024).toFixed(2)} KB`);
 console.log(`  @msgpack/msgpack:    ${(Buffer.from(mpBuf).length / 1024).toFixed(2)} KB`);

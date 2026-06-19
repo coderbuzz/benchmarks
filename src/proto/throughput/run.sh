@@ -2,5 +2,4 @@
 echo "══════════════════════════════════════"
 echo "  Proto Throughput Benchmark"
 echo "══════════════════════════════════════"
-
-bun packages/proto/throughput/bench.ts
+bun src/proto/throughput/bench.ts

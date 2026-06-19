@@ -1,7 +1,4 @@
 #!/bin/bash
-# Validation benchmark: POST with full schema validation
-# Body + query + params + headers validation
-
 lsof -ti :3000 | xargs kill -9 2>/dev/null
 
 echo "══════════════════════════════════════"
@@ -10,13 +7,13 @@ echo "  POST /hello/:par1/:par2"
 echo "  Body + Query + Params + Headers"
 echo "══════════════════════════════════════"
 
-DATA=$(cat packages/ken/validation/post-data.json)
+DATA=$(cat src/ken/validation/post-data.json)
 
 for framework in "Ken" "Elysia" "Hono"; do
   case $framework in
-    Ken)   cmd="bun packages/ken/validation/server-ken.ts" ;;
-    Elysia) cmd="bun packages/ken/validation/server-elysia.ts" ;;
-    Hono)  cmd="bun packages/ken/validation/server-hono.ts" ;;
+    Ken)   cmd="bun src/ken/validation/server-ken.ts" ;;
+    Elysia) cmd="bun src/ken/validation/server-elysia.ts" ;;
+    Hono)  cmd="bun src/ken/validation/server-hono.ts" ;;
   esac
 
   $cmd &
@@ -26,7 +23,7 @@ for framework in "Ken" "Elysia" "Hono"; do
   echo ""
   echo "--- $framework ---"
   if [ "$WRK" = "1" ]; then
-    wrk -t4 -c100 -d10s -s packages/ken/validation/wrk-post.lua http://127.0.0.1:3000/hello/test/123
+    wrk -t4 -c100 -d10s -s src/ken/validation/wrk-post.lua http://127.0.0.1:3000/hello/test/123
   else
     oha -c 100 -z 10s -m POST \
       -H "Content-Type: application/json" \

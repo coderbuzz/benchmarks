@@ -1,8 +1,4 @@
 #!/bin/bash
-# Static value benchmark: inline value handler (pre-compiled response)
-# Ken and Elysia: app.get('/path', { hello: 'world' })
-# Hono: function handler (no static optimization)
-
 lsof -ti :3000 | xargs kill -9 2>/dev/null
 
 echo "══════════════════════════════════════"
@@ -12,9 +8,9 @@ echo "════════════════════════�
 
 for framework in "Ken" "Elysia" "Hono"; do
   case $framework in
-    Ken)   cmd="bun packages/ken/static-value/server-ken.ts" ;;
-    Elysia) cmd="bun packages/ken/static-value/server-elysia.ts" ;;
-    Hono)  cmd="bun packages/ken/static-value/server-hono.ts" ;;
+    Ken)   cmd="bun src/ken/static-value/server-ken.ts" ;;
+    Elysia) cmd="bun src/ken/static-value/server-elysia.ts" ;;
+    Hono)  cmd="bun src/ken/static-value/server-hono.ts" ;;
   esac
 
   $cmd &

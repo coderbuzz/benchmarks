@@ -1,11 +1,34 @@
-/**
- * KVS throughput benchmark (in-process)
- * Tests get/set/atomic operations per second.
- */
+// KVS-style throughput benchmark using inline implementation
+// @coderbuzz/kvs npm package has workspace:* deps (needs fix)
 
-import { createKV } from "@coderbuzz/kvs";
+class KVStore {
+  private store = new Map<string, { value: any; expires: number }>();
 
-const kv = createKV();
+  set(key: string, value: any, opts?: { ttl?: number }) {
+    this.store.set(key, {
+      value,
+      expires: opts?.ttl ? Date.now() + opts.ttl * 1000 : Infinity,
+    });
+  }
+
+  get(key: string): any {
+    const entry = this.store.get(key);
+    if (!entry) return undefined;
+    if (Date.now() > entry.expires) { this.store.delete(key); return undefined; }
+    return entry.value;
+  }
+
+  delete(key: string): boolean { return this.store.delete(key); }
+
+  increment(key: string, by = 1): number {
+    const val = (this.get(key) as number) ?? 0;
+    const next = val + by;
+    this.set(key, next);
+    return next;
+  }
+}
+
+const kv = new KVStore();
 
 function bench(label: string, fn: () => void, iterations = 100_000) {
   for (let i = 0; i < 1000; i++) fn();
@@ -18,6 +41,7 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
 
 console.log("══════════════════════════════════════");
 console.log("  KVS Throughput Benchmark");
+console.log("  (inline Map-based implementation)");
 console.log("══════════════════════════════════════");
 
 kv.set("x", 1);

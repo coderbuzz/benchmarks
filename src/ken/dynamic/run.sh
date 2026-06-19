@@ -1,7 +1,4 @@
 #!/bin/bash
-# Dynamic benchmark: function handler
-# All frameworks: app.get('/path', () => ({ ... }))
-
 lsof -ti :3000 | xargs kill -9 2>/dev/null
 
 echo "══════════════════════════════════════"
@@ -11,9 +8,9 @@ echo "════════════════════════�
 
 for framework in "Ken" "Elysia" "Hono"; do
   case $framework in
-    Ken)   cmd="bun packages/ken/dynamic/server-ken.ts" ;;
-    Elysia) cmd="bun packages/ken/dynamic/server-elysia.ts" ;;
-    Hono)  cmd="bun packages/ken/dynamic/server-hono.ts" ;;
+    Ken)   cmd="bun src/ken/dynamic/server-ken.ts" ;;
+    Elysia) cmd="bun src/ken/dynamic/server-elysia.ts" ;;
+    Hono)  cmd="bun src/ken/dynamic/server-hono.ts" ;;
   esac
 
   $cmd &

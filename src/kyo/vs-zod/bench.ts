@@ -1,13 +1,6 @@
-/**
- * Kyo vs Zod vs Yup validation throughput benchmark
- */
-
 import { object, number, string, boolean, array, optional, coerce } from "@coderbuzz/kyo";
 import { z } from "zod";
 
-// ── Setup schemas ──────────────────────────────────────
-
-// Simple schema
 const kyoSimple = object({
   name: string({ min: 2, max: 100 }),
   age: number({ min: 0, max: 150 }),
@@ -20,7 +13,6 @@ const zodSimple = z.object({
   active: z.boolean(),
 });
 
-// Complex nested schema
 const kyoComplex = object({
   id: coerce(number()),
   profile: {
@@ -49,10 +41,7 @@ const zodComplex = z.object({
   }),
 });
 
-// ── Data ────────────────────────────────────────────────
-
 const simpleData = { name: "Alice", age: 30, active: true };
-
 const complexData = {
   id: "42",
   profile: {
@@ -61,18 +50,11 @@ const complexData = {
     tags: ["admin", "user"],
     scores: ["95", "87", "100"],
   },
-  metadata: {
-    createdAt: "2024-01-01",
-    updatedAt: "2024-06-01",
-  },
+  metadata: { createdAt: "2024-01-01", updatedAt: "2024-06-01" },
 };
 
-// ── Benchmark runner ────────────────────────────────────
-
 function bench(label: string, fn: () => void, iterations = 100_000) {
-  // Warmup
   for (let i = 0; i < 1000; i++) fn();
-
   const start = performance.now();
   for (let i = 0; i < iterations; i++) fn();
   const elapsed = performance.now() - start;

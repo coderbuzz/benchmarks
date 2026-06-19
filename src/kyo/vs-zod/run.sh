@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "══════════════════════════════════════"
-echo "  Kyo vs Zod vs Yup Benchmark"
+echo "  Kyo vs Zod Benchmark"
 echo "══════════════════════════════════════"
-
-bun packages/kyo/vs-zod/bench.ts
+bun src/kyo/vs-zod/bench.ts
