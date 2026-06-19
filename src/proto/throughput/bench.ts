@@ -13,6 +13,7 @@ class ProtoCodec {
   }
 }
 
+import { encode as msgpackEncode, decode as msgpackDecode } from "@coderbuzz/msgpack";
 import { encode as mpEncode, decode as mpDecode } from "@msgpack/msgpack";
 
 const obj = {
@@ -25,6 +26,7 @@ const obj = {
 
 const json = JSON.stringify(obj);
 const protoBuf = ProtoCodec.encode(obj);
+const cbBuf = msgpackEncode(obj);
 const mpBuf = mpEncode(obj);
 
 function bench(label: string, fn: () => void, iterations = 50_000) {
@@ -36,22 +38,37 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  Proto Throughput Benchmark");
-console.log("  (inline JSON-based — @coderbuzz/proto npm broken)");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Proto Throughput Benchmark\x1b[0m`);
+console.log(`  \x1b[2minline JSON-based codec\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nEncode:");
 bench("JSON.stringify",       () => JSON.stringify(obj));
 bench("proto encode",         () => ProtoCodec.encode(obj));
+bench("@coderbuzz/msgpack",   () => msgpackEncode(obj));
 bench("@msgpack/msgpack",     () => mpEncode(obj));
 
 console.log("\nDecode:");
 bench("JSON.parse",           () => JSON.parse(json));
 bench("proto decode",         () => ProtoCodec.decode(protoBuf));
+bench("@coderbuzz/msgpack",   () => msgpackDecode(cbBuf));
 bench("@msgpack/msgpack",     () => mpDecode(mpBuf));
 
+const jsonBytes = Buffer.from(json).length;
+const protoBytes = Buffer.from(protoBuf).length;
+const cbMsgpackBytes = Buffer.from(cbBuf).length;
+const mpMsgpackBytes = Buffer.from(mpBuf).length;
+const vsJson = ((1 - cbMsgpackBytes / jsonBytes) * 100).toFixed(0);
+const vsMp = ((1 - cbMsgpackBytes / mpMsgpackBytes) * 100).toFixed(0);
 console.log("\nWire size:");
-console.log(`  JSON:                ${(Buffer.from(json).length / 1024).toFixed(2)} KB`);
-console.log(`  proto (JSON-based):  ${(Buffer.from(protoBuf).length / 1024).toFixed(2)} KB`);
-console.log(`  @msgpack/msgpack:    ${(Buffer.from(mpBuf).length / 1024).toFixed(2)} KB`);
+console.log(`  ┌──────────────────────┬──────────┬──────────┐`);
+console.log(`  │ Library              │   Bytes  │    Size  │`);
+console.log(`  ├──────────────────────┼──────────┼──────────┤`);
+console.log(`  │ JSON                 │ ${String(jsonBytes).padStart(7)} │ ${(jsonBytes / 1024).toFixed(2)} KB │`);
+console.log(`  │ proto (JSON-based)   │ ${String(protoBytes).padStart(7)} │ ${(protoBytes / 1024).toFixed(2)} KB │`);
+console.log(`  │ @coderbuzz/msgpack   │ ${String(cbMsgpackBytes).padStart(7)} │ ${(cbMsgpackBytes / 1024).toFixed(2)} KB │`);
+console.log(`  │ @msgpack/msgpack     │ ${String(mpMsgpackBytes).padStart(7)} │ ${(mpMsgpackBytes / 1024).toFixed(2)} KB │`);
+console.log(`  └──────────────────────┴──────────┴──────────┘`);
+console.log(`  @coderbuzz/msgpack saves ${vsJson}% vs JSON, ${vsMp}% vs @msgpack/msgpack`);

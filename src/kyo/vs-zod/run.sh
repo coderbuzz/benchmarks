@@ -1,5 +1,13 @@
 #!/bin/bash
-echo "══════════════════════════════════════"
-echo "  Kyo vs Zod Benchmark"
-echo "══════════════════════════════════════"
+BOLD='\033[1m'
+CYAN='\033[36m'
+GREEN='\033[32m'
+RESET='\033[0m'
+SEP="${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+
+echo -e "$SEP"
+echo -e "  ${BOLD}${CYAN}◈ Validation Benchmark (Kyo vs Zod / Yup / Joi)${RESET}"
+echo -e "$SEP"
 bun src/kyo/vs-zod/bench.ts
+echo ""
+echo -e "${GREEN}✓ Complete${RESET}"

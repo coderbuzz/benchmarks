@@ -26,9 +26,10 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  Msgpack Throughput Benchmark");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Msgpack Throughput Benchmark\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nEncode:");
 bench("JSON.stringify",       () => JSON.stringify(obj));
@@ -40,7 +41,17 @@ bench("JSON.parse",           () => JSON.parse(json));
 bench("msgpack decode",       () => decode(buf));
 bench("@msgpack/msgpack",     () => mpDecode(mpBuf));
 
+const jsonBytes = Buffer.from(json).length;
+const msgpackBytes = Buffer.from(buf).length;
+const mpMsgpackBytes = Buffer.from(mpBuf).length;
+const vsJson = ((1 - msgpackBytes / jsonBytes) * 100).toFixed(0);
+const vsMp = ((1 - msgpackBytes / mpMsgpackBytes) * 100).toFixed(0);
 console.log("\nWire size:");
-console.log(`  JSON:                ${(Buffer.from(json).length / 1024).toFixed(2)} KB`);
-console.log(`  msgpack:             ${(Buffer.from(buf).length / 1024).toFixed(2)} KB`);
-console.log(`  @msgpack/msgpack:    ${(Buffer.from(mpBuf).length / 1024).toFixed(2)} KB`);
+console.log(`  ┌──────────────────────┬──────────┬──────────┐`);
+console.log(`  │ Library              │   Bytes  │    Size  │`);
+console.log(`  ├──────────────────────┼──────────┼──────────┤`);
+console.log(`  │ JSON                 │ ${String(jsonBytes).padStart(7)} │ ${(jsonBytes / 1024).toFixed(2)} KB │`);
+console.log(`  │ msgpack              │ ${String(msgpackBytes).padStart(7)} │ ${(msgpackBytes / 1024).toFixed(2)} KB │`);
+console.log(`  │ @msgpack/msgpack     │ ${String(mpMsgpackBytes).padStart(7)} │ ${(mpMsgpackBytes / 1024).toFixed(2)} KB │`);
+console.log(`  └──────────────────────┴──────────┴──────────┘`);
+console.log(`  msgpack saves ${vsJson}% vs JSON, ${vsMp}% vs @msgpack/msgpack`);

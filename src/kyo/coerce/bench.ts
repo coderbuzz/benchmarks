@@ -1,5 +1,7 @@
 import { boolean, coerce, date, number, object, string } from "@coderbuzz/kyo";
 import { z } from "zod";
+import * as yup from "yup";
+import Joi from "joi";
 
 const kyoSchema = object({
   id: coerce(number()),
@@ -15,6 +17,26 @@ const zodSchema = z.object({
   born: z.coerce.date(),
 });
 
+const yupSchema = yup.object({
+  id: yup.number().transform((v) => (typeof v === "string" ? Number(v) : v)).required(),
+  active: yup.boolean().transform((v) => {
+    if (typeof v === "string") return v === "true" || v === "1";
+    return Boolean(v);
+  }).required(),
+  label: yup.string().transform((v) => String(v)).required(),
+  born: yup.date().transform((v) => (typeof v === "string" ? new Date(v) : v)).required(),
+});
+
+const joiSchema = Joi.object({
+  id: Joi.number().custom((v) => (typeof v === "string" ? Number(v) : v)).required(),
+  active: Joi.boolean().custom((v) => {
+    if (typeof v === "string") return v === "true" || v === "1";
+    return Boolean(v);
+  }).required(),
+  label: Joi.string().custom((v) => String(v)).required(),
+  born: Joi.date().custom((v) => (typeof v === "string" ? new Date(v) : v)).required(),
+});
+
 const data = { id: "42", active: "true", label: 123, born: "1990-01-15" };
 
 function bench(label: string, fn: () => void, iterations = 50_000) {
@@ -26,10 +48,13 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  Coercion Benchmark");
-console.log("  string -> number, boolean, etc.");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Coercion Benchmark\x1b[0m`);
+console.log(`  \x1b[2mstring → number, boolean, date, etc.\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 bench("Kyo coerce()", () => kyoSchema(data));
 bench("Zod coerce", () => zodSchema.parse(data));
+bench("Yup coerce", () => yupSchema.validateSync(data));
+bench("Joi coerce", () => joiSchema.validate(data));

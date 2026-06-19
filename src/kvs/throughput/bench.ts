@@ -39,10 +39,11 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
   console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
 }
 
-console.log("══════════════════════════════════════");
-console.log("  KVS Throughput Benchmark");
-console.log("  (inline Map-based implementation)");
-console.log("══════════════════════════════════════");
+const SEP = "━".repeat(46);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ KVS Throughput Benchmark\x1b[0m`);
+console.log(`  \x1b[2minline Map-based implementation\x1b[0m`);
+console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 kv.set("x", 1);
 
