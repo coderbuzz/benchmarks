@@ -164,30 +164,30 @@
       "id": "proto-encode",
       "library": "@coderbuzz/proto",
       "type": "throughput",
-      "description": "JSON-based proto-style codec encode",
-      "code": "ProtoCodec.encode(obj)",
+      "description": "Binary codec compiled from kyo schema (no field names, no tags)",
+      "code": "codec.encode(obj)",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.stringify", "value": 6952693, "winner": true, "factorVsNext": 1.75 },
-        { "name": "@coderbuzz/proto", "value": 3974629, "winner": false, "factorVsNext": 1.09 },
-        { "name": "@coderbuzz/msgpack", "value": 3646308, "winner": false, "factorVsNext": 2.49 },
-        { "name": "@msgpack/msgpack", "value": 1464844, "winner": false }
+        { "name": "JSON.stringify", "value": 5097684, "winner": true, "factorVsNext": 1.17 },
+        { "name": "@coderbuzz/proto", "value": 4365748, "winner": false, "factorVsNext": 1.40 },
+        { "name": "@coderbuzz/msgpack", "value": 3129270, "winner": false, "factorVsNext": 2.52 },
+        { "name": "@msgpack/msgpack", "value": 1240514, "winner": false }
       ]
     },
     {
       "id": "proto-decode",
       "library": "@coderbuzz/proto",
       "type": "throughput",
-      "description": "JSON-based proto-style codec decode",
-      "code": "ProtoCodec.decode(buf)",
+      "description": "Binary codec decode from kyo schema",
+      "code": "codec.decode(buf)",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.parse", "value": 3468298, "winner": true, "factorVsNext": 1.15 },
-        { "name": "@coderbuzz/proto", "value": 3007406, "winner": false, "factorVsNext": 2.09 },
-        { "name": "@coderbuzz/msgpack", "value": 1439044, "winner": false, "factorVsNext": 1.29 },
-        { "name": "@msgpack/msgpack", "value": 1112222, "winner": false }
+        { "name": "JSON.parse", "value": 3256030, "winner": true, "factorVsNext": 1.27 },
+        { "name": "@coderbuzz/proto", "value": 2560432, "winner": false, "factorVsNext": 1.72 },
+        { "name": "@coderbuzz/msgpack", "value": 1486442, "winner": false, "factorVsNext": 1.42 },
+        { "name": "@msgpack/msgpack", "value": 1044493, "winner": false }
       ]
     },
     {
@@ -198,10 +198,10 @@
       "unit": "bytes",
       "higherIsBetter": false,
       "entries": [
-        { "name": "JSON", "value": 139, "winner": false, "factorVsBest": 1.25 },
-        { "name": "@coderbuzz/proto", "value": 139, "winner": false, "factorVsBest": 1.25 },
-        { "name": "@coderbuzz/msgpack", "value": 111, "winner": true, "factorVsBest": 1.00 },
-        { "name": "@msgpack/msgpack", "value": 111, "winner": true, "factorVsBest": 1.00 }
+        { "name": "JSON", "value": 139, "winner": false, "factorVsBest": 2.14 },
+        { "name": "@coderbuzz/proto", "value": 65, "winner": true, "factorVsBest": 1.00 },
+        { "name": "@coderbuzz/msgpack", "value": 111, "winner": false, "factorVsBest": 1.71 },
+        { "name": "@msgpack/msgpack", "value": 111, "winner": false, "factorVsBest": 1.71 }
       ]
     }
   ]
