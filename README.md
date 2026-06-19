@@ -52,7 +52,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 ### Proto
 
 | Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Encode (ops/s) | **4,365,748** | 3,129,270 | 5,097,684 | 1,240,514 | JSON.stringify |
 | Decode (ops/s) | **2,560,432** | 1,486,442 | 3,256,030 | 1,044,493 | JSON.parse |
 | Wire size | **65 B** | 111 B | 139 B | 111 B | **proto** (53% < JSON) |
