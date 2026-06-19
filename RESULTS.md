@@ -37,37 +37,45 @@ runtime versions, and test date.
 | Hono | 76,600 |
 | Express | 50,829 |
 
-### Kyo vs Zod — Validation Throughput
+### Kyo vs Zod / Yup / Joi — Validation Throughput
 
 Simple object (name, age, active):
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **21,984,463** |
-| Zod | 4,201,784 |
+| **Kyo** | **24,750,686** |
+| Zod | 4,129,736 |
+| Joi | 1,545,601 |
+| Yup | 311,045 |
 
 Complex nested object with coercion:
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **4,113,569** |
-| Zod | 1,086,786 |
+| **Kyo** | **4,156,600** |
+| Zod | 1,075,241 |
+| Joi | 306,226 |
+| Yup | 68,293 |
 
 Error handling (invalid input):
 
 | Library | ops/s |
 |---|---|
-| **Kyo** | **1,261,926** |
-| Zod | 898,671 |
+| **Kyo** | **1,245,263** |
+| Zod | 844,156 |
+| Joi | 752,924 |
+| Yup | 236,106 |
 
-### Kyo — Coercion Throughput
+### Kyo vs Zod / Yup / Joi — Coercion Throughput
 
 String → number, boolean, date, etc.
 
 | Library | ops/s |
 |---|---|
-| **Kyo coerce()** | **11,106,585** |
-| Zod coerce | 2,634,711 |
+| **Kyo coerce()** | **11,633,204** |
+| Zod coerce | 2,398,513 |
+| Joi coerce | 659,241 |
+| Yup coerce | 251,877 |
 
 ### Msgpack — Encode/Decode Throughput
 

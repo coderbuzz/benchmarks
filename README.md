@@ -17,12 +17,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 ### Kyo
 
-| Benchmark | Kyo | Zod | Winner |
-|---|---|---|---|
-| Simple validation | **21,984,463** | 4,201,784 | **Kyo** (5.2×) |
-| Complex validation | **4,113,569** | 1,086,786 | **Kyo** (3.8×) |
-| Error handling | **1,261,926** | 898,671 | **Kyo** (1.4×) |
-| Coercion | **11,106,585** | 2,634,711 | **Kyo** (4.2×) |
+| Benchmark | Kyo | Zod | Joi | Yup | Winner |
+|---|---|---|---|---|---|
+| Simple validation | **24,750,686** | 4,129,736 | 1,545,601 | 311,045 | **Kyo** (6.0× vs Zod) |
+| Complex validation | **4,156,600** | 1,075,241 | 306,226 | 68,293 | **Kyo** (3.9× vs Zod) |
+| Error handling | **1,245,263** | 844,156 | 752,924 | 236,106 | **Kyo** (1.5× vs Zod) |
+| Coercion | **11,633,204** | 2,398,513 | 659,241 | 251,877 | **Kyo** (4.9× vs Zod) |
 
 *ops/s — higher is better*
 
