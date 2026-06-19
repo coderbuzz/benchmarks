@@ -6,7 +6,7 @@ This repo benchmarks `@coderbuzz/*` packages against popular alternatives.
 
 Our libraries under test:
 - **`@coderbuzz/ken`** — HTTP framework → vs Elysia, Hono, Express
-- **`@coderbuzz/kyo`** — Validation/coercion library → vs Zod
+- **`@coderbuzz/kyo`** — Validation/coercion library → vs Zod, Yup, Joi
 - **`@coderbuzz/msgpack`** — msgpack codec → vs JSON, `@msgpack/msgpack`
 - **`@coderbuzz/kvs`** — KV store (inline impl) → standalone throughput
 - **`@coderbuzz/proto`** — Proto codec (inline impl) → vs JSON, `@msgpack/msgpack`
@@ -35,6 +35,16 @@ All `run.sh` and `bench.ts` use ANSI-colored output (run directly in terminal, n
 - **Throughput:** 50k-100k iterations after 1k warmup iterations
 - **Machine:** Apple Silicon, Bun 1.3.x
 
+## Session Memory
+
+Session-specific context disimpan di `memory/` directory. Untuk lanjut sesi sebelumnya:
+
+```
+@memory/sesi-2026-06-19-benchmark-refinement.md
+```
+
+File memory berisi ringkasan perubahan, hasil benchmark, dan catatan.
+
 ## Results
 
 - Summary: `README.md`
@@ -43,6 +53,8 @@ All `run.sh` and `bench.ts` use ANSI-colored output (run directly in terminal, n
 ## File Structure
 
 ```
+memory/                    # Session memory files (lanjut context)
+├── sesi-2026-06-19-benchmark-refinement.md
 src/
 ├── ken/
 │   ├── static-value/       # app.get('/hello', { message }) — inline response
