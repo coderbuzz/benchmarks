@@ -12,7 +12,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 ### Velox
 
 | Benchmark | Velox | Elysia | Hono | Express | Winner |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Static Value | 257,068 | **258,659** | 162,715 | 99,407 | **Elysia** |
 | Validation POST | **119,058** | 94,776 | 74,657 | 48,652 | **Velox** |
 
