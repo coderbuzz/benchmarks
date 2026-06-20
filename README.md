@@ -268,13 +268,28 @@ const json = JSON.stringify({ type: "publish", topic: "chat:room1", payload: "..
 ### SQL — Query compilation
 
 ```ts
+// @coderbuzz/sql
 import { sqlite } from "@coderbuzz/sql/sqlite";
-
 const db = sqlite.connect({ path: ":memory:" });
-
-// SELECT compilation (no DB execution)
 const query = db.select("id", "name").from("users").where({ id: 1 }).toSQL();
-// { sql: "SELECT id, name FROM users WHERE \"id\" = ?;", params: [1] }
+// → { sql: 'SELECT id, name FROM users WHERE "id" = ?;', params: [1] }
+
+// Drizzle ORM
+import { drizzle } from "drizzle-orm/bun-sqlite";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { eq } from "drizzle-orm";
+import { Database } from "bun:sqlite";
+const users = sqliteTable("users", { id: integer("id").primaryKey(), name: text("name") });
+const dz = drizzle(new Database(":memory:"));
+const q2 = dz.select().from(users).where(eq(users.id, 1)).toSQL();
+// → { sql: 'select "id", "name" from "users" where "users"."id" = ?', params: [1] }
+
+// Kysely
+import { Kysely, SqliteDialect } from "kysely";
+interface DB { users: { id: number; name: string } }
+const ky = new Kysely<DB>({ dialect: new SqliteDialect({ database: new Database(":memory:") }) });
+const q3 = ky.selectFrom("users").selectAll().where("id", "=", 1).compile();
+// → { sql: 'select * from "users" where "id" = ?', parameters: [1] }
 ```
 
 ### KVS Server — Transport overhead
@@ -337,7 +352,7 @@ bun run kvs-server:transport-overhead
 ## Packages
 
 | Package | Benchmarks |
-|---|---|---|
+|---|---|
 | [velox](./src/velox) | static-value, validation |
 | [velox-ws-wire](./src/velox-ws-wire) | throughput, wire-size |
 | [veta](./src/veta) | vs-zod, coerce |
