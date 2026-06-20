@@ -8,9 +8,14 @@
     "runsPerBenchmark": 3,
     "take": "best",
     "packages": {
-      "@coderbuzz/velox": "0.3.6",
-      "@coderbuzz/veta": "0.2.5",
-      "@coderbuzz/msgpack": "0.1.4"
+      "@coderbuzz/velox": "0.3.9",
+      "@coderbuzz/veta": "0.2.8",
+      "@coderbuzz/msgpack": "0.1.7",
+      "@coderbuzz/velox-ws-wire": "0.1.3",
+      "@coderbuzz/sql": "0.2.8",
+      "@coderbuzz/kvs": "0.2.11",
+      "@coderbuzz/kvs-server": "0.1.10",
+      "@coderbuzz/proto": "0.1.13"
     }
   },
   "suites": [
@@ -202,6 +207,180 @@
         { "name": "@coderbuzz/proto", "value": 65, "winner": true, "factorVsBest": 1.000 },
         { "name": "@coderbuzz/msgpack", "value": 111, "winner": false, "factorVsBest": 1.708 },
         { "name": "@msgpack/msgpack", "value": 111, "winner": false, "factorVsBest": 1.708 }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-encode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "All frame types encode throughput: binary wire vs JSON.stringify",
+      "code": "encodePing() | encodePublish(t, p) | encodeRequest(id, p) | encodeResponse(id, p) | encodeSubscribe(t)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "wire subscribe", "value": 24171615, "winner": true,  "factorVsNext": 1.249 },
+        { "name": "wire request",   "value": 19355778, "winner": false, "factorVsNext": 1.181 },
+        { "name": "wire response",  "value": 16389412, "winner": false, "factorVsNext": 1.122 },
+        { "name": "JSON subscribe", "value": 14606357, "winner": false, "factorVsNext": 1.015 },
+        { "name": "wire ping",      "value": 14396601, "winner": false, "factorVsNext": 1.623 },
+        { "name": "wire publish",   "value": 8869312,  "winner": false, "factorVsNext": 1.087 },
+        { "name": "JSON ping",      "value": 8162655,  "winner": false, "factorVsNext": 1.154 },
+        { "name": "JSON request",   "value": 7072553,  "winner": false, "factorVsNext": 1.056 },
+        { "name": "JSON publish",   "value": 6696429,  "winner": false, "factorVsNext": 1.043 },
+        { "name": "JSON response",  "value": 6417593,  "winner": false }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "All frame types decode throughput: binary wire vs JSON.parse",
+      "code": "decode(buf) | JSON.parse(json)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "JSON ping",      "value": 16567033, "winner": true,  "factorVsNext": 1.018 },
+        { "name": "wire ping",      "value": 16272286, "winner": false, "factorVsNext": 1.005 },
+        { "name": "wire subscribe", "value": 16198267, "winner": false, "factorVsNext": 1.215 },
+        { "name": "wire request",   "value": 13332000, "winner": false, "factorVsNext": 1.139 },
+        { "name": "JSON subscribe", "value": 11702865, "winner": false, "factorVsNext": 1.003 },
+        { "name": "wire response",  "value": 11672016, "winner": false, "factorVsNext": 1.528 },
+        { "name": "wire publish",   "value": 7637717,  "winner": false, "factorVsNext": 1.601 },
+        { "name": "JSON response",  "value": 4771485,  "winner": false, "factorVsNext": 1.077 },
+        { "name": "JSON request",   "value": 4429499,  "winner": false, "factorVsNext": 1.054 },
+        { "name": "JSON publish",   "value": 4202166,  "winner": false }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-wire-size",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "Binary frame size vs JSON frame size per frame type",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        { "name": "wire ping",         "value": 1,  "winner": true,  "factorVsBest": 1.000 },
+        { "name": "wire subscribe",    "value": 12, "winner": false, "factorVsBest": 12.000 },
+        { "name": "JSON ping",         "value": 15, "winner": false, "factorVsBest": 15.000 },
+        { "name": "wire request",      "value": 37, "winner": false, "factorVsBest": 37.000 },
+        { "name": "wire response",     "value": 37, "winner": false, "factorVsBest": 37.000 },
+        { "name": "JSON subscribe",    "value": 41, "winner": false, "factorVsBest": 41.000 },
+        { "name": "wire publish",      "value": 44, "winner": false, "factorVsBest": 44.000 },
+        { "name": "JSON request",      "value": 83, "winner": false, "factorVsBest": 83.000 },
+        { "name": "JSON response",     "value": 84, "winner": false, "factorVsBest": 84.000 },
+        { "name": "JSON publish",      "value": 92, "winner": false, "factorVsBest": 92.000 }
+      ]
+    },
+    {
+      "id": "sql-simple",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT simple: db.select().from(users).where(id = 1).toSQL()",
+      "code": "db.select(...).from('users').where({ id: 1 }).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 1700391, "winner": true,  "factorVsNext": 3.026 },
+        { "name": "kysely",         "value": 561869,  "winner": false, "factorVsNext": 16.410 },
+        { "name": "drizzle-orm",    "value": 34239,   "winner": false }
+      ]
+    },
+    {
+      "id": "sql-join",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT JOIN: 2 tables + ON clause",
+      "code": "db.select().from('users').inner_join('posts', 'users.id = posts.user_id').toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 2208322, "winner": true,  "factorVsNext": 7.108 },
+        { "name": "kysely",         "value": 310690,  "winner": false, "factorVsNext": 18.492 },
+        { "name": "drizzle-orm",    "value": 16801,   "winner": false }
+      ]
+    },
+    {
+      "id": "sql-insert",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "INSERT single row",
+      "code": "db.insert_into('users').values([{ id: 1, name: 'Alice' }]).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 2954261, "winner": true,  "factorVsNext": 7.514 },
+        { "name": "kysely",         "value": 393159,  "winner": false, "factorVsNext": 7.137 },
+        { "name": "drizzle-orm",    "value": 55085,   "winner": false }
+      ]
+    },
+    {
+      "id": "sql-batch",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "INSERT batch 100 rows in single VALUES clause",
+      "code": "db.insert_into('users').values(batchRows).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 134187, "winner": true,  "factorVsNext": 7.610 },
+        { "name": "kysely",         "value": 17634,  "winner": false, "factorVsNext": 19.293 },
+        { "name": "drizzle-orm",    "value": 914,    "winner": false }
+      ]
+    },
+    {
+      "id": "sql-cte",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "CTE (WITH clause): WITH active AS (SELECT ...) SELECT ... FROM active",
+      "code": "db.with('active', q => q.select(...).from('users').where(...)).select(...).from('active').toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 831703, "winner": true,  "factorVsNext": 3.698 },
+        { "name": "kysely",         "value": 224893, "winner": false, "factorVsNext": 18.401 },
+        { "name": "drizzle-orm",    "value": 12222,  "winner": false }
+      ]
+    },
+    {
+      "id": "sql-10-conditions",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT with 10 nested WHERE conditions (and/or/comparison/like/in)",
+      "code": "db.select().from('users').where(and(eq(cond1), gt(cond2), ...)).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "@coderbuzz/sql", "value": 656309, "winner": true,  "factorVsNext": 5.606 },
+        { "name": "kysely",         "value": 117064, "winner": false, "factorVsNext": 9.223 },
+        { "name": "drizzle-orm",    "value": 12692,  "winner": false }
+      ]
+    },
+    {
+      "id": "kvs-server-set",
+      "library": "@coderbuzz/kvs-server",
+      "type": "throughput",
+      "description": "set(k, v) throughput: KVS direct vs HTTP REST vs WS RPC",
+      "code": "store.set(['k'], 'v') | fetch(POST /kv/set) | wsRpc('kv/set', ...)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "KVS direct",   "value": 158732, "winner": true,  "factorVsNext": 2.940 },
+        { "name": "KVS WS RPC",   "value": 53999,  "winner": false, "factorVsNext": 2.779 },
+        { "name": "KVS HTTP REST","value": 19433,  "winner": false }
+      ]
+    },
+    {
+      "id": "kvs-server-get",
+      "library": "@coderbuzz/kvs-server",
+      "type": "throughput",
+      "description": "get(k) throughput: KVS direct vs HTTP REST vs WS RPC",
+      "code": "store.get(['k']) | fetch(POST /kv/get) | wsRpc('kv/get', ...)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "KVS direct",   "value": 1160021, "winner": true,  "factorVsNext": 20.818 },
+        { "name": "KVS WS RPC",   "value": 55723,   "winner": false, "factorVsNext": 2.231 },
+        { "name": "KVS HTTP REST","value": 24973,   "winner": false }
       ]
     }
   ]
