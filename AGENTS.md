@@ -1,41 +1,56 @@
 # `@coderbuzz/benchmarks` — Agent Instructions
 
-## REPO MISSION
-
-Benchmark `@coderbuzz/*` packages vs alternatives.
-
-| Library | vs |
-|---|---|
-| `@coderbuzz/ken` | Elysia, Hono, Express |
-| `@coderbuzz/kyo` | Zod, Yup, Joi |
-| `@coderbuzz/msgpack` | JSON, `@msgpack/msgpack` |
-| `@coderbuzz/kvs` | — |
-| `@coderbuzz/proto` | JSON, `@msgpack/msgpack` |
-
-## BENCHMARK TYPES
-
-| Type | Duration | Tool | Location |
-|---|---|---|---|
-| Ken HTTP | 10s/framework | `oha -c 100 -z 10s` | `src/ken/*/run.sh` |
-| Throughput | ~50-500ms | `performance.now()` | `src/*/throughput/bench.ts` |
+Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime, Apple Silicon.
 
 ## RUN COMMANDS
 
 ```
 bun install
-bash src/ken/static-value/run.sh   # single
-bash src/ken/run-all.sh            # all ken
+bun run ken:static                            # single via npm script
+bash src/ken/static-value/run.sh              # same, using oha directly
+bash src/ken/run-all.sh                       # all ken (static + validation only, NOT dynamic)
+WRK=1 bash src/ken/static-value/run.sh        # use wrk instead of oha
 ```
 
 Output is ANSI-colored. Run directly in terminal — do NOT pipe.
+
+`oha` is NOT in `package.json` — must be pre-installed. `WRK=1` env var switches to `wrk`.
+
+## BENCHMARKS
+
+| Sub-benchmark | Cmd | Tool | Notes |
+|---|---|---|---|
+| Ken static-value | `bun run ken:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
+| Ken validation | `bun run ken:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
+| Ken dynamic | `bash src/ken/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
+| Kyo vs-zod | `bun run kyo:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
+| Kyo coerce | `bun run kyo:coerce` | `bun bench.ts` | string→number/boolean/date |
+| KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment |
+| Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
+| Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
+
+All npm scripts: `bun run ken:static`, `ken:validation`, `kyo:vs-zod`, `kyo:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
 
 ## METHODOLOGY (MANDATORY)
 
 - 3 runs per benchmark, take best result.
 - Variance up to 8% between runs. Warmup matters.
-- HTTP: 100 connections, 10s, oha.
-- Throughput: 50k-100k iterations after 1k warmup.
+- HTTP: `oha -c 100 -z 10s`. Throughput: 50k–100k iterations after 1k warmup (`performance.now()`).
 - Machine: Apple Silicon, Bun 1.3.x.
+
+## RESULTS
+
+Two formats, two audiences:
+
+| Format | Audience | Location |
+|---|---|---|
+| JSON | AI agents | `results/latest.json` |
+| Markdown | humans | `README.md` |
+
+- AI agents MUST read `results/latest.json`. DO NOT parse the README for data.
+- Every JSON entry includes: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code`.
+- Historical: `results/<YYYY-MM-DD>.json`.
+- Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'kyo-simple').entries.find(e => e.winner)`.
 
 ## GIT WORKFLOW (MANDATORY)
 
@@ -46,49 +61,15 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 5. If you accidentally commit to `main`: branch from that commit, reset `main` to previous, then proceed via PR.
 6. After PR merged: DELETE branch (local + remote). DO NOT REUSE.
 
-## RESULTS ARCHITECTURE
-
-Two formats, two audiences:
-
-| Format | Audience | Location |
-|---|---|---|
-| JSON | AI AGENTS | `results/latest.json` |
-| Markdown | HUMANS | `README.md` |
-
-### `results/latest.json` — FOR AI AGENTS
-
-- This is the source of truth for AI in other repos.
-- FETCH via: `https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json`
-- Every entry includes: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code`.
-- Agent knows winner AND gap without parsing tables.
-- Historical: `results/<YYYY-MM-DD>.json`.
-
-Consumption pattern:
-
-```ts
-const res = await fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')
-const data = await res.json()
-const suite = data.suites.find(s => s.id === 'kyo-simple')
-const winner = suite.entries.find(e => e.winner)
-// => winner.name, winner.value, winner.factorVsNext
-```
-
-### `README.md` — NOT FOR AI
-
-- Human-readable markdown tables + code snippets.
-- DO NOT parse for data. Use `results/latest.json` instead.
-- DIRECT other AI agents to `results/latest.json`.
-
 ## FILE LAYOUT
 
 ```
 results/                   # JSON (latest.json + dated historical)
 src/
 ├── ken/
-│   ├── static-value/       # GET /hello inline
-│   │   └── server-{ken,elysia,hono,express}.ts
-│   └── validation/         # POST /hello/:par1/:par2
-│       └── server-{ken,elysia,hono,express}.ts
+│   ├── static-value/       # GET /hello inline (pre-compiled route)
+│   ├── validation/         # POST /hello/:par1/:par2 with validation
+│   └── dynamic/            # GET /hello callback fn — 4 frameworks, NOT in run-all
 ├── kyo/
 │   ├── vs-zod/bench.ts     # simple/complex/error validation
 │   └── coerce/bench.ts     # string→number/boolean/date
