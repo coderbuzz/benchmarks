@@ -16,6 +16,23 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 
 `oha` is NOT in `package.json` — must be pre-installed. `WRK=1` env var switches to `wrk`.
 
+## PostgreSQL dependency
+
+AsyncKVStore PostgreSQL benchmark needs a running PG instance.
+System has **OrbStack** (Docker runtime). Start if needed:
+
+```bash
+docker run -d --rm --name pg_sql_test \
+  -p 5432:5432 \
+  -e POSTGRES_USER=testuser \
+  -e POSTGRES_PASSWORD=testpw \
+  -e POSTGRES_DB=sql_test \
+  postgres:16-alpine
+```
+
+Wait until ready (`pg_isready -U testuser`).
+Benchmark auto-skips PG if unavailable.
+
 ## BENCHMARKS
 
 | Sub-benchmark | Cmd | Tool | Notes |
@@ -26,10 +43,11 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 | Veta vs-zod | `bun run veta:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
 | Veta coerce | `bun run veta:coerce` | `bun bench.ts` | string→number/boolean/date |
 | KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment |
+| KVS async-throughput | `bun run kvs:async-throughput` | `bun bench.ts` | set/get/delete/increment, 3 backends: sync SQLite, async SQLite, async PostgreSQL |
 | Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
 | Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
 
-All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
+All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `kvs:async-throughput`, `msgpack:throughput`, `proto:throughput`.
 
 ## METHODOLOGY (MANDATORY)
 
@@ -74,6 +92,7 @@ src/
 │   ├── vs-zod/bench.ts     # simple/complex/error validation
 │   └── coerce/bench.ts     # string→number/boolean/date
 ├── kvs/throughput/bench.ts # set/get/delete/increment
+├── kvs/async-throughput/bench.ts # set/get/delete/increment (SQLite sync/async + PG async)
 ├── msgpack/throughput/bench.ts # encode/decode + wire size
 └── proto/throughput/bench.ts   # encode/decode + wire size
 ```
