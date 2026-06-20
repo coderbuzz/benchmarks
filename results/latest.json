@@ -166,6 +166,32 @@
       ]
     },
     {
+      "id": "kvs-async-throughput",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "SQLite sync/async + PostgreSQL async KV store operations",
+      "code": "store.set(['k'], 'v'); store.get(['k']); store.delete(['k']); store.get(['counter']); store.set(['counter'], n+1)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        { "name": "Sync SQLite set('k','v')", "value": 205747 },
+        { "name": "Sync SQLite get() hit", "value": 1241691 },
+        { "name": "Sync SQLite get() miss", "value": 2140495 },
+        { "name": "Sync SQLite delete()", "value": 1786171 },
+        { "name": "Sync SQLite increment()", "value": 162501 },
+        { "name": "Async SQLite set('k','v')", "value": 65001 },
+        { "name": "Async SQLite get() hit", "value": 140799 },
+        { "name": "Async SQLite get() miss", "value": 155489 },
+        { "name": "Async SQLite delete()", "value": 270737 },
+        { "name": "Async SQLite increment()", "value": 43183 },
+        { "name": "Async PostgreSQL set('k','v')", "value": 1621 },
+        { "name": "Async PostgreSQL get() hit", "value": 9206 },
+        { "name": "Async PostgreSQL get() miss", "value": 8491 },
+        { "name": "Async PostgreSQL delete()", "value": 10495 },
+        { "name": "Async PostgreSQL increment()", "value": 1621 }
+      ]
+    },
+    {
       "id": "proto-encode",
       "library": "@coderbuzz/proto",
       "type": "throughput",

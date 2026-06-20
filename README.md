@@ -49,6 +49,16 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | delete() | 1,689,546 |
 | increment() | 138,163 |
 
+### KVS — Async Throughput
+
+| Operation | Sync SQLite | Async SQLite | Async PostgreSQL |
+|---|---|---|---|---|
+| set('k', 'v') | 205,747 | 65,001 | 1,621 |
+| get() — hit | 1,241,691 | 140,799 | 9,206 |
+| get() — miss | 2,140,495 | 155,489 | 8,491 |
+| delete() | 1,786,171 | 270,737 | 10,495 |
+| increment() | 162,501 | 43,183 | 1,621 |
+
 ### Proto
 
 | Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
@@ -224,15 +234,26 @@ const buf = encode(obj);
 const val = decode(buf);
 ```
 
-### KVS — SQLite-backed KV store
+### KVS — Sync/Async KV store
 
 ```ts
-import { KVStore } from "@coderbuzz/kvs";
+import { KVStore, AsyncKVStore } from "@coderbuzz/kvs";
 
+// Sync SQLite
 const kv = new KVStore("kv.db");
 kv.set(["users", "alice"], { name: "Alice", plan: "pro" });  // 215K ops/s
 const entry = kv.get(["users", "alice"]);                      // 1.2M ops/s
 kv.delete(["users", "alice"]);                                 // 1.6M ops/s
+
+// Async SQLite
+const asyncKV = new AsyncKVStore("kv.db");
+await asyncKV.set(["users", "bob"], { name: "Bob" });
+const bob = await asyncKV.get(["users", "bob"]);
+
+// Async PostgreSQL
+const pgKV = new AsyncKVStore("postgres://user:pass@localhost:5432/db");
+await pgKV.reset();
+await pgKV.set(["users", "carol"], { name: "Carol" });
 ```
 
 ### Proto — Binary codec
@@ -346,6 +367,7 @@ bash src/kvs-server/transport-overhead/run.sh
 bun run velox-ws-wire:throughput
 bun run velox-ws-wire:wire-size
 bun run sql:compile
+bun run kvs:async-throughput
 bun run kvs-server:transport-overhead
 ```
 
@@ -356,7 +378,7 @@ bun run kvs-server:transport-overhead
 | [velox](./src/velox) | static-value, validation |
 | [velox-ws-wire](./src/velox-ws-wire) | throughput, wire-size |
 | [veta](./src/veta) | vs-zod, coerce |
-| [kvs](./src/kvs) | throughput |
+| [kvs](./src/kvs) | throughput, async-throughput |
 | [kvs-server](./src/kvs-server) | transport-overhead |
 | [msgpack](./src/msgpack) | throughput |
 | [proto](./src/proto) | throughput |
