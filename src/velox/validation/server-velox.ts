@@ -1,4 +1,4 @@
-import { AppServer } from "@coderbuzz/ken";
+import { AppServer } from "@coderbuzz/velox";
 import {
   array, boolean, coerce, literal, nullable, number,
   object, optional, string, union

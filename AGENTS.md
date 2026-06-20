@@ -6,10 +6,10 @@ Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime, Apple Silicon.
 
 ```
 bun install
-bun run ken:static                            # single via npm script
-bash src/ken/static-value/run.sh              # same, using oha directly
-bash src/ken/run-all.sh                       # all ken (static + validation only, NOT dynamic)
-WRK=1 bash src/ken/static-value/run.sh        # use wrk instead of oha
+bun run velox:static                      # single via npm script
+bash src/velox/static-value/run.sh        # same, using oha directly
+bash src/velox/run-all.sh                 # all velox (static + validation only, NOT dynamic)
+WRK=1 bash src/velox/static-value/run.sh  # use wrk instead of oha
 ```
 
 Output is ANSI-colored. Run directly in terminal — do NOT pipe.
@@ -20,16 +20,16 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 
 | Sub-benchmark | Cmd | Tool | Notes |
 |---|---|---|---|
-| Ken static-value | `bun run ken:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
-| Ken validation | `bun run ken:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
-| Ken dynamic | `bash src/ken/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
+| Velox static-value | `bun run velox:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
+| Velox validation | `bun run velox:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
+| Velox dynamic | `bash src/velox/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
 | Veta vs-zod | `bun run veta:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
 | Veta coerce | `bun run veta:coerce` | `bun bench.ts` | string→number/boolean/date |
 | KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment |
 | Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
 | Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
 
-All npm scripts: `bun run ken:static`, `ken:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
+All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
 
 ## METHODOLOGY (MANDATORY)
 
@@ -66,7 +66,7 @@ Two formats, two audiences:
 ```
 results/                   # JSON (latest.json + dated historical)
 src/
-├── ken/
+├── velox/
 │   ├── static-value/       # GET /hello inline (pre-compiled route)
 │   ├── validation/         # POST /hello/:par1/:par2 with validation
 │   └── dynamic/            # GET /hello callback fn — 4 frameworks, NOT in run-all

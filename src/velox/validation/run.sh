@@ -14,14 +14,14 @@ echo -e "  ${BOLD}${CYAN}◈ Validation Benchmark${RESET}"
 echo -e "  ${DIM}POST /hello/:par1/:par2 — Body + Query + Params + Headers${RESET}"
 echo -e "$SEP"
 
-DATA=$(cat src/ken/validation/post-data.json)
+DATA=$(cat src/velox/validation/post-data.json)
 
-for framework in "Ken" "Elysia" "Hono" "Express"; do
+for framework in "Velox" "Elysia" "Hono" "Express"; do
   case $framework in
-    Ken)    cmd="bun src/ken/validation/server-ken.ts" ;;
-    Elysia) cmd="bun src/ken/validation/server-elysia.ts" ;;
-    Hono)   cmd="bun src/ken/validation/server-hono.ts" ;;
-    Express) cmd="bun src/ken/validation/server-express.ts" ;;
+    Velox)  cmd="bun src/velox/validation/server-velox.ts" ;;
+    Elysia) cmd="bun src/velox/validation/server-elysia.ts" ;;
+    Hono)   cmd="bun src/velox/validation/server-hono.ts" ;;
+    Express) cmd="bun src/velox/validation/server-express.ts" ;;
   esac
 
   $cmd &
@@ -32,7 +32,7 @@ for framework in "Ken" "Elysia" "Hono" "Express"; do
   echo -e "  ${BOLD}${YELLOW}▸ $framework${RESET}"
   echo ""
   if [ "$WRK" = "1" ]; then
-    wrk -t4 -c100 -d10s -s src/ken/validation/wrk-post.lua http://127.0.0.1:3000/hello/test/123
+    wrk -t4 -c100 -d10s -s src/velox/validation/wrk-post.lua http://127.0.0.1:3000/hello/test/123
   else
     oha -c 100 -z 10s -m POST \
       -H "Content-Type: application/json" \

@@ -14,12 +14,12 @@ echo -e "  ${BOLD}${CYAN}◈ Dynamic Handler Benchmark${RESET}"
 echo -e "  ${DIM}app.get('/hello', () => ({...}))${RESET}"
 echo -e "$SEP"
 
-for framework in "Ken" "Elysia" "Hono" "Express"; do
+for framework in "Velox" "Elysia" "Hono" "Express"; do
   case $framework in
-    Ken)    cmd="bun src/ken/dynamic/server-ken.ts" ;;
-    Elysia) cmd="bun src/ken/dynamic/server-elysia.ts" ;;
-    Hono)   cmd="bun src/ken/dynamic/server-hono.ts" ;;
-    Express) cmd="bun src/ken/dynamic/server-express.ts" ;;
+    Velox)  cmd="bun src/velox/dynamic/server-velox.ts" ;;
+    Elysia) cmd="bun src/velox/dynamic/server-elysia.ts" ;;
+    Hono)   cmd="bun src/velox/dynamic/server-hono.ts" ;;
+    Express) cmd="bun src/velox/dynamic/server-express.ts" ;;
   esac
 
   $cmd &
