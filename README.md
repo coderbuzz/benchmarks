@@ -18,6 +18,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 *req/s — higher is better*
 
+---
+
 ### Veta
 
 | Benchmark | Veta | Zod | Joi | Yup | Winner |
@@ -29,6 +31,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 *ops/s — higher is better*
 
+---
+
 ### Msgpack
 
 | Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
@@ -38,6 +42,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | Wire size | **133 B** | 178 B | 133 B | **msgpack** (25% < JSON) |
 
 *ops/s higher is better, wire size smaller is better*
+
+---
 
 ### KVS
 
@@ -49,6 +55,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | delete() | 1,689,546 |
 | increment() | 138,163 |
 
+---
+
 ### KVS — Async Throughput
 
 | Operation | Sync SQLite | Async SQLite | Async PostgreSQL |
@@ -59,6 +67,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | delete() | 1,786,171 | 270,737 | 10,495 |
 | increment() | 162,501 | 43,183 | 1,621 |
 
+---
+
 ### Proto
 
 | Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
@@ -68,6 +78,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | Wire size | **65 B** | 111 B | 139 B | 111 B | **proto** (53% < JSON) |
 
 *ops/s higher is better, wire size smaller is better*
+
+---
 
 ### Velox WS Wire
 
@@ -94,6 +106,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | RESPONSE | 37 B | 84 B | 56% |
 | SUBSCRIBE | 12 B | 41 B | 71% |
 
+---
+
 ### SQL — Query compilation throughput
 
 | Query Type | @coderbuzz/sql | Kysely | Drizzle ORM | Winner |
@@ -107,6 +121,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 *ops/s — higher is better. Compilation only, no DB execution.*
 
+---
+
 ### KVS Server — Transport overhead
 
 | Operation | KVS direct | WS RPC | HTTP REST |
@@ -115,6 +131,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | get('k') hit | **1,207,922** (100%) | 56,136 (4.6%) | 24,943 (2.1%) |
 
 *ops/s — higher is better. WS RPC retains 26% of direct throughput for writes.*
+
+---
 
 ## Code Snippets
 
@@ -192,6 +210,8 @@ express().post("/hello/:par1/:par2", (req, res) => {
 });
 ```
 
+---
+
 ### Veta — Validation libraries
 
 ```ts
@@ -216,6 +236,8 @@ object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()
 z.object({ id: z.coerce.number(), active: z.coerce.boolean(), label: z.coerce.string(), born: z.coerce.date() })
 ```
 
+---
+
 ### Msgpack — Codec libraries
 
 ```ts
@@ -233,6 +255,8 @@ import { encode, decode } from "@msgpack/msgpack";
 const buf = encode(obj);
 const val = decode(buf);
 ```
+
+---
 
 ### KVS — Sync/Async KV store
 
@@ -256,6 +280,8 @@ await pgKV.reset();
 await pgKV.set(["users", "carol"], { name: "Carol" });
 ```
 
+---
+
 ### Proto — Binary codec
 
 ```ts
@@ -273,6 +299,8 @@ const bytes = codec.encode(obj);   // 65B — 53% < JSON
 const val = codec.decode(bytes);   // 2.6M ops/s
 ```
 
+---
+
 ### Velox WS Wire — Binary WebSocket framing
 
 ```ts
@@ -285,6 +313,8 @@ const msg  = decode(frame);
 // JSON equivalent (baseline)
 const json = JSON.stringify({ type: "publish", topic: "chat:room1", payload: "..." });
 ```
+
+---
 
 ### SQL — Query compilation
 
@@ -313,7 +343,11 @@ const q3 = ky.selectFrom("users").selectAll().where("id", "=", 1).compile();
 // → { sql: 'select * from "users" where "id" = ?', parameters: [1] }
 ```
 
+---
+
 ### KVS Server — Transport overhead
+
+---
 
 ```ts
 import { createServer } from "@coderbuzz/kvs-server";
@@ -335,6 +369,8 @@ const ws = new WebSocket("ws://localhost:3000/ws?token=token");
 ws.send(JSON.stringify({ id: 1, method: "kv/get", params: { key: ["k"] } }));
 ```
 
+---
+
 ## Methodology
 
 | Parameter | Value |
@@ -344,6 +380,8 @@ ws.send(JSON.stringify({ id: 1, method: "kv/get", params: { key: ["k"] } }));
 | Duration | 10 seconds |
 | Runs per benchmark | 3 (best result taken) |
 | Machine | Apple Silicon M-series (specified per run) |
+
+---
 
 ## Running Benchmarks
 
@@ -370,6 +408,8 @@ bun run sql:compile
 bun run kvs:async-throughput
 bun run kvs-server:transport-overhead
 ```
+
+---
 
 ## Packages
 
