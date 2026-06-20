@@ -1,6 +1,6 @@
 {
   "meta": {
-    "date": "2026-06-19",
+    "date": "2026-06-20",
     "runtime": "Bun 1.3.14",
     "machine": "Apple Silicon (arm64)",
     "machineChip": "M-series",
@@ -9,7 +9,7 @@
     "take": "best",
     "packages": {
       "@coderbuzz/ken": "0.3.4",
-      "@coderbuzz/kyo": "0.2.4",
+      "@coderbuzz/veta": "0.2.5",
       "@coderbuzz/msgpack": "0.1.4"
     }
   },
@@ -23,10 +23,10 @@
       "unit": "req/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/ken", "value": 262405, "winner": true, "factorVsNext": 1.003 },
-        { "name": "Elysia", "value": 261663, "winner": false, "factorVsNext": 1.61 },
-        { "name": "Hono", "value": 162469, "winner": false, "factorVsNext": 1.68 },
-        { "name": "Express", "value": 96892, "winner": false }
+        { "name": "@coderbuzz/ken", "value": 257787, "winner": true, "factorVsNext": 1.004 },
+        { "name": "Elysia", "value": 256735, "winner": false, "factorVsNext": 1.587 },
+        { "name": "Hono", "value": 161777, "winner": false, "factorVsNext": 1.634 },
+        { "name": "Express", "value": 99020, "winner": false }
       ]
     },
     {
@@ -38,69 +38,69 @@
       "unit": "req/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/ken", "value": 123856, "winner": true, "factorVsNext": 1.27 },
-        { "name": "Elysia", "value": 97811, "winner": false, "factorVsNext": 1.28 },
-        { "name": "Hono", "value": 76600, "winner": false, "factorVsNext": 1.51 },
-        { "name": "Express", "value": 50829, "winner": false }
+        { "name": "@coderbuzz/ken", "value": 117622, "winner": true, "factorVsNext": 1.269 },
+        { "name": "Elysia", "value": 92650, "winner": false, "factorVsNext": 1.215 },
+        { "name": "Hono", "value": 76254, "winner": false, "factorVsNext": 1.535 },
+        { "name": "Express", "value": 49686, "winner": false }
       ]
     },
     {
-      "id": "kyo-simple",
-      "library": "@coderbuzz/kyo",
+      "id": "veta-simple",
+      "library": "@coderbuzz/veta",
       "type": "throughput",
       "description": "Simple object validation: { name: string, age: number, active: boolean }",
       "code": "object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/kyo", "value": 24750686, "winner": true, "factorVsNext": 5.99 },
-        { "name": "Zod", "value": 4129736, "winner": false, "factorVsNext": 2.67 },
-        { "name": "Joi", "value": 1545601, "winner": false, "factorVsNext": 4.97 },
-        { "name": "Yup", "value": 311045, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 20523522, "winner": true, "factorVsNext": 7.338 },
+        { "name": "Zod", "value": 2796538, "winner": false, "factorVsNext": 2.120 },
+        { "name": "Joi", "value": 1319125, "winner": false, "factorVsNext": 4.368 },
+        { "name": "Yup", "value": 302015, "winner": false }
       ]
     },
     {
-      "id": "kyo-complex",
-      "library": "@coderbuzz/kyo",
+      "id": "veta-complex",
+      "library": "@coderbuzz/veta",
       "type": "throughput",
       "description": "Complex nested object with coercion",
       "code": "object({ id: coerce(number()), profile: { displayName: string(), email: string({ pattern: /@/ }), tags: [string()], scores: [coerce(number())] } })",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/kyo", "value": 4156600, "winner": true, "factorVsNext": 3.87 },
-        { "name": "Zod", "value": 1075241, "winner": false, "factorVsNext": 3.51 },
-        { "name": "Joi", "value": 306226, "winner": false, "factorVsNext": 4.48 },
-        { "name": "Yup", "value": 68293, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 3221615, "winner": true, "factorVsNext": 3.483 },
+        { "name": "Zod", "value": 924793, "winner": false, "factorVsNext": 3.052 },
+        { "name": "Joi", "value": 302983, "winner": false, "factorVsNext": 4.818 },
+        { "name": "Yup", "value": 62882, "winner": false }
       ]
     },
     {
-      "id": "kyo-error",
-      "library": "@coderbuzz/kyo",
+      "id": "veta-error",
+      "library": "@coderbuzz/veta",
       "type": "throughput",
       "description": "Error handling — invalid input validation",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/kyo", "value": 1245263, "winner": true, "factorVsNext": 1.48 },
-        { "name": "Zod", "value": 844156, "winner": false, "factorVsNext": 1.12 },
-        { "name": "Joi", "value": 752924, "winner": false, "factorVsNext": 3.19 },
-        { "name": "Yup", "value": 236106, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 1238328, "winner": true, "factorVsNext": 1.485 },
+        { "name": "Zod", "value": 833937, "winner": false, "factorVsNext": 1.091 },
+        { "name": "Joi", "value": 764122, "winner": false, "factorVsNext": 3.507 },
+        { "name": "Yup", "value": 217887, "winner": false }
       ]
     },
     {
-      "id": "kyo-coerce",
-      "library": "@coderbuzz/kyo",
+      "id": "veta-coerce",
+      "library": "@coderbuzz/veta",
       "type": "throughput",
       "description": "String to number/boolean/date coercion",
       "code": "object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) })",
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/kyo", "value": 11633204, "winner": true, "factorVsNext": 4.85 },
-        { "name": "Zod", "value": 2398513, "winner": false, "factorVsNext": 3.64 },
-        { "name": "Joi", "value": 659241, "winner": false, "factorVsNext": 2.62 },
-        { "name": "Yup", "value": 251877, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 10239083, "winner": true, "factorVsNext": 4.746 },
+        { "name": "Zod", "value": 2157284, "winner": false, "factorVsNext": 3.267 },
+        { "name": "Joi", "value": 660375, "winner": false, "factorVsNext": 2.809 },
+        { "name": "Yup", "value": 235123, "winner": false }
       ]
     },
     {
@@ -112,9 +112,9 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.stringify", "value": 5061391, "winner": true, "factorVsNext": 2.06 },
-        { "name": "@coderbuzz/msgpack", "value": 2459878, "winner": false, "factorVsNext": 2.07 },
-        { "name": "@msgpack/msgpack", "value": 1190036, "winner": false }
+        { "name": "JSON.stringify", "value": 4781239, "winner": true, "factorVsNext": 2.347 },
+        { "name": "@coderbuzz/msgpack", "value": 2037237, "winner": false, "factorVsNext": 2.655 },
+        { "name": "@msgpack/msgpack", "value": 767220, "winner": false }
       ]
     },
     {
@@ -126,9 +126,9 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.parse", "value": 2243641, "winner": true, "factorVsNext": 2.09 },
-        { "name": "@coderbuzz/msgpack", "value": 1074505, "winner": false, "factorVsNext": 1.14 },
-        { "name": "@msgpack/msgpack", "value": 945611, "winner": false }
+        { "name": "JSON.parse", "value": 1959513, "winner": true, "factorVsNext": 2.182 },
+        { "name": "@coderbuzz/msgpack", "value": 897973, "winner": false, "factorVsNext": 1.038 },
+        { "name": "@msgpack/msgpack", "value": 865251, "winner": false }
       ]
     },
     {
@@ -139,9 +139,9 @@
       "unit": "bytes",
       "higherIsBetter": false,
       "entries": [
-        { "name": "JSON", "value": 178, "winner": false, "factorVsBest": 1.34 },
-        { "name": "@coderbuzz/msgpack", "value": 133, "winner": true, "factorVsBest": 1.00 },
-        { "name": "@msgpack/msgpack", "value": 133, "winner": true, "factorVsBest": 1.00 }
+        { "name": "JSON", "value": 178, "winner": false, "factorVsBest": 1.338 },
+        { "name": "@coderbuzz/msgpack", "value": 133, "winner": true, "factorVsBest": 1.000 },
+        { "name": "@msgpack/msgpack", "value": 133, "winner": true, "factorVsBest": 1.000 }
       ]
     },
     {
@@ -153,11 +153,11 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "set('k','v')", "value": 218575, "winner": true },
-        { "name": "get() hit", "value": 1293833, "winner": true },
-        { "name": "get() miss", "value": 2212557, "winner": true },
-        { "name": "delete()", "value": 1892127, "winner": true },
-        { "name": "increment()", "value": 170802, "winner": true }
+        { "name": "set('k','v')", "value": 198720, "winner": true },
+        { "name": "get() hit", "value": 1156635, "winner": true },
+        { "name": "get() miss", "value": 1931481, "winner": true },
+        { "name": "delete()", "value": 1689546, "winner": true },
+        { "name": "increment()", "value": 138163, "winner": true }
       ]
     },
     {
@@ -169,10 +169,10 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.stringify", "value": 5097684, "winner": true, "factorVsNext": 1.17 },
-        { "name": "@coderbuzz/proto", "value": 4365748, "winner": false, "factorVsNext": 1.40 },
-        { "name": "@coderbuzz/msgpack", "value": 3129270, "winner": false, "factorVsNext": 2.52 },
-        { "name": "@msgpack/msgpack", "value": 1240514, "winner": false }
+        { "name": "JSON.stringify", "value": 6892630, "winner": true, "factorVsNext": 1.468 },
+        { "name": "@coderbuzz/proto", "value": 4694891, "winner": false, "factorVsNext": 1.433 },
+        { "name": "@coderbuzz/msgpack", "value": 3275386, "winner": false, "factorVsNext": 2.476 },
+        { "name": "@msgpack/msgpack", "value": 1323117, "winner": false }
       ]
     },
     {
@@ -184,10 +184,10 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "JSON.parse", "value": 3256030, "winner": true, "factorVsNext": 1.27 },
-        { "name": "@coderbuzz/proto", "value": 2560432, "winner": false, "factorVsNext": 1.72 },
-        { "name": "@coderbuzz/msgpack", "value": 1486442, "winner": false, "factorVsNext": 1.42 },
-        { "name": "@msgpack/msgpack", "value": 1044493, "winner": false }
+        { "name": "JSON.parse", "value": 3320669, "winner": true, "factorVsNext": 1.068 },
+        { "name": "@coderbuzz/proto", "value": 3109557, "winner": false, "factorVsNext": 2.524 },
+        { "name": "@coderbuzz/msgpack", "value": 1231876, "winner": false, "factorVsNext": 1.134 },
+        { "name": "@msgpack/msgpack", "value": 1086271, "winner": false }
       ]
     },
     {
@@ -198,10 +198,10 @@
       "unit": "bytes",
       "higherIsBetter": false,
       "entries": [
-        { "name": "JSON", "value": 139, "winner": false, "factorVsBest": 2.14 },
-        { "name": "@coderbuzz/proto", "value": 65, "winner": true, "factorVsBest": 1.00 },
-        { "name": "@coderbuzz/msgpack", "value": 111, "winner": false, "factorVsBest": 1.71 },
-        { "name": "@msgpack/msgpack", "value": 111, "winner": false, "factorVsBest": 1.71 }
+        { "name": "JSON", "value": 139, "winner": false, "factorVsBest": 2.138 },
+        { "name": "@coderbuzz/proto", "value": 65, "winner": true, "factorVsBest": 1.000 },
+        { "name": "@coderbuzz/msgpack", "value": 111, "winner": false, "factorVsBest": 1.708 },
+        { "name": "@msgpack/msgpack", "value": 111, "winner": false, "factorVsBest": 1.708 }
       ]
     }
   ]

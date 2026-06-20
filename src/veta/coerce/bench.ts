@@ -1,9 +1,9 @@
-import { boolean, coerce, date, number, object, string } from "@coderbuzz/kyo";
+import { boolean, coerce, date, number, object, string } from "@coderbuzz/veta";
 import { z } from "zod";
 import * as yup from "yup";
 import Joi from "joi";
 
-const kyoSchema = object({
+const vetaSchema = object({
   id: coerce(number()),
   active: coerce(boolean()),
   label: coerce(string()),
@@ -54,7 +54,7 @@ console.log(`  \x1b[1m\x1b[36m◈ Coercion Benchmark\x1b[0m`);
 console.log(`  \x1b[2mstring → number, boolean, date, etc.\x1b[0m`);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 
-bench("Kyo coerce()", () => kyoSchema(data));
+bench("Veta coerce()", () => vetaSchema(data));
 bench("Zod coerce", () => zodSchema.parse(data));
 bench("Yup coerce", () => yupSchema.validateSync(data));
 bench("Joi coerce", () => joiSchema.validate(data));

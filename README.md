@@ -5,7 +5,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 **For AI agents:** Machine-readable results at [`results/latest.json`](./results/latest.json)
 ([raw](https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json)).
 
-## Latest Results (2026-06-19)
+## Latest Results (2026-06-20)
 
 > Bun 1.3.14 · Apple Silicon · best of 3 runs
 
@@ -13,19 +13,19 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | Ken | Elysia | Hono | Express | Winner |
 |---|---|---|---|---|---|
-| Static Value | **262,405** | 261,663 | 162,469 | 96,892 | **Ken** |
-| Validation POST | **123,856** | 97,811 | 76,600 | 50,829 | **Ken** |
+| Static Value | **257,787** | 256,735 | 161,777 | 99,020 | **Ken** |
+| Validation POST | **117,622** | 92,650 | 76,254 | 49,686 | **Ken** |
 
 *req/s — higher is better*
 
-### Kyo
+### Veta
 
-| Benchmark | Kyo | Zod | Joi | Yup | Winner |
+| Benchmark | Veta | Zod | Joi | Yup | Winner |
 |---|---|---|---|---|---|
-| Simple validation | **24,750,686** | 4,129,736 | 1,545,601 | 311,045 | **Kyo** (6.0× vs Zod) |
-| Complex validation | **4,156,600** | 1,075,241 | 306,226 | 68,293 | **Kyo** (3.9× vs Zod) |
-| Error handling | **1,245,263** | 844,156 | 752,924 | 236,106 | **Kyo** (1.5× vs Zod) |
-| Coercion | **11,633,204** | 2,398,513 | 659,241 | 251,877 | **Kyo** (4.9× vs Zod) |
+| Simple validation | **20,523,522** | 2,796,538 | 1,319,125 | 302,015 | **Veta** (7.3× vs Zod) |
+| Complex validation | **3,221,615** | 924,793 | 302,983 | 62,882 | **Veta** (3.5× vs Zod) |
+| Error handling | **1,238,328** | 833,937 | 764,122 | 217,887 | **Veta** (1.5× vs Zod) |
+| Coercion | **10,239,083** | 2,157,284 | 660,375 | 235,123 | **Veta** (4.7× vs Zod) |
 
 *ops/s — higher is better*
 
@@ -33,8 +33,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|
-| Encode (ops/s) | **2,459,878** | 5,061,391 | 1,190,036 | JSON.stringify |
-| Decode (ops/s) | **1,074,505** | 2,243,641 | 945,611 | JSON.parse |
+| Encode (ops/s) | **2,037,237** | 4,781,239 | 767,220 | JSON.stringify |
+| Decode (ops/s) | **897,973** | 1,959,513 | 865,251 | JSON.parse |
 | Wire size | **133 B** | 178 B | 133 B | **msgpack** (25% < JSON) |
 
 *ops/s higher is better, wire size smaller is better*
@@ -43,18 +43,18 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Operation | ops/s |
 |---|---|
-| set('k', 'v') | 218,575 |
-| get() — hit | 1,293,833 |
-| get() — miss | 2,212,557 |
-| delete() | 1,892,127 |
-| increment() | 170,802 |
+| set('k', 'v') | 198,720 |
+| get() — hit | 1,156,635 |
+| get() — miss | 1,931,481 |
+| delete() | 1,689,546 |
+| increment() | 138,163 |
 
 ### Proto
 
 | Benchmark | proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|---|
-| Encode (ops/s) | **4,365,748** | 3,129,270 | 5,097,684 | 1,240,514 | JSON.stringify |
-| Decode (ops/s) | **2,560,432** | 1,486,442 | 3,256,030 | 1,044,493 | JSON.parse |
+| Encode (ops/s) | **4,694,891** | 3,275,386 | 6,892,630 | 1,323,117 | JSON.stringify |
+| Decode (ops/s) | **3,109,557** | 1,231,876 | 3,320,669 | 1,086,271 | JSON.parse |
 | Wire size | **65 B** | 111 B | 139 B | 111 B | **proto** (53% < JSON) |
 
 *ops/s higher is better, wire size smaller is better*
@@ -135,10 +135,10 @@ express().post("/hello/:par1/:par2", (req, res) => {
 });
 ```
 
-### Kyo — Validation libraries
+### Veta — Validation libraries
 
 ```ts
-// @coderbuzz/kyo — simple validation
+// @coderbuzz/veta — simple validation
 object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })
 
 // Zod — simple validation
@@ -152,7 +152,7 @@ yup.object({ name: yup.string().min(2).max(100).required(), age: yup.number().mi
 ```
 
 ```ts
-// @coderbuzz/kyo — coercion
+// @coderbuzz/veta — coercion
 object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) })
 
 // Zod — coercion
@@ -191,7 +191,7 @@ kv.delete(["users", "alice"]);                                 // 1.6M ops/s
 ### Proto — Binary codec
 
 ```ts
-import { object, string, number, boolean, array } from "@coderbuzz/kyo";
+import { object, string, number, boolean, array } from "@coderbuzz/veta";
 import { proto } from "@coderbuzz/proto";
 
 const schema = object({
@@ -233,7 +233,7 @@ bash src/ken/run-all.sh
 | Package | Benchmarks |
 |---|---|
 | [ken](./src/ken) | static-value, validation |
-| [kyo](./src/kyo) | vs-zod, coerce |
+| [veta](./src/veta) | vs-zod, coerce |
 | [kvs](./src/kvs) | throughput |
 | [msgpack](./src/msgpack) | throughput |
 | [proto](./src/proto) | throughput |

@@ -1,4 +1,4 @@
-import { object, string, number, boolean, array } from "@coderbuzz/kyo";
+import { object, string, number, boolean, array } from "@coderbuzz/veta";
 import { proto } from "@coderbuzz/proto";
 import { encode as msgpackEncode, decode as msgpackDecode } from "@coderbuzz/msgpack";
 import { encode as mpEncode, decode as mpDecode } from "@msgpack/msgpack";
