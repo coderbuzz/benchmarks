@@ -7,11 +7,11 @@ RESET='\033[0m'
 SEP="${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 
 echo -e "$SEP"
-echo -e "  ${BOLD}${CYAN}⚡ Ken Benchmark Suite${RESET}"
+echo -e "  ${BOLD}${CYAN}⚡ Velox Benchmark Suite${RESET}"
 echo -e "$SEP"
 echo ""
-bash src/ken/static-value/run.sh
+bash src/velox/static-value/run.sh
 echo ""
-bash src/ken/validation/run.sh
+bash src/velox/validation/run.sh
 echo ""
-echo -e "${GREEN}✓ All Ken benchmarks complete${RESET}"
+echo -e "${GREEN}✓ All Velox benchmarks complete${RESET}"

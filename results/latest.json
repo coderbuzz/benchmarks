@@ -8,40 +8,40 @@
     "runsPerBenchmark": 3,
     "take": "best",
     "packages": {
-      "@coderbuzz/ken": "0.3.4",
+      "@coderbuzz/velox": "0.3.6",
       "@coderbuzz/veta": "0.2.5",
       "@coderbuzz/msgpack": "0.1.4"
     }
   },
   "suites": [
     {
-      "id": "ken-static-value",
-      "library": "@coderbuzz/ken",
+      "id": "velox-static-value",
+      "library": "@coderbuzz/velox",
       "type": "http",
       "description": "GET /hello — inline JSON response, pre-compiled route",
       "code": "app.get('/hello', { message: 'Hello, World' })",
       "unit": "req/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/ken", "value": 257787, "winner": true, "factorVsNext": 1.004 },
-        { "name": "Elysia", "value": 256735, "winner": false, "factorVsNext": 1.587 },
-        { "name": "Hono", "value": 161777, "winner": false, "factorVsNext": 1.634 },
-        { "name": "Express", "value": 99020, "winner": false }
+        { "name": "Elysia", "value": 258659, "winner": true, "factorVsNext": 1.006 },
+        { "name": "@coderbuzz/velox", "value": 257068, "winner": false, "factorVsNext": 1.580 },
+        { "name": "Hono", "value": 162715, "winner": false, "factorVsNext": 1.637 },
+        { "name": "Express", "value": 99407, "winner": false }
       ]
     },
     {
-      "id": "ken-validation",
-      "library": "@coderbuzz/ken",
+      "id": "velox-validation",
+      "library": "@coderbuzz/velox",
       "type": "http",
       "description": "POST /hello/:par1/:par2 — body + query + params + headers validation",
       "code": "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)",
       "unit": "req/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/ken", "value": 117622, "winner": true, "factorVsNext": 1.269 },
-        { "name": "Elysia", "value": 92650, "winner": false, "factorVsNext": 1.215 },
-        { "name": "Hono", "value": 76254, "winner": false, "factorVsNext": 1.535 },
-        { "name": "Express", "value": 49686, "winner": false }
+        { "name": "@coderbuzz/velox", "value": 119058, "winner": true, "factorVsNext": 1.256 },
+        { "name": "Elysia", "value": 94776, "winner": false, "factorVsNext": 1.270 },
+        { "name": "Hono", "value": 74657, "winner": false, "factorVsNext": 1.534 },
+        { "name": "Express", "value": 48652, "winner": false }
       ]
     },
     {

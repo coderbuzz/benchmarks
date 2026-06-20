@@ -9,12 +9,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 > Bun 1.3.14 · Apple Silicon · best of 3 runs
 
-### Ken
+### Velox
 
-| Benchmark | Ken | Elysia | Hono | Express | Winner |
-|---|---|---|---|---|---|
-| Static Value | **257,787** | 256,735 | 161,777 | 99,020 | **Ken** |
-| Validation POST | **117,622** | 92,650 | 76,254 | 49,686 | **Ken** |
+| Benchmark | Velox | Elysia | Hono | Express | Winner |
+|---|---|---|---|---|---|---|
+| Static Value | 257,068 | **258,659** | 162,715 | 99,407 | **Elysia** |
+| Validation POST | **119,058** | 94,776 | 74,657 | 48,652 | **Velox** |
 
 *req/s — higher is better*
 
@@ -63,11 +63,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 What each benchmark actually measures:
 
-### Ken — HTTP frameworks
+### Velox — HTTP frameworks
 
 ```ts
-// @coderbuzz/ken — GET /hello
-import { AppServer } from "@coderbuzz/ken";
+// @coderbuzz/velox — GET /hello
+import { AppServer } from "@coderbuzz/velox";
 const app = new AppServer({ port: 3000 });
 app.get("/hello", { message: "Hello, World" });
 app.run();
@@ -86,7 +86,7 @@ new Hono().get("/hello", (c) => c.json({ message: "Hello, World" }));
 ```
 
 ```ts
-// @coderbuzz/ken — POST /hello/:par1/:par2 with validation
+// @coderbuzz/velox — POST /hello/:par1/:par2 with validation
 app.post("/hello/:par1/:par2", {
   json: object({
     someKey: optional(string()),
@@ -222,17 +222,17 @@ const val = codec.decode(bytes);   // 2.6M ops/s
 bun install
 
 # Run specific benchmark
-bash src/ken/static-value/run.sh
+bash src/velox/static-value/run.sh
 
-# Run all ken benchmarks
-bash src/ken/run-all.sh
+# Run all velox benchmarks
+bash src/velox/run-all.sh
 ```
 
 ## Packages
 
 | Package | Benchmarks |
 |---|---|
-| [ken](./src/ken) | static-value, validation |
+| [velox](./src/velox) | static-value, validation |
 | [veta](./src/veta) | vs-zod, coerce |
 | [kvs](./src/kvs) | throughput |
 | [msgpack](./src/msgpack) | throughput |

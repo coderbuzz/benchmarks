@@ -2,8 +2,8 @@
   "name": "benchmarks",
   "private": true,
   "scripts": {
-    "ken:static": "bash src/ken/static-value/run.sh",
-    "ken:validation": "bash src/ken/validation/run.sh",
+    "velox:static": "bash src/velox/static-value/run.sh",
+    "velox:validation": "bash src/velox/validation/run.sh",
     "veta:vs-zod": "bash src/veta/vs-zod/run.sh",
     "veta:coerce": "bash src/veta/coerce/run.sh",
     "kvs:throughput": "bash src/kvs/throughput/run.sh",
@@ -11,9 +11,9 @@
     "proto:throughput": "bash src/proto/throughput/run.sh"
   },
   "dependencies": {
-    "@coderbuzz/ken": "^0.3.4",
+    "@coderbuzz/velox": "^0.3.6",
     "@coderbuzz/kvs": "^0.2.6",
-    "@coderbuzz/veta": "^0.2.4",
+    "@coderbuzz/veta": "^0.2.5",
     "@coderbuzz/msgpack": "^0.1.4",
     "@coderbuzz/proto": "^0.1.9",
     "@hono/typebox-validator": "^0.2.6",
