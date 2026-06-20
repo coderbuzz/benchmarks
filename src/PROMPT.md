@@ -4,7 +4,30 @@ Run this prompt in OpenCode at the `coderbuzz/benchmarks` repo root.
 
 ---
 
-Tambah benchmark untuk package berikut yang belum ada bench-nya.
+## Existing state
+
+Dari 12 package di `@coderbuzz/codex`, **5 udah punya benchmark**:
+
+| Package | Benchmark files |
+|---|---|
+| `velox` | `src/velox/static-value/`, `src/velox/validation/` |
+| `veta` | `src/veta/vs-zod/`, `src/veta/coerce/` |
+| `msgpack` | `src/msgpack/throughput/` |
+| `kvs` | `src/kvs/throughput/` |
+| `proto` | `src/proto/throughput/` |
+
+**7 package belum punya benchmark sama sekali:**
+- ~~`ryu`~~ — masih draft, skip
+- `velox-ws-wire` — binary WS codec
+- ~~`velox-ws-wire-server`~~ — skip (tergantung network)
+- ~~`velox-ws-wire-client`~~ — skip (tergantung network)
+- `kvs-server` — HTTP/WS wrapper
+- ~~`kvs-client`~~ — skip (tergantung network)
+- `sql` — SQL toolkit
+
+Yang perlu dibuatin benchmark (3 package): **`velox-ws-wire`**, **`sql`**, **`kvs-server`**.
+
+---
 
 ## Aturan
 
