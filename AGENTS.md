@@ -66,6 +66,7 @@ Two formats, two audiences:
 | Markdown | humans | `README.md` |
 
 - AI agents MUST read `results/latest.json`. DO NOT parse the README for data.
+- After any README.md edit, VALIDATE markdown tables: header columns count must match separator dashes count. Run `grep -n '^|' README.md | head -30` and manually verify column alignment.
 - Every JSON entry includes: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code`.
 - Historical: `results/<YYYY-MM-DD>.json`.
 - Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'veta-simple').entries.find(e => e.winner)`.
