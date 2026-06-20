@@ -1,9 +1,9 @@
-import { object, number, string, boolean, array, optional, coerce } from "@coderbuzz/kyo";
+import { object, number, string, boolean, array, optional, coerce } from "@coderbuzz/veta";
 import { z } from "zod";
 import * as yup from "yup";
 import Joi from "joi";
 
-const kyoSimple = object({
+const vetaSimple = object({
   name: string({ min: 2, max: 100 }),
   age: number({ min: 0, max: 150 }),
   active: boolean(),
@@ -27,7 +27,7 @@ const joiSimple = Joi.object({
   active: Joi.boolean().required(),
 });
 
-const kyoComplex = object({
+const vetaComplex = object({
   id: coerce(number()),
   profile: {
     displayName: string({ min: 2 }),
@@ -106,24 +106,24 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
 
 const SEP = "━".repeat(46);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ Kyo vs Zod vs Yup vs Joi Validation Benchmark\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Veta vs Zod vs Yup vs Joi Validation Benchmark\x1b[0m`);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nSimple object (name, age, active):");
-bench("Kyo", () => kyoSimple(simpleData));
+bench("Veta", () => vetaSimple(simpleData));
 bench("Zod", () => zodSimple.parse(simpleData));
 bench("Yup", () => yupSimple.validateSync(simpleData));
 bench("Joi", () => joiSimple.validate(simpleData));
 
 console.log("\nComplex nested object with coercion:");
-bench("Kyo", () => kyoComplex(complexData));
+bench("Veta", () => vetaComplex(complexData));
 bench("Zod", () => zodComplex.parse(complexData));
 bench("Yup", () => yupComplex.validateSync(complexData));
 bench("Joi", () => joiComplex.validate(complexData));
 
 console.log("\nError handling (invalid input):");
 const invalid = { name: "A", age: -1, active: "yes" };
-bench("Kyo throws", () => { try { kyoSimple(invalid); } catch {} });
+bench("Veta throws", () => { try { vetaSimple(invalid); } catch {} });
 bench("Zod throws", () => { try { zodSimple.parse(invalid); } catch {} });
 bench("Yup throws", () => { try { yupSimple.validateSync(invalid); } catch {} });
 bench("Joi throws", () => { try { joiSimple.validate(invalid); } catch {} });

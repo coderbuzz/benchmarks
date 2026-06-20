@@ -23,13 +23,13 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 | Ken static-value | `bun run ken:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
 | Ken validation | `bun run ken:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
 | Ken dynamic | `bash src/ken/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
-| Kyo vs-zod | `bun run kyo:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
-| Kyo coerce | `bun run kyo:coerce` | `bun bench.ts` | string→number/boolean/date |
+| Veta vs-zod | `bun run veta:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
+| Veta coerce | `bun run veta:coerce` | `bun bench.ts` | string→number/boolean/date |
 | KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment |
 | Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
 | Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
 
-All npm scripts: `bun run ken:static`, `ken:validation`, `kyo:vs-zod`, `kyo:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
+All npm scripts: `bun run ken:static`, `ken:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
 
 ## METHODOLOGY (MANDATORY)
 
@@ -50,7 +50,7 @@ Two formats, two audiences:
 - AI agents MUST read `results/latest.json`. DO NOT parse the README for data.
 - Every JSON entry includes: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code`.
 - Historical: `results/<YYYY-MM-DD>.json`.
-- Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'kyo-simple').entries.find(e => e.winner)`.
+- Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'veta-simple').entries.find(e => e.winner)`.
 
 ## GIT WORKFLOW (MANDATORY)
 
@@ -70,7 +70,7 @@ src/
 │   ├── static-value/       # GET /hello inline (pre-compiled route)
 │   ├── validation/         # POST /hello/:par1/:par2 with validation
 │   └── dynamic/            # GET /hello callback fn — 4 frameworks, NOT in run-all
-├── kyo/
+├── veta/
 │   ├── vs-zod/bench.ts     # simple/complex/error validation
 │   └── coerce/bench.ts     # string→number/boolean/date
 ├── kvs/throughput/bench.ts # set/get/delete/increment
