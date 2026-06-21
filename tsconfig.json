@@ -5,7 +5,6 @@
     "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
-    "customConditions": ["bun"],
     "types": ["bun", "node"]
   }
 }
