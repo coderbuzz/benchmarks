@@ -40,14 +40,14 @@ Benchmark auto-skips PG if unavailable.
 | Velox static-value | `bun run velox:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
 | Velox validation | `bun run velox:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
 | Velox dynamic | `bash src/velox/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
-| Veta vs-zod | `bun run veta:vs-zod` | `bun bench.ts` | simple/complex/error, 4 libs |
+| Veta vs | `bun run veta:vs` | `bun bench.ts` | simple/complex/error, 5 libs |
 | Veta coerce | `bun run veta:coerce` | `bun bench.ts` | string→number/boolean/date |
 | KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment |
 | KVS async-throughput | `bun run kvs:async-throughput` | `bun bench.ts` | set/get/delete/increment, 3 backends: sync SQLite, async SQLite, async PostgreSQL |
 | Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
 | Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
 
-All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs-zod`, `veta:coerce`, `kvs:throughput`, `kvs:async-throughput`, `msgpack:throughput`, `proto:throughput`.
+All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs`, `veta:coerce`, `kvs:throughput`, `kvs:async-throughput`, `msgpack:throughput`, `proto:throughput`.
 
 ## METHODOLOGY (MANDATORY)
 
@@ -90,7 +90,7 @@ src/
 │   ├── validation/         # POST /hello/:par1/:par2 with validation
 │   └── dynamic/            # GET /hello callback fn — 4 frameworks, NOT in run-all
 ├── veta/
-│   ├── vs-zod/bench.ts     # simple/complex/error validation
+│   ├── vs/bench.ts         # simple/complex/error validation
 │   └── coerce/bench.ts     # string→number/boolean/date
 ├── kvs/throughput/bench.ts # set/get/delete/increment
 ├── kvs/async-throughput/bench.ts # set/get/delete/increment (SQLite sync/async + PG async)
