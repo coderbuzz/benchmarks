@@ -24,10 +24,10 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | Veta | Zod | Joi | TypeBox | Yup | Winner |
 |---|---|---|---|---|---|---|
-| Simple validation | **22,596,317** | 3,733,154 | 1,479,513 | 1,325,476 | 287,822 | **Veta** (6.1× vs Zod) |
-| Complex validation | **3,895,592** | 982,154 | 301,709 | 292,089 | 69,740 | **Veta** (4.0× vs Zod) |
-| Error handling | **1,185,866** | 808,015 | 739,754 | 555,571 | 215,765 | **Veta** (1.5× vs Zod) |
-| Coercion | **11,341,297** | 2,381,127 | 695,455 | — | 256,338 | **Veta** (4.8× vs Zod) |
+| Simple validation | **24,009,604** | 3,331,732 | 1,538,762 | 1,261,183 | 293,516 | **Veta** (7.2× vs Zod) |
+| Complex validation | **3,894,732** | 1,019,782 | 295,736 | 286,423 | 64,628 | **Veta** (3.8× vs Zod) |
+| Error handling | **1,233,328** | 805,976 | 704,302 | 529,421 | 212,876 | **Veta** (1.5× vs Zod) |
+| Coercion | **10,038,901** | 2,225,779 | 718,747 | 889,310 | 253,385 | **Veta** (4.5× vs Zod) |
 
 *ops/s — higher is better*
 
@@ -237,6 +237,9 @@ object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()
 
 // Zod — coercion
 z.object({ id: z.coerce.number(), active: z.coerce.boolean(), label: z.coerce.string(), born: z.coerce.date() })
+
+// TypeBox — coercion
+Value.Parse(Type.Object({ id: Type.Number(), active: Type.Boolean(), label: Type.String(), born: Type.Date() }), Value.Convert(tbSchema, data))
 ```
 
 ---

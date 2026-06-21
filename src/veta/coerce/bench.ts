@@ -2,6 +2,8 @@ import { boolean, coerce, date, number, object, string } from "@coderbuzz/veta";
 import { z } from "zod";
 import * as yup from "yup";
 import Joi from "joi";
+import { Type } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 const vetaSchema = object({
   id: coerce(number()),
@@ -25,6 +27,13 @@ const yupSchema = yup.object({
   }).required(),
   label: yup.string().transform((v) => String(v)).required(),
   born: yup.date().transform((v) => (typeof v === "string" ? new Date(v) : v)).required(),
+});
+
+const typeboxSchema = Type.Object({
+  id: Type.Number(),
+  active: Type.Boolean(),
+  label: Type.String(),
+  born: Type.Date(),
 });
 
 const joiSchema = Joi.object({
@@ -51,10 +60,11 @@ function bench(label: string, fn: () => void, iterations = 50_000) {
 const SEP = "━".repeat(46);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 console.log(`  \x1b[1m\x1b[36m◈ Coercion Benchmark\x1b[0m`);
-console.log(`  \x1b[2mstring → number, boolean, date, etc.\x1b[0m`);
+console.log(`  \x1b[2mstring → number, boolean, date, etc. (5 libs)\x1b[0m`);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 bench("Veta coerce()", () => vetaSchema(data));
 bench("Zod coerce", () => zodSchema.parse(data));
 bench("Yup coerce", () => yupSchema.validateSync(data));
 bench("Joi coerce", () => joiSchema.validate(data));
+bench("TypeBox coerce", () => Value.Parse(typeboxSchema, Value.Convert(typeboxSchema, data)));
