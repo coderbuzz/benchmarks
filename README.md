@@ -5,7 +5,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 **For AI agents:** Machine-readable results at [`results/latest.json`](./results/latest.json)
 ([raw](https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json)).
 
-## Latest Results (2026-06-20)
+## Latest Results (2026-06-21)
 
 > Bun 1.3.14 · Apple Silicon · best of 3 runs
 
@@ -22,12 +22,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 ### Veta
 
-| Benchmark | Veta | Zod | Joi | Yup | Winner |
-|---|---|---|---|---|---|
-| Simple validation | **20,523,522** | 2,796,538 | 1,319,125 | 302,015 | **Veta** (7.3× vs Zod) |
-| Complex validation | **3,221,615** | 924,793 | 302,983 | 62,882 | **Veta** (3.5× vs Zod) |
-| Error handling | **1,238,328** | 833,937 | 764,122 | 217,887 | **Veta** (1.5× vs Zod) |
-| Coercion | **10,239,083** | 2,157,284 | 660,375 | 235,123 | **Veta** (4.7× vs Zod) |
+| Benchmark | Veta | Zod | Joi | TypeBox | Yup | Winner |
+|---|---|---|---|---|---|---|
+| Simple validation | **22,596,317** | 3,733,154 | 1,479,513 | 1,325,476 | 287,822 | **Veta** (6.1× vs Zod) |
+| Complex validation | **3,895,592** | 982,154 | 301,709 | 292,089 | 69,740 | **Veta** (4.0× vs Zod) |
+| Error handling | **1,185,866** | 808,015 | 739,754 | 555,571 | 215,765 | **Veta** (1.5× vs Zod) |
+| Coercion | **11,341,297** | 2,381,127 | 695,455 | — | 256,338 | **Veta** (4.8× vs Zod) |
 
 *ops/s — higher is better*
 
@@ -226,6 +226,9 @@ Joi.object({ name: Joi.string().min(2).max(100).required(), age: Joi.number().mi
 
 // Yup — simple validation
 yup.object({ name: yup.string().min(2).max(100).required(), age: yup.number().min(0).max(150).required(), active: yup.boolean().required() })
+
+// TypeBox — simple validation
+Value.Parse(Type.Object({ name: Type.String({ minLength: 2, maxLength: 100 }), age: Type.Number({ minimum: 0, maximum: 150 }), active: Type.Boolean() }), data)
 ```
 
 ```ts
@@ -417,7 +420,7 @@ bun run kvs-server:transport-overhead
 |---|---|
 | [velox](./src/velox) | static-value, validation |
 | [velox-ws-wire](./src/velox-ws-wire) | throughput, wire-size |
-| [veta](./src/veta) | vs-zod, coerce |
+| [veta](./src/veta) | vs, coerce |
 | [kvs](./src/kvs) | throughput, async-throughput |
 | [kvs-server](./src/kvs-server) | transport-overhead |
 | [msgpack](./src/msgpack) | throughput |

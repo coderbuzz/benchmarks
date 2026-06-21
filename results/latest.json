@@ -1,6 +1,6 @@
 {
   "meta": {
-    "date": "2026-06-20",
+    "date": "2026-06-21",
     "runtime": "Bun 1.3.14",
     "machine": "Apple Silicon (arm64)",
     "machineChip": "M-series",
@@ -58,10 +58,11 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/veta", "value": 20523522, "winner": true, "factorVsNext": 7.338 },
-        { "name": "Zod", "value": 2796538, "winner": false, "factorVsNext": 2.120 },
-        { "name": "Joi", "value": 1319125, "winner": false, "factorVsNext": 4.368 },
-        { "name": "Yup", "value": 302015, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 22596317, "winner": true, "factorVsNext": 6.053 },
+        { "name": "Zod", "value": 3733154, "winner": false, "factorVsNext": 2.523 },
+        { "name": "Joi", "value": 1479513, "winner": false, "factorVsNext": 1.116 },
+        { "name": "TypeBox", "value": 1325476, "winner": false, "factorVsNext": 4.605 },
+        { "name": "Yup", "value": 287822, "winner": false }
       ]
     },
     {
@@ -73,10 +74,11 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/veta", "value": 3221615, "winner": true, "factorVsNext": 3.483 },
-        { "name": "Zod", "value": 924793, "winner": false, "factorVsNext": 3.052 },
-        { "name": "Joi", "value": 302983, "winner": false, "factorVsNext": 4.818 },
-        { "name": "Yup", "value": 62882, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 3895592, "winner": true, "factorVsNext": 3.967 },
+        { "name": "Zod", "value": 982154, "winner": false, "factorVsNext": 3.255 },
+        { "name": "Joi", "value": 301709, "winner": false, "factorVsNext": 1.033 },
+        { "name": "TypeBox", "value": 292089, "winner": false, "factorVsNext": 4.188 },
+        { "name": "Yup", "value": 69740, "winner": false }
       ]
     },
     {
@@ -87,10 +89,11 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/veta", "value": 1238328, "winner": true, "factorVsNext": 1.485 },
-        { "name": "Zod", "value": 833937, "winner": false, "factorVsNext": 1.091 },
-        { "name": "Joi", "value": 764122, "winner": false, "factorVsNext": 3.507 },
-        { "name": "Yup", "value": 217887, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 1185866, "winner": true, "factorVsNext": 1.468 },
+        { "name": "Zod", "value": 808015, "winner": false, "factorVsNext": 1.092 },
+        { "name": "Joi", "value": 739754, "winner": false, "factorVsNext": 1.332 },
+        { "name": "TypeBox", "value": 555571, "winner": false, "factorVsNext": 2.575 },
+        { "name": "Yup", "value": 215765, "winner": false }
       ]
     },
     {
@@ -102,10 +105,10 @@
       "unit": "ops/s",
       "higherIsBetter": true,
       "entries": [
-        { "name": "@coderbuzz/veta", "value": 10239083, "winner": true, "factorVsNext": 4.746 },
-        { "name": "Zod", "value": 2157284, "winner": false, "factorVsNext": 3.267 },
-        { "name": "Joi", "value": 660375, "winner": false, "factorVsNext": 2.809 },
-        { "name": "Yup", "value": 235123, "winner": false }
+        { "name": "@coderbuzz/veta", "value": 11341297, "winner": true, "factorVsNext": 4.763 },
+        { "name": "Zod", "value": 2381127, "winner": false, "factorVsNext": 3.424 },
+        { "name": "Joi", "value": 695455, "winner": false, "factorVsNext": 2.713 },
+        { "name": "Yup", "value": 256338, "winner": false }
       ]
     },
     {

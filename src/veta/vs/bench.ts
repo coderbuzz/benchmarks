@@ -2,6 +2,8 @@ import { object, number, string, boolean, array, optional, coerce } from "@coder
 import { z } from "zod";
 import * as yup from "yup";
 import Joi from "joi";
+import { Type } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 const vetaSimple = object({
   name: string({ min: 2, max: 100 }),
@@ -25,6 +27,12 @@ const joiSimple = Joi.object({
   name: Joi.string().min(2).max(100).required(),
   age: Joi.number().min(0).max(150).required(),
   active: Joi.boolean().required(),
+});
+
+const typeboxSimple = Type.Object({
+  name: Type.String({ minLength: 2, maxLength: 100 }),
+  age: Type.Number({ minimum: 0, maximum: 150 }),
+  active: Type.Boolean(),
 });
 
 const vetaComplex = object({
@@ -83,6 +91,20 @@ const joiComplex = Joi.object({
   }).required(),
 });
 
+const typeboxComplex = Type.Object({
+  id: Type.Number(),
+  profile: Type.Object({
+    displayName: Type.String({ minLength: 2 }),
+    email: Type.String({ pattern: "@" }),
+    tags: Type.Array(Type.String()),
+    scores: Type.Array(Type.Number()),
+  }),
+  metadata: Type.Object({
+    createdAt: Type.String(),
+    updatedAt: Type.Optional(Type.String()),
+  }),
+});
+
 const simpleData = { name: "Alice", age: 30, active: true };
 const complexData = {
   id: "42",
@@ -106,7 +128,7 @@ function bench(label: string, fn: () => void, iterations = 100_000) {
 
 const SEP = "━".repeat(46);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ Veta vs Zod vs Yup vs Joi Validation Benchmark\x1b[0m`);
+console.log(`  \x1b[1m\x1b[36m◈ Validation Benchmark (Veta vs Zod / Yup / Joi / TypeBox)\x1b[0m`);
 console.log(`\x1b[36m${SEP}\x1b[0m`);
 
 console.log("\nSimple object (name, age, active):");
@@ -114,12 +136,14 @@ bench("Veta", () => vetaSimple(simpleData));
 bench("Zod", () => zodSimple.parse(simpleData));
 bench("Yup", () => yupSimple.validateSync(simpleData));
 bench("Joi", () => joiSimple.validate(simpleData));
+bench("TypeBox", () => Value.Parse(typeboxSimple, simpleData));
 
 console.log("\nComplex nested object with coercion:");
 bench("Veta", () => vetaComplex(complexData));
 bench("Zod", () => zodComplex.parse(complexData));
 bench("Yup", () => yupComplex.validateSync(complexData));
 bench("Joi", () => joiComplex.validate(complexData));
+bench("TypeBox", () => Value.Parse(typeboxComplex, Value.Convert(typeboxComplex, complexData)));
 
 console.log("\nError handling (invalid input):");
 const invalid = { name: "A", age: -1, active: "yes" };
@@ -127,3 +151,4 @@ bench("Veta throws", () => { try { vetaSimple(invalid); } catch {} });
 bench("Zod throws", () => { try { zodSimple.parse(invalid); } catch {} });
 bench("Yup throws", () => { try { yupSimple.validateSync(invalid); } catch {} });
 bench("Joi throws", () => { try { joiSimple.validate(invalid); } catch {} });
+bench("TypeBox throws", () => { try { Value.Parse(typeboxSimple, invalid); } catch {} });
