@@ -43,7 +43,7 @@ interface UsersRow {
 interface PostsRow { id: number; user_id: number; title: string | null }
 interface DB { users: UsersRow; posts: PostsRow }
 const kyDb = new Kysely<DB>({
-  dialect: new SqliteDialect({ database: new Database(":memory:") }),
+  dialect: new SqliteDialect({ database: new Database(":memory:") as any }),
 });
 
 // --- shared data ---
@@ -87,26 +87,26 @@ benchGroup("SELECT JOIN",
 benchGroup("INSERT single",
   ["@coderbuzz/sql", () => cbDb.insert_into("users").values([{ id: 1, name: "Alice" }]).toSQL()],
   ["drizzle-orm", () => dzDb.insert(users).values({ id: 1, name: "Alice" }).toSQL()],
-  ["kysely", () => kyDb.insertInto("users").values({ id: 1, name: "Alice" }).compile()],
+  ["kysely", () => kyDb.insertInto("users").values({ id: 1, name: "Alice" } as any).compile()],
 );
 
 // 4. INSERT batch (100 rows)
 benchGroup("INSERT batch 100",
   ["@coderbuzz/sql", () => cbDb.insert_into("users").values(batchRows).toSQL()],
   ["drizzle-orm", () => dzDb.insert(users).values(batchRows).toSQL()],
-  ["kysely", () => kyDb.insertInto("users").values(batchRows).compile()],
+  ["kysely", () => kyDb.insertInto("users").values(batchRows as any).compile()],
 );
 
 // 5. CTE
 const sq = dzDb.$with("active_users").as(
   dzDb.select().from(users).where(eq(users.active, true)),
 );
-const kyCte = kyDb.selectFrom("users").select(["id", "name"]).where("active", "=", 1).as("sq");
+const kyCte = (qb: any) => qb.selectFrom("users").select(["id", "name"]).where("active", "=", 1);
 
 benchGroup("CTE",
   [
     "@coderbuzz/sql",
-    () => cbDb.with("active", (q) =>
+    () => cbDb.with("active", (q: any) =>
       q.select("id", "name").from("users").where(sqlite.eq("active", true)),
     ).select("id", "name").from("active").toSQL(),
   ],
