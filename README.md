@@ -48,7 +48,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 ### KVS — Throughput
 
 | Operation | bun:sqlite | Async SQLite | Async PostgreSQL |
-|---|---|---|---|---|
+|---|---|---|---|
 | set('k', 'v') | 198,033 | 63,515 | 1,796 |
 | get() — hit | 1,198,124 | 138,270 | 10,947 |
 | get() — miss | 2,027,065 | 154,585 | 11,181 |
