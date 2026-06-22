@@ -7,7 +7,6 @@
     "veta:vs": "bash src/veta/vs/run.sh",
     "veta:coerce": "bash src/veta/coerce/run.sh",
     "kvs:throughput": "bash src/kvs/throughput/run.sh",
-    "kvs:async-throughput": "bash src/kvs/async-throughput/run.sh",
     "msgpack:throughput": "bash src/msgpack/throughput/run.sh",
     "proto:throughput": "bash src/proto/throughput/run.sh",
     "velox-ws-wire:throughput": "bash src/velox-ws-wire/throughput/run.sh",

@@ -45,27 +45,15 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 ---
 
-### KVS
+### KVS — Throughput
 
-| Operation | ops/s |
-|---|---|
-| set('k', 'v') | 198,720 |
-| get() — hit | 1,156,635 |
-| get() — miss | 1,931,481 |
-| delete() | 1,689,546 |
-| increment() | 138,163 |
-
----
-
-### KVS — Async Throughput
-
-| Operation | Sync SQLite | Async SQLite | Async PostgreSQL |
-|---|---|---|---|
-| set('k', 'v') | 205,747 | 65,001 | 1,621 |
-| get() — hit | 1,241,691 | 140,799 | 9,206 |
-| get() — miss | 2,140,495 | 155,489 | 8,491 |
-| delete() | 1,786,171 | 270,737 | 10,495 |
-| increment() | 162,501 | 43,183 | 1,621 |
+| Operation | bun:sqlite | Async SQLite | Async PostgreSQL |
+|---|---|---|---|---|
+| set('k', 'v') | 198,033 | 63,515 | 1,796 |
+| get() — hit | 1,198,124 | 138,270 | 10,947 |
+| get() — miss | 2,027,065 | 154,585 | 11,181 |
+| delete() | 1,782,730 | 269,875 | 11,609 |
+| increment() | 158,310 | 42,597 | 1,589 |
 
 ---
 
@@ -411,7 +399,7 @@ bash src/kvs-server/transport-overhead/run.sh
 bun run velox-ws-wire:throughput
 bun run velox-ws-wire:wire-size
 bun run sql:compile
-bun run kvs:async-throughput
+bun run kvs:throughput
 bun run kvs-server:transport-overhead
 ```
 
@@ -424,7 +412,7 @@ bun run kvs-server:transport-overhead
 | [velox](./src/velox) | static-value, validation |
 | [velox-ws-wire](./src/velox-ws-wire) | throughput, wire-size |
 | [veta](./src/veta) | vs, coerce |
-| [kvs](./src/kvs) | throughput, async-throughput |
+| [kvs](./src/kvs) | throughput |
 | [kvs-server](./src/kvs-server) | transport-overhead |
 | [msgpack](./src/msgpack) | throughput |
 | [proto](./src/proto) | throughput |
