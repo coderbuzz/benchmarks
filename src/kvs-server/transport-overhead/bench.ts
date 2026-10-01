@@ -1,127 +1,88 @@
 import { KVStore } from "@coderbuzz/kvs";
 import { createServer } from "@coderbuzz/kvs-server";
-import type { AppServer } from "@coderbuzz/velox";
+import { Recorder, bench, benchAsync, header, section } from "../../_lib/harness";
 
 const TOKEN = "bench-token";
-const SEP = "━".repeat(46);
-
-function fmtPct(part: number, total: number): string {
-  return `(${(part / total * 100).toFixed(1)}% of direct)`;
-}
 
 const store = new KVStore(":memory:");
 store.set(["direct-key"], "bench-value");
 
-const server: AppServer<{}> = createServer(store, {
+const server = createServer(store, {
   port: 0,
-  hostname: "localhost",
+  hostname: "127.0.0.1",
   accessToken: TOKEN,
 });
 const { port } = await server.run();
-const baseUrl = `http://localhost:${port}`;
-const wsUrl = `ws://localhost:${port}/ws?token=${TOKEN}`;
-
-async function benchNetwork(label: string, fn: () => Promise<void>, opsRef: number) {
-  const warmup = Math.min(100, opsRef > 0 ? Math.max(10, Math.round(opsRef / 1000)) : 50);
-  const iters = Math.max(50, Math.min(2000, Math.round(opsRef / 20)));
-  for (let i = 0; i < Math.min(warmup, iters); i++) await fn();
-  const start = performance.now();
-  for (let i = 0; i < iters; i++) await fn();
-  const elapsed = performance.now() - start;
-  const ops = Math.round((iters / elapsed) * 1000);
-  const pct = opsRef > 0 ? fmtPct(ops, opsRef) : "";
-  console.log(`  ${label}: ${ops.toLocaleString()} ops/s  ${pct}`);
-}
+const baseUrl = `http://127.0.0.1:${port}`;
+const wsUrl = `ws://127.0.0.1:${port}/ws?token=${TOKEN}`;
 
 const authHeaders = {
   Authorization: `Bearer ${TOKEN}`,
   "Content-Type": "application/json",
 };
 
-async function httpSet() {
-  await fetch(`${baseUrl}/kv/set`, {
-    method: "POST",
-    headers: authHeaders,
-    body: JSON.stringify({ key: ["k"], value: "v" }),
-  });
+// Bodies are always consumed (keep-alive reuse) and every response is checked:
+// a benchmark that measures 401s or "Unknown method" errors is meaningless.
+async function http(path: string, body: unknown) {
+  const res = await fetch(`${baseUrl}${path}`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${path} → ${res.status}: ${text}`);
+  return text;
 }
 
-async function httpGet() {
-  await fetch(`${baseUrl}/kv/get`, {
-    method: "POST",
-    headers: authHeaders,
-    body: JSON.stringify({ key: ["direct-key"] }),
-  });
-}
-
-// WS setup
+// --- WS JSON-RPC (token in the query string authenticates the socket) ---
 const ws = new WebSocket(wsUrl);
-await new Promise<void>((resolve) => {
+await new Promise<void>((resolve, reject) => {
   ws.onopen = () => resolve();
-  ws.onerror = (e) => { console.error("WS error", e); resolve(); };
+  ws.onerror = () => reject(new Error("WS connection failed"));
 });
 
 let msgId = 0;
-const resolvers = new Map<number, (v: any) => void>();
+const pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
 ws.onmessage = (event: MessageEvent) => {
   const msg = JSON.parse(event.data as string);
-  const resolve = resolvers.get(msg.id);
-  if (resolve) {
-    resolvers.delete(msg.id);
-    resolve(msg.result ?? msg.error);
-  }
+  const p = pending.get(msg.id);
+  if (!p) return;
+  pending.delete(msg.id);
+  if (msg.error) p.reject(new Error(`WS RPC error: ${msg.error}`));
+  else p.resolve(msg.result);
 };
 
-function wsRpc(method: string, params: any): Promise<any> {
+function wsRpc(method: string, params: unknown): Promise<unknown> {
   const id = ++msgId;
-  return new Promise((resolve) => {
-    resolvers.set(id, resolve);
+  return new Promise((resolve, reject) => {
+    pending.set(id, { resolve, reject });
     ws.send(JSON.stringify({ id, method, params }));
   });
 }
 
-// Warmup WS auth
-await wsRpc("auth", { token: TOKEN });
+// Sanity
+const httpHit = JSON.parse(await http("/kv/get", { key: ["direct-key"] }));
+if (httpHit?.entry?.value !== "bench-value") throw new Error(`[sanity] HTTP get: ${JSON.stringify(httpHit)}`);
+const wsHit: any = await wsRpc("/kv/get", { key: ["direct-key"] });
+if (wsHit?.entry?.value !== "bench-value") throw new Error(`[sanity] WS get: ${JSON.stringify(wsHit)}`);
 
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ KVS Server Transport Overhead Benchmark\x1b[0m`);
-console.log(`  \x1b[2mKVS direct vs HTTP REST vs WS RPC\x1b[0m`);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
+const rec = new Recorder("kvs-server");
+header("KVS Server Transport Overhead Benchmark", "KVS direct vs WS RPC vs HTTP REST (sequential, 1 client)");
+const common = { library: "@coderbuzz/kvs-server", group: "KVS Server", type: "throughput", unit: "ops/s", higherIsBetter: true } as const;
 
-// --- Measure direct first ---
-let setDirectOps: number, getDirectOps: number;
+section("set('k', 'v'):");
+const set = rec.suite({ ...common, id: "kvs-server-set", row: "set('k','v')",
+  description: "set(k, v) throughput: KVS direct vs WS RPC vs HTTP REST",
+  code: "store.set(['k'], 'v') | wsRpc('/kv/set', ...) | fetch(POST /kv/set)" });
+set.add("KVS direct", bench("KVS direct", () => store.set(["k"], "v")));
+set.add("WS RPC", await benchAsync("WS RPC", () => wsRpc("/kv/set", { key: ["k"], value: "v" })));
+set.add("HTTP REST", await benchAsync("HTTP REST", () => http("/kv/set", { key: ["k"], value: "v" })));
 
-// set direct
-store.set(["s"], 0);
-{
-  for (let i = 0; i < 1000; i++) store.set(["s"], "v");
-  const t0 = performance.now();
-  for (let i = 0; i < 50000; i++) store.set(["s"], "v");
-  const elapsed = performance.now() - t0;
-  setDirectOps = Math.round((50000 / elapsed) * 1000);
-}
+section("get('k') — hit:");
+const get = rec.suite({ ...common, id: "kvs-server-get", row: "get('k') hit",
+  description: "get(k) throughput: KVS direct vs WS RPC vs HTTP REST",
+  code: "store.get(['k']) | wsRpc('/kv/get', ...) | fetch(POST /kv/get)" });
+get.add("KVS direct", bench("KVS direct", () => store.get(["direct-key"])));
+get.add("WS RPC", await benchAsync("WS RPC", () => wsRpc("/kv/get", { key: ["direct-key"] })));
+get.add("HTTP REST", await benchAsync("HTTP REST", () => http("/kv/get", { key: ["direct-key"] })));
 
-// get direct
-store.set(["g"], 1);
-{
-  for (let i = 0; i < 1000; i++) store.get(["g"]);
-  const t0 = performance.now();
-  for (let i = 0; i < 50000; i++) store.get(["g"]);
-  const elapsed = performance.now() - t0;
-  getDirectOps = Math.round((50000 / elapsed) * 1000);
-}
-
-console.log("\nset('k','v'):");
-console.log(`  KVS direct:      ${setDirectOps.toLocaleString()} ops/s`);
-await benchNetwork("KVS HTTP REST", httpSet, setDirectOps);
-await benchNetwork("KVS WS RPC", () => wsRpc("kv/set", { key: ["k"], value: "v" }), setDirectOps);
-
-console.log("\nget('k') — hit:");
-console.log(`  KVS direct:      ${getDirectOps.toLocaleString()} ops/s`);
-await benchNetwork("KVS HTTP REST", httpGet, getDirectOps);
-await benchNetwork("KVS WS RPC", () => wsRpc("kv/get", { key: ["direct-key"] }), getDirectOps);
-
-// Cleanup
 ws.close();
 await server.stop();
 store.close();
+rec.save();

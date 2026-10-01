@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { tbValidator } from "@hono/typebox-validator";
-import { Type as t } from "@sinclair/typebox";
+import t from "typebox";
 
 const body = t.Object({
   someKey: t.Optional(t.String()),

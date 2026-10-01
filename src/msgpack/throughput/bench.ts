@@ -1,5 +1,6 @@
 import { encode, decode } from "@coderbuzz/msgpack";
 import { encode as mpEncode, decode as mpDecode } from "@msgpack/msgpack";
+import { Recorder, bench, expectOk, header, section } from "../../_lib/harness";
 
 const obj = {
   id: 42,
@@ -7,7 +8,7 @@ const obj = {
   active: true,
   tags: ["admin", "user", "moderator"],
   metadata: {
-    createdAt: new Date().toISOString(),
+    createdAt: "2026-01-01T00:00:00.000Z",
     score: 95.5,
   },
   nested: { a: { b: { c: [1, 2, 3, 4, 5] } } },
@@ -17,41 +18,39 @@ const json = JSON.stringify(obj);
 const buf = encode(obj);
 const mpBuf = mpEncode(obj);
 
-function bench(label: string, fn: () => void, iterations = 50_000) {
-  for (let i = 0; i < 1000; i++) fn();
-  const start = performance.now();
-  for (let i = 0; i < iterations; i++) fn();
-  const elapsed = performance.now() - start;
-  const ops = Math.round((iterations / elapsed) * 1000);
-  console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
+const roundTrips = (v: unknown) => JSON.stringify(v) === json;
+expectOk("@coderbuzz/msgpack round-trip", () => decode(buf), roundTrips);
+expectOk("@msgpack/msgpack round-trip", () => mpDecode(mpBuf), roundTrips);
+expectOk("cross-decode", () => mpDecode(buf), roundTrips);
+
+const rec = new Recorder("msgpack");
+header("Msgpack Throughput Benchmark", "nested object encode / decode + wire size");
+const common = { library: "@coderbuzz/msgpack", group: "Msgpack" } as const;
+
+section("Encode:");
+const enc = rec.suite({ ...common, id: "msgpack-encode", row: "Encode (ops/s)", type: "throughput",
+  description: "Nested object to bytes/string", code: "encode(obj)", unit: "ops/s", higherIsBetter: true });
+enc.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => encode(obj)));
+enc.add("JSON", bench("JSON.stringify", () => JSON.stringify(obj)));
+enc.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpEncode(obj)));
+
+section("Decode:");
+const dec = rec.suite({ ...common, id: "msgpack-decode", row: "Decode (ops/s)", type: "throughput",
+  description: "Bytes/string to object", code: "decode(buf)", unit: "ops/s", higherIsBetter: true });
+dec.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => decode(buf)));
+dec.add("JSON", bench("JSON.parse", () => JSON.parse(json)));
+dec.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpDecode(mpBuf)));
+
+section("Wire size:");
+const wire = rec.suite({ ...common, id: "msgpack-wire", row: "Wire size (bytes)", type: "wire-size",
+  description: "Serialized byte size for nested object", code: "encode(obj).length", unit: "bytes", higherIsBetter: false });
+for (const [name, bytes] of [
+  ["@coderbuzz/msgpack", buf.length],
+  ["JSON", Buffer.byteLength(json)],
+  ["@msgpack/msgpack", mpBuf.length],
+] as const) {
+  console.log(`  ${name.padEnd(28)} ${String(bytes).padStart(6)} B`);
+  wire.add(name, bytes);
 }
 
-const SEP = "━".repeat(46);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ Msgpack Throughput Benchmark\x1b[0m`);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-
-console.log("\nEncode:");
-bench("JSON.stringify",       () => JSON.stringify(obj));
-bench("msgpack encode",       () => encode(obj));
-bench("@msgpack/msgpack",     () => mpEncode(obj));
-
-console.log("\nDecode:");
-bench("JSON.parse",           () => JSON.parse(json));
-bench("msgpack decode",       () => decode(buf));
-bench("@msgpack/msgpack",     () => mpDecode(mpBuf));
-
-const jsonBytes = Buffer.from(json).length;
-const msgpackBytes = Buffer.from(buf).length;
-const mpMsgpackBytes = Buffer.from(mpBuf).length;
-const vsJson = ((1 - msgpackBytes / jsonBytes) * 100).toFixed(0);
-const vsMp = ((1 - msgpackBytes / mpMsgpackBytes) * 100).toFixed(0);
-console.log("\nWire size:");
-console.log(`  ┌──────────────────────┬──────────┬──────────┐`);
-console.log(`  │ Library              │   Bytes  │    Size  │`);
-console.log(`  ├──────────────────────┼──────────┼──────────┤`);
-console.log(`  │ JSON                 │ ${String(jsonBytes).padStart(7)} │ ${(jsonBytes / 1024).toFixed(2)} KB │`);
-console.log(`  │ msgpack              │ ${String(msgpackBytes).padStart(7)} │ ${(msgpackBytes / 1024).toFixed(2)} KB │`);
-console.log(`  │ @msgpack/msgpack     │ ${String(mpMsgpackBytes).padStart(7)} │ ${(mpMsgpackBytes / 1024).toFixed(2)} KB │`);
-console.log(`  └──────────────────────┴──────────┴──────────┘`);
-console.log(`  msgpack saves ${vsJson}% vs JSON, ${vsMp}% vs @msgpack/msgpack`);
+rec.save();

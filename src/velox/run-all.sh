@@ -1,17 +1,8 @@
 #!/bin/bash
+# All Velox HTTP benchmarks: static value, dynamic handler, validation.
 set -e
-BOLD='\033[1m'
-CYAN='\033[36m'
-GREEN='\033[32m'
-RESET='\033[0m'
-SEP="${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-
-echo -e "$SEP"
-echo -e "  ${BOLD}${CYAN}⚡ Velox Benchmark Suite${RESET}"
-echo -e "$SEP"
-echo ""
-bash src/velox/static-value/run.sh
-echo ""
-bash src/velox/validation/run.sh
-echo ""
-echo -e "${GREEN}✓ All Velox benchmarks complete${RESET}"
+cd "$(dirname "$0")/../.."
+for scenario in static-value dynamic validation; do
+  bun src/velox/http-bench.ts "$scenario"
+  echo ""
+done

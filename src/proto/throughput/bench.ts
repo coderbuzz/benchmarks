@@ -2,6 +2,7 @@ import { object, string, number, boolean, array } from "@coderbuzz/veta";
 import { proto } from "@coderbuzz/proto";
 import { encode as msgpackEncode, decode as msgpackDecode } from "@coderbuzz/msgpack";
 import { encode as mpEncode, decode as mpDecode } from "@msgpack/msgpack";
+import { Recorder, bench, expectOk, header, section } from "../../_lib/harness";
 
 const schema = object({
   id: number(),
@@ -20,7 +21,7 @@ const obj = {
   name: "Alice",
   active: true,
   tags: ["admin", "user", "moderator"],
-  metadata: { createdAt: new Date().toISOString(), score: 95.5 },
+  metadata: { createdAt: "2026-01-01T00:00:00.000Z", score: 95.5 },
 };
 
 const json = JSON.stringify(obj);
@@ -28,45 +29,42 @@ const protoBuf = codec.encode(obj);
 const cbBuf = msgpackEncode(obj);
 const mpBuf = mpEncode(obj);
 
-function bench(label: string, fn: () => void, iterations = 50_000) {
-  for (let i = 0; i < 1000; i++) fn();
-  const start = performance.now();
-  for (let i = 0; i < iterations; i++) fn();
-  const elapsed = performance.now() - start;
-  const ops = Math.round((iterations / elapsed) * 1000);
-  console.log(`  ${label}: ${ops.toLocaleString()} ops/s`);
+const roundTrips = (v: unknown) => JSON.stringify(v) === json;
+expectOk("proto round-trip", () => codec.decode(protoBuf), roundTrips);
+expectOk("@coderbuzz/msgpack round-trip", () => msgpackDecode(cbBuf), roundTrips);
+expectOk("@msgpack/msgpack round-trip", () => mpDecode(mpBuf), roundTrips);
+
+const rec = new Recorder("proto");
+header("Proto Throughput Benchmark", "schema-compiled binary codec vs msgpack vs JSON");
+const common = { library: "@coderbuzz/proto", group: "Proto" } as const;
+
+section("Encode:");
+const enc = rec.suite({ ...common, id: "proto-encode", row: "Encode (ops/s)", type: "throughput",
+  description: "Binary codec compiled from a veta schema (no field names, no tags)", code: "codec.encode(obj)", unit: "ops/s", higherIsBetter: true });
+enc.add("@coderbuzz/proto", bench("proto encode", () => codec.encode(obj)));
+enc.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => msgpackEncode(obj)));
+enc.add("JSON", bench("JSON.stringify", () => JSON.stringify(obj)));
+enc.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpEncode(obj)));
+
+section("Decode:");
+const dec = rec.suite({ ...common, id: "proto-decode", row: "Decode (ops/s)", type: "throughput",
+  description: "Binary codec decode from a veta schema", code: "codec.decode(buf)", unit: "ops/s", higherIsBetter: true });
+dec.add("@coderbuzz/proto", bench("proto decode", () => codec.decode(protoBuf)));
+dec.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => msgpackDecode(cbBuf)));
+dec.add("JSON", bench("JSON.parse", () => JSON.parse(json)));
+dec.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpDecode(mpBuf)));
+
+section("Wire size:");
+const wire = rec.suite({ ...common, id: "proto-wire", row: "Wire size (bytes)", type: "wire-size",
+  description: "Serialized byte size", code: "codec.encode(obj).length", unit: "bytes", higherIsBetter: false });
+for (const [name, bytes] of [
+  ["@coderbuzz/proto", protoBuf.length],
+  ["@coderbuzz/msgpack", cbBuf.length],
+  ["JSON", Buffer.byteLength(json)],
+  ["@msgpack/msgpack", mpBuf.length],
+] as const) {
+  console.log(`  ${name.padEnd(28)} ${String(bytes).padStart(6)} B`);
+  wire.add(name, bytes);
 }
 
-const SEP = "━".repeat(46);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ Proto Throughput Benchmark\x1b[0m`);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-
-console.log("\nEncode:");
-bench("JSON.stringify",       () => JSON.stringify(obj));
-bench("proto encode",         () => codec.encode(obj));
-bench("@coderbuzz/msgpack",   () => msgpackEncode(obj));
-bench("@msgpack/msgpack",     () => mpEncode(obj));
-
-console.log("\nDecode:");
-bench("JSON.parse",           () => JSON.parse(json));
-bench("proto decode",         () => codec.decode(protoBuf));
-bench("@coderbuzz/msgpack",   () => msgpackDecode(cbBuf));
-bench("@msgpack/msgpack",     () => mpDecode(mpBuf));
-
-const jsonBytes = Buffer.from(json).length;
-const protoBytes = Buffer.from(protoBuf).length;
-const cbMsgpackBytes = Buffer.from(cbBuf).length;
-const mpMsgpackBytes = Buffer.from(mpBuf).length;
-const vsJson = ((1 - protoBytes / jsonBytes) * 100).toFixed(0);
-const vsMp = ((1 - protoBytes / cbMsgpackBytes) * 100).toFixed(0);
-console.log("\nWire size:");
-console.log(`  ┌──────────────────────┬──────────┬──────────┐`);
-console.log(`  │ Library              │   Bytes  │    Size  │`);
-console.log(`  ├──────────────────────┼──────────┼──────────┤`);
-console.log(`  │ JSON                 │ ${String(jsonBytes).padStart(7)} │ ${(jsonBytes / 1024).toFixed(2)} KB │`);
-console.log(`  │ proto                │ ${String(protoBytes).padStart(7)} │ ${(protoBytes / 1024).toFixed(2)} KB │`);
-console.log(`  │ @coderbuzz/msgpack   │ ${String(cbMsgpackBytes).padStart(7)} │ ${(cbMsgpackBytes / 1024).toFixed(2)} KB │`);
-console.log(`  │ @msgpack/msgpack     │ ${String(mpMsgpackBytes).padStart(7)} │ ${(mpMsgpackBytes / 1024).toFixed(2)} KB │`);
-console.log(`  └──────────────────────┴──────────┴──────────┘`);
-console.log(`  proto saves ${vsJson}% vs JSON, ${vsMp}% vs @coderbuzz/msgpack`);
+rec.save();

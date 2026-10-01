@@ -6,15 +6,19 @@ Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime, Apple Silicon.
 
 ```
 bun install
-bun run velox:static                      # single via npm script
-bash src/velox/static-value/run.sh        # same, using oha directly
-bash src/velox/run-all.sh                 # all velox (static + validation only, NOT dynamic)
+bun run bench:all                         # everything + rebuild results/latest.json and README tables
+bun run velox:static                      # single benchmark → results/raw/<name>.json
+bash src/velox/static-value/run.sh        # same
+bash src/velox/run-all.sh                 # all velox HTTP: static-value, dynamic, validation
 WRK=1 bash src/velox/static-value/run.sh  # use wrk instead of oha
+bun run results:build                     # results/raw/*.json → latest.json, <date>.json, README tables
+bun run typecheck
 ```
 
 Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 
 `oha` is NOT in `package.json` — must be pre-installed. `WRK=1` env var switches to `wrk`.
+`bun.lock` is committed: results must be reproducible against exact versions.
 
 ## PostgreSQL dependency
 
@@ -35,39 +39,49 @@ Benchmark auto-skips PG if unavailable.
 
 ## BENCHMARKS
 
-| Sub-benchmark | Cmd | Tool | Notes |
+| Sub-benchmark | Cmd | Raw file | Notes |
 |---|---|---|---|
-| Velox static-value | `bun run velox:static` | `oha -c 100 -z 10s` | GET /hello, inline JSON, 4 frameworks |
-| Velox validation | `bun run velox:validation` | `oha -c 100 -z 10s` | POST /hello/:par1/:par2, 4 frameworks |
-| Velox dynamic | `bash src/velox/dynamic/run.sh` | `oha -c 100 -z 10s` | GET /hello, callback fn, 4 frameworks. NOT in run-all or npm scripts |
-| Veta vs | `bun run veta:vs` | `bun bench.ts` | simple/complex/error, 5 libs |
-| Veta coerce | `bun run veta:coerce` | `bun bench.ts` | string→number/boolean/date |
-| KVS throughput | `bun run kvs:throughput` | `bun bench.ts` | set/get/delete/increment, 3 backends: bun:sqlite, async SQLite, async PostgreSQL |
-| Msgpack throughput | `bun run msgpack:throughput` | `bun bench.ts` | encode/decode + wire size |
-| Proto throughput | `bun run proto:throughput` | `bun bench.ts` | encode/decode + wire size |
-
-All npm scripts: `bun run velox:static`, `velox:validation`, `veta:vs`, `veta:coerce`, `kvs:throughput`, `msgpack:throughput`, `proto:throughput`.
+| Velox static-value | `bun run velox:static` | `velox-static-value` | GET /hello, inline JSON, 4 frameworks |
+| Velox dynamic | `bun run velox:dynamic` | `velox-dynamic` | GET /hello, handler fn, 4 frameworks |
+| Velox validation | `bun run velox:validation` | `velox-validation` | POST /hello/:par1/:par2, 4 frameworks |
+| Veta vs | `bun run veta:vs` | `veta-vs` | simple/complex/error, 5 libs |
+| Veta coerce | `bun run veta:coerce` | `veta-coerce` | string→number/boolean/date |
+| KVS throughput | `bun run kvs:throughput` | `kvs` | set/get/delete/increment × bun:sqlite, async SQLite, async PostgreSQL |
+| Msgpack throughput | `bun run msgpack:throughput` | `msgpack` | encode/decode + wire size |
+| Proto throughput | `bun run proto:throughput` | `proto` | encode/decode + wire size |
+| WS wire throughput | `bun run velox-ws-wire:throughput` | `velox-ws-wire-throughput` | per frame type, wire vs JSON |
+| WS wire size | `bun run velox-ws-wire:wire-size` | `velox-ws-wire-size` | per frame type |
+| SQL compile | `bun run sql:compile` | `sql-compile` | @coderbuzz/sql vs Kysely vs Drizzle |
+| KVS server | `bun run kvs-server:transport-overhead` | `kvs-server` | direct vs WS RPC vs HTTP REST |
 
 ## METHODOLOGY (MANDATORY)
 
-- 3 runs per benchmark, take best result.
-- Variance up to 8% between runs. Warmup matters.
-- HTTP: `oha -c 100 -z 10s`. Throughput: 50k–100k iterations after 1k warmup (`performance.now()`).
-- Machine: Apple Silicon, Bun 1.3.x.
+- HTTP (`src/velox/http-bench.ts`): `oha -c 100`, 3 s warmup, 3 × 10 s runs, best taken. `NODE_ENV=production`.
+  Before load, each server must answer `200 {"message":"Hello, World"}` and (validation) reject invalid input.
+  Any non-2xx during a run fails it.
+- Micro-benchmarks (`src/_lib/harness.ts`): 1k warmup calls, iterations calibrated to ~300 ms per round,
+  3 rounds, best taken. Results go to a sink (no dead-code elimination). Each file runs sanity checks first.
+- Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
+- New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
+  `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
+- Variance up to 8% between runs. Machine: Apple Silicon, Bun 1.4.x.
 
 ## RESULTS
 
-Two formats, two audiences:
+Two formats, two audiences, one source (`results/raw/*.json`, gitignored):
 
 | Format | Audience | Location |
 |---|---|---|
-| JSON | AI agents | `results/latest.json` |
-| Markdown | humans | `README.md` |
+| JSON | AI agents | `results/latest.json` (+ `results/<YYYY-MM-DD>.json`) |
+| Markdown | humans | `README.md` block between `<!-- results:start -->` / `<!-- results:end -->` |
 
+- Both are generated by `bun run results:build`. NEVER hand-edit numbers in either.
 - AI agents MUST read `results/latest.json`. DO NOT parse the README for data.
-- After any README.md edit, VALIDATE markdown tables: header columns count must match separator dashes count. Run `grep -n '^|' README.md | head -30` and manually verify column alignment.
-- Every JSON entry includes: `winner: bool`, `factorVsNext`, `higherIsBetter`, `code`.
-- Historical: `results/<YYYY-MM-DD>.json`.
+- After any manual README.md edit outside the generated block, VALIDATE markdown tables: header column
+  count must match separator count (`grep -n '^|' README.md`).
+- `meta.schemaVersion: 2`. Every suite has `id`, `group`, `row`, `code`, `unit`, `higherIsBetter`; every entry
+  has `winner`, `factorVsNext` (`null` for last), `factorVsBest`.
+- Suites compare like with like: one suite per operation (e.g. `kvs-set`, `velox-ws-wire-ping-encode`).
 - Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'veta-simple').entries.find(e => e.winner)`.
 
 ## GIT WORKFLOW (MANDATORY)
@@ -82,16 +96,22 @@ Two formats, two audiences:
 ## FILE LAYOUT
 
 ```
-results/                   # JSON (latest.json + dated historical)
+results/                   # latest.json + dated historical; raw/ is gitignored scratch
+scripts/
+├── build-results.ts       # raw → latest.json, <date>.json, README tables
+└── run-all.sh             # bun run bench:all
 src/
+├── _lib/harness.ts        # bench/benchAsync, sanity checks, Recorder
 ├── velox/
+│   ├── http-bench.ts       # HTTP runner (oha/wrk) for the three scenarios
 │   ├── static-value/       # GET /hello inline (pre-compiled route)
-│   ├── validation/         # POST /hello/:par1/:par2 with validation
-│   └── dynamic/            # GET /hello callback fn — 4 frameworks, NOT in run-all
-├── veta/
-│   ├── vs/bench.ts         # simple/complex/error validation
-│   └── coerce/bench.ts     # string→number/boolean/date
-├── kvs/throughput/bench.ts # set/get/delete/increment (bun:sqlite + async SQLite + PG async)
-├── msgpack/throughput/bench.ts # encode/decode + wire size
-└── proto/throughput/bench.ts   # encode/decode + wire size
+│   ├── dynamic/            # GET /hello callback fn
+│   └── validation/         # POST /hello/:par1/:par2 with validation
+├── veta/{vs,coerce}/bench.ts
+├── kvs/throughput/bench.ts
+├── kvs-server/transport-overhead/bench.ts
+├── msgpack/throughput/bench.ts
+├── proto/throughput/bench.ts
+├── sql/compile/bench.ts
+└── velox-ws-wire/{frames.ts,throughput,wire-size}
 ```
