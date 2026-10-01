@@ -1,5 +1,6 @@
 import { KVStore, AsyncKVStore } from "@coderbuzz/kvs";
 import { SQL } from "bun";
+import { Recorder, bench, benchAsync, color, expectOk, header, section } from "../../_lib/harness";
 
 const PG_URL = `postgres://${process.env.PG_USER ?? "testuser"}:${process.env.PG_PASS ?? "testpw"}@${process.env.PG_HOST ?? "localhost"}:${process.env.PG_PORT ?? 5432}/${process.env.PG_DB ?? "sql_test"}`;
 
@@ -12,131 +13,82 @@ async function isPostgresUp(): Promise<boolean> {
   } catch { return false; }
 }
 
-function benchSync(label: string, fn: () => void, iterations = 50_000) {
-  for (let i = 0; i < 1000; i++) fn();
-  const start = performance.now();
-  for (let i = 0; i < iterations; i++) fn();
-  const elapsed = performance.now() - start;
-  console.log(`  ${label}: ${Math.round((iterations / elapsed) * 1000).toLocaleString()} ops/s`);
-}
+// Delete benchmarks remove keys that exist: each round re-populates exactly as many
+// keys as it deletes (outside the timed region). Iteration counts are fixed per backend.
+const DELETE_ITERATIONS = { sync: 50_000, sqlite: 20_000, pg: 5_000 };
 
-async function benchAsync(label: string, fn: () => Promise<unknown>, iterations = 20_000) {
-  for (let i = 0; i < 500; i++) await fn();
-  const start = performance.now();
-  for (let i = 0; i < iterations; i++) await fn();
-  const elapsed = performance.now() - start;
-  console.log(`  ${label}: ${Math.round((iterations / elapsed) * 1000).toLocaleString()} ops/s`);
-}
-
-const SEP = "━".repeat(46);
+const rec = new Recorder("kvs");
+const OPS = [
+  ["set", "set('k', 'v')", "store.set(['k'], 'v')"],
+  ["get-hit", "get() — hit", "store.get(['x'])"],
+  ["get-miss", "get() — miss", "store.get(['nope'])"],
+  ["delete", "delete()", "store.delete(['del', i])  // key exists"],
+  ["increment", "increment()", "store.set(['counter'], (store.get(['counter'])?.value ?? 0) + 1)"],
+] as const;
+const suites = Object.fromEntries(OPS.map(([id, row, code]) => [id, rec.suite({
+  id: `kvs-${id}`, group: "KVS", row, library: "@coderbuzz/kvs", type: "throughput",
+  description: `${row} throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)`,
+  code, unit: "ops/s", higherIsBetter: true,
+})])) as Record<(typeof OPS)[number][0], ReturnType<typeof rec.suite>>;
 
 async function main() {
+  header("KVS Throughput Benchmark", "@coderbuzz/kvs — bun:sqlite · Async SQLite · Async PostgreSQL");
+
+  // --- bun:sqlite (sync) ---
   const syncStore = new KVStore(":memory:");
-  const asyncSqlite = new AsyncKVStore(":memory:");
-  const pgUp = await isPostgresUp();
-  let asyncPg: AsyncKVStore | null = null;
-  if (pgUp) {
-    asyncPg = new AsyncKVStore(PG_URL);
-    await asyncPg.reset();
-  }
-
-  console.log(`\x1b[36m${SEP}\x1b[0m`);
-  console.log(`  \x1b[1m\x1b[36m◈ KVS Throughput Benchmark\x1b[0m`);
-  console.log(`  \x1b[2m@coderbuzz/kvs — bun:sqlite · Async SQLite · Async PostgreSQL\x1b[0m`);
-  console.log(`\x1b[36m${SEP}\x1b[0m`);
-
-  console.log(`\n  \x1b[1m── bun:sqlite ──\x1b[0m`);
-
-  console.log("\nset('k', 'v'):");
-  benchSync("  set", () => syncStore.set(["k"], "v"));
-
-  console.log("\nget() — hit:");
   syncStore.set(["x"], 1);
-  benchSync("  get", () => syncStore.get(["x"]));
+  expectOk("sync get hit", () => syncStore.get(["x"]), (e: any) => e?.value === 1);
+  expectOk("sync get miss", () => syncStore.get(["nope"]), (e: any) => !e || e.value == null);
 
-  console.log("\nget() — miss:");
-  benchSync("  miss", () => syncStore.get(["nope"]));
-
-  console.log("\ndelete():");
-  for (let i = 0; i < 500; i++) syncStore.set(["del-" + i], i);
-  let di = 0;
-  const maxDi = 500;
-  benchSync("  delete", () => {
-    syncStore.delete(["del-" + di]);
-    di = (di + 1) % maxDi;
-  });
-
-  console.log("\nincrement():");
+  section("── bun:sqlite (KVStore) ──");
+  const SYNC = "bun:sqlite";
+  suites.set.add(SYNC, bench("set", () => syncStore.set(["k"], "v")));
+  suites["get-hit"].add(SYNC, bench("get hit", () => syncStore.get(["x"])));
+  suites["get-miss"].add(SYNC, bench("get miss", () => syncStore.get(["nope"])));
+  suites.delete.add(SYNC, bench("delete", (i) => syncStore.delete(["del", i]), {
+    iterations: DELETE_ITERATIONS.sync,
+    beforeRound: (n) => { for (let i = 0; i < n; i++) syncStore.set(["del", i], i); },
+  }));
   syncStore.set(["counter"], 0);
-  benchSync("  increment", () => {
+  suites.increment.add(SYNC, bench("increment", () => {
     const entry = syncStore.get(["counter"]);
-    syncStore.set(["counter"], ((entry?.value as number) ?? 0) + 1);
-  });
+    return syncStore.set(["counter"], ((entry?.value as number) ?? 0) + 1);
+  }));
+  syncStore.close();
 
-  console.log(`\n  \x1b[1m── Async SQLite ──\x1b[0m`);
-
-  console.log("\nset('k', 'v'):");
-  await benchAsync("  set", () => asyncSqlite.set(["k"], "v"));
-
-  console.log("\nget() — hit:");
-  await asyncSqlite.set(["x"], 1);
-  await benchAsync("  get", () => asyncSqlite.get(["x"]));
-
-  console.log("\nget() — miss:");
-  await benchAsync("  miss", () => asyncSqlite.get(["nope"]));
-
-  console.log("\ndelete():");
-  for (let i = 0; i < 500; i++) await asyncSqlite.set(["del-" + i], i);
-  let di2 = 0;
-  const maxDi2 = 500;
-  await benchAsync("  delete", async () => {
-    await asyncSqlite.delete(["del-" + di2]);
-    di2 = (di2 + 1) % maxDi2;
-  });
-
-  console.log("\nincrement():");
-  await asyncSqlite.set(["counter"], 0);
-  await benchAsync("  increment", async () => {
-    const entry = await asyncSqlite.get(["counter"]);
-    await asyncSqlite.set(["counter"], ((entry?.value as number) ?? 0) + 1);
-  });
-
-  if (asyncPg) {
-    const pg = asyncPg;
-    console.log(`\n  \x1b[1m── Async PostgreSQL ──\x1b[0m`);
-
-    console.log("\nset('k', 'v'):");
-    await benchAsync("  set", () => pg.set(["k"], "v"));
-
-    console.log("\nget() — hit:");
-    await pg.set(["x"], 1);
-    await benchAsync("  get", () => pg.get(["x"]));
-
-    console.log("\nget() — miss:");
-    await benchAsync("  miss", () => pg.get(["nope"]));
-
-    console.log("\ndelete():");
-    for (let i = 0; i < 500; i++) await pg.set(["del-" + i], i);
-    let di3 = 0;
-    const maxDi3 = 500;
-    await benchAsync("  delete", async () => {
-      await pg.delete(["del-" + di3]);
-      di3 = (di3 + 1) % maxDi3;
-    });
-
-    console.log("\nincrement():");
-    await pg.set(["counter"], 0);
-    await benchAsync("  increment", async () => {
-      const entry = await pg.get(["counter"]);
-      await pg.set(["counter"], ((entry?.value as number) ?? 0) + 1);
-    });
-  } else {
-    console.log(`\n  \x1b[33m⚠ PostgreSQL not available — skipping\x1b[0m`);
+  // --- async backends ---
+  const backends: [string, string, AsyncKVStore, number][] = [
+    ["Async SQLite", "── Async SQLite (AsyncKVStore) ──", new AsyncKVStore(":memory:"), DELETE_ITERATIONS.sqlite],
+  ];
+  if (await isPostgresUp()) {
+    const pg = new AsyncKVStore(PG_URL);
+    await pg.reset();
+    backends.push(["Async PostgreSQL", "── Async PostgreSQL (AsyncKVStore) ──", pg, DELETE_ITERATIONS.pg]);
   }
 
-  syncStore.close();
-  await asyncSqlite.close();
-  if (asyncPg) await asyncPg.close();
+  for (const [name, title, store, deleteIterations] of backends) {
+    section(title);
+    await store.set(["x"], 1);
+    const hit = await store.get(["x"]);
+    if ((hit as any)?.value !== 1) throw new Error(`[sanity] ${name} get hit returned ${JSON.stringify(hit)}`);
+
+    suites.set.add(name, await benchAsync("set", () => store.set(["k"], "v")));
+    suites["get-hit"].add(name, await benchAsync("get hit", () => store.get(["x"])));
+    suites["get-miss"].add(name, await benchAsync("get miss", () => store.get(["nope"])));
+    suites.delete.add(name, await benchAsync("delete", (i) => store.delete(["del", i]), {
+      iterations: deleteIterations,
+      beforeRound: async (n) => { for (let i = 0; i < n; i++) await store.set(["del", i], i); },
+    }));
+    await store.set(["counter"], 0);
+    suites.increment.add(name, await benchAsync("increment", async () => {
+      const entry = await store.get(["counter"]);
+      return store.set(["counter"], ((entry?.value as number) ?? 0) + 1);
+    }));
+    await store.close();
+  }
+  if (backends.length === 1) console.log(`\n  ${color.yellow("⚠ PostgreSQL not available — skipping")}`);
+
+  rec.save();
 }
 
-main().catch(console.error);
+await main();

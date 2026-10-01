@@ -1,9 +1,10 @@
-import { object, number, string, boolean, array, optional, coerce } from "@coderbuzz/veta";
+import { object, number, string, boolean, optional, coerce } from "@coderbuzz/veta";
 import { z } from "zod";
 import * as yup from "yup";
 import Joi from "joi";
-import { Type } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
+import Type from "typebox";
+import { Compile } from "typebox/compile";
+import { Recorder, bench, expectFail, expectOk, header, section } from "../../_lib/harness";
 
 const vetaSimple = object({
   name: string({ min: 2, max: 100 }),
@@ -29,11 +30,11 @@ const joiSimple = Joi.object({
   active: Joi.boolean().required(),
 });
 
-const typeboxSimple = Type.Object({
+const typeboxSimple = Compile(Type.Object({
   name: Type.String({ minLength: 2, maxLength: 100 }),
   age: Type.Number({ minimum: 0, maximum: 150 }),
   active: Type.Boolean(),
-});
+}));
 
 const vetaComplex = object({
   id: coerce(number()),
@@ -64,12 +65,12 @@ const zodComplex = z.object({
 });
 
 const yupComplex = yup.object({
-  id: yup.number().transform((v) => (typeof v === "string" ? Number(v) : v)).required(),
+  id: yup.number().required(),
   profile: yup.object({
     displayName: yup.string().min(2).required(),
     email: yup.string().matches(/@/).required(),
     tags: yup.array().of(yup.string().required()).required(),
-    scores: yup.array().of(yup.number().transform((v) => (typeof v === "string" ? Number(v) : v)).required()).required(),
+    scores: yup.array().of(yup.number().required()).required(),
   }).required(),
   metadata: yup.object({
     createdAt: yup.string().required(),
@@ -78,12 +79,12 @@ const yupComplex = yup.object({
 });
 
 const joiComplex = Joi.object({
-  id: Joi.number().custom((v) => (typeof v === "string" ? Number(v) : v)).required(),
+  id: Joi.number().required(),
   profile: Joi.object({
     displayName: Joi.string().min(2).required(),
     email: Joi.string().pattern(/@/).required(),
     tags: Joi.array().items(Joi.string().required()).required(),
-    scores: Joi.array().items(Joi.number().custom((v) => (typeof v === "string" ? Number(v) : v)).required()).required(),
+    scores: Joi.array().items(Joi.number().required()).required(),
   }).required(),
   metadata: Joi.object({
     createdAt: Joi.string().required(),
@@ -91,7 +92,7 @@ const joiComplex = Joi.object({
   }).required(),
 });
 
-const typeboxComplex = Type.Object({
+const typeboxComplex = Compile(Type.Object({
   id: Type.Number(),
   profile: Type.Object({
     displayName: Type.String({ minLength: 2 }),
@@ -103,10 +104,12 @@ const typeboxComplex = Type.Object({
     createdAt: Type.String(),
     updatedAt: Type.Optional(Type.String()),
   }),
-});
+}));
 
 const simpleData = { name: "Alice", age: 30, active: true };
-const complexData = {
+// Fresh object per call: TypeBox's Convert mutates its input, and a pre-coerced
+// object would let every later library skip the coercion work.
+const complexData = () => ({
   id: "42",
   profile: {
     displayName: "Alice",
@@ -115,40 +118,70 @@ const complexData = {
     scores: ["95", "87", "100"],
   },
   metadata: { createdAt: "2024-01-01", updatedAt: "2024-06-01" },
-};
-
-function bench(label: string, fn: () => void, iterations = 100_000) {
-  for (let i = 0; i < 1000; i++) fn();
-  const start = performance.now();
-  for (let i = 0; i < iterations; i++) fn();
-  const elapsed = performance.now() - start;
-  const ops = Math.round((iterations / elapsed) * 1000);
-  console.log(`  ${label}: ${ops.toLocaleString()} ops/s (${elapsed.toFixed(1)}ms for ${iterations.toLocaleString()} runs)`);
-}
-
-const SEP = "━".repeat(46);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-console.log(`  \x1b[1m\x1b[36m◈ Validation Benchmark (Veta vs Zod / Yup / Joi / TypeBox)\x1b[0m`);
-console.log(`\x1b[36m${SEP}\x1b[0m`);
-
-console.log("\nSimple object (name, age, active):");
-bench("Veta", () => vetaSimple(simpleData));
-bench("Zod", () => zodSimple.parse(simpleData));
-bench("Yup", () => yupSimple.validateSync(simpleData));
-bench("Joi", () => joiSimple.validate(simpleData));
-bench("TypeBox", () => Value.Parse(typeboxSimple, simpleData));
-
-console.log("\nComplex nested object with coercion:");
-bench("Veta", () => vetaComplex(complexData));
-bench("Zod", () => zodComplex.parse(complexData));
-bench("Yup", () => yupComplex.validateSync(complexData));
-bench("Joi", () => joiComplex.validate(complexData));
-bench("TypeBox", () => Value.Parse(typeboxComplex, Value.Convert(typeboxComplex, complexData)));
-
-console.log("\nError handling (invalid input):");
+});
 const invalid = { name: "A", age: -1, active: "yes" };
-bench("Veta throws", () => { try { vetaSimple(invalid); } catch {} });
-bench("Zod throws", () => { try { zodSimple.parse(invalid); } catch {} });
-bench("Yup throws", () => { try { yupSimple.validateSync(invalid); } catch {} });
-bench("Joi throws", () => { try { joiSimple.validate(invalid); } catch {} });
-bench("TypeBox throws", () => { try { Value.Parse(typeboxSimple, invalid); } catch {} });
+
+const joiOk = (r: any) => r.error === undefined;
+const joiErr = (r: any) => r.error !== undefined;
+const coerced = (r: any) => r.id === 42 && r.profile.scores[0] === 95;
+
+// Sanity: every library must accept valid input, coerce, and reject invalid input.
+expectOk("Veta simple", () => vetaSimple(simpleData));
+expectOk("Zod simple", () => zodSimple.parse(simpleData));
+expectOk("Yup simple", () => yupSimple.validateSync(simpleData));
+expectOk("Joi simple", () => joiSimple.validate(simpleData), joiOk);
+expectOk("TypeBox simple", () => typeboxSimple.Parse(simpleData));
+expectOk("Veta complex", () => vetaComplex(complexData()), coerced);
+expectOk("Zod complex", () => zodComplex.parse(complexData()), coerced);
+expectOk("Yup complex", () => yupComplex.validateSync(complexData()), coerced);
+expectOk("Joi complex", () => joiComplex.validate(complexData()), (r: any) => joiOk(r) && coerced(r.value));
+expectOk("TypeBox complex", () => typeboxComplex.Parse(typeboxComplex.Convert(complexData())), coerced);
+expectFail("Veta invalid", () => vetaSimple(invalid));
+expectFail("Zod invalid", () => zodSimple.parse(invalid));
+expectFail("Yup invalid", () => yupSimple.validateSync(invalid));
+expectFail("Joi invalid", () => joiSimple.validate(invalid), joiErr);
+expectFail("TypeBox invalid", () => typeboxSimple.Parse(invalid));
+
+const rec = new Recorder("veta-vs");
+header("Validation Benchmark", "Veta vs Zod / Yup / Joi / TypeBox");
+
+section("Simple object (name, age, active):");
+const simple = rec.suite({
+  id: "veta-simple", group: "Veta", row: "Simple validation", library: "@coderbuzz/veta", type: "throughput",
+  description: "Simple object validation: { name: string, age: number, active: boolean }",
+  code: "object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })",
+  unit: "ops/s", higherIsBetter: true,
+});
+simple.add("@coderbuzz/veta", bench("Veta", () => vetaSimple(simpleData)));
+simple.add("Zod", bench("Zod", () => zodSimple.parse(simpleData)));
+simple.add("Yup", bench("Yup", () => yupSimple.validateSync(simpleData)));
+simple.add("Joi", bench("Joi", () => joiSimple.validate(simpleData)));
+simple.add("TypeBox", bench("TypeBox (Compile)", () => typeboxSimple.Parse(simpleData)));
+
+section("Complex nested object with coercion:");
+const complex = rec.suite({
+  id: "veta-complex", group: "Veta", row: "Complex validation", library: "@coderbuzz/veta", type: "throughput",
+  description: "Complex nested object with string→number coercion (fresh input object per call)",
+  code: "object({ id: coerce(number()), profile: { displayName: string(), email: string({ pattern: /@/ }), tags: [string()], scores: [coerce(number())] }, metadata: {...} })",
+  unit: "ops/s", higherIsBetter: true,
+});
+complex.add("@coderbuzz/veta", bench("Veta", () => vetaComplex(complexData())));
+complex.add("Zod", bench("Zod", () => zodComplex.parse(complexData())));
+complex.add("Yup", bench("Yup", () => yupComplex.validateSync(complexData())));
+complex.add("Joi", bench("Joi", () => joiComplex.validate(complexData())));
+complex.add("TypeBox", bench("TypeBox (Compile)", () => typeboxComplex.Parse(typeboxComplex.Convert(complexData()))));
+
+section("Error handling (invalid input):");
+const error = rec.suite({
+  id: "veta-error", group: "Veta", row: "Error handling", library: "@coderbuzz/veta", type: "throughput",
+  description: "Invalid input rejection (throw + catch; Joi returns { error })",
+  code: "try { schema(invalid) } catch {}",
+  unit: "ops/s", higherIsBetter: true,
+});
+error.add("@coderbuzz/veta", bench("Veta throws", () => { try { vetaSimple(invalid); } catch {} }));
+error.add("Zod", bench("Zod throws", () => { try { zodSimple.parse(invalid); } catch {} }));
+error.add("Yup", bench("Yup throws", () => { try { yupSimple.validateSync(invalid); } catch {} }));
+error.add("Joi", bench("Joi returns error", () => joiSimple.validate(invalid)));
+error.add("TypeBox", bench("TypeBox throws", () => { try { typeboxSimple.Parse(invalid); } catch {} }));
+
+rec.save();

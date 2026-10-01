@@ -1,7 +1,7 @@
 node_modules/
 .env
 *.log
-bun.lock
+results/raw/
 .DS_Store
 kv.db
 kv.db-shm
