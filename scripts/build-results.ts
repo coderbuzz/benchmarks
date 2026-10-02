@@ -35,12 +35,12 @@ interface GroupLayout {
   pctOfFirst?: boolean;
 }
 
-// HTTP results within this fraction of the best count as a tie: below it, the gap is smaller than
-// the run-to-run spread measured on the reference machine (AGENTS.md, METHODOLOGY).
+// HTTP results within this fraction of the best count as a tie. Between two full runs on the reference
+// machine the best-of-3 figure moved up to 8.1% (AGENTS.md, Methodology), so smaller gaps are noise.
 const HTTP_TIE = 0.1;
 
 const GROUPS: Record<string, GroupLayout> = {
-  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): run-to-run spread on the reference machine reaches ${HTTP_TIE * 100}%.` },
+  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.` },
   "Veta": { note: "ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`)." },
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better." },
@@ -164,11 +164,13 @@ for (const [group, layout] of Object.entries(GROUPS)) {
       const winners = s.entries.filter((e) => e.winner);
       const runnerUp = s.entries.find((e) => !e.winner);
       const tie = winners.some((w) => w.value !== winners[0]!.value);
-      winner = `**${winners.map((w) => short(w.name)).join(tie ? " ≈ " : " = ")}**${tie ? " (tie)" : ""}`;
+      const notes = tie ? ["tie"] : [];
       if (runnerUp) {
         const f = runnerUp.factorVsBest;
-        winner += s.higherIsBetter ? ` (${f.toFixed(2)}× vs ${short(runnerUp.name)})` : ` (${((1 - 1 / f) * 100).toFixed(0)}% < ${short(runnerUp.name)})`;
+        notes.push(s.higherIsBetter ? `${f.toFixed(2)}× vs ${short(runnerUp.name)}` : `${((1 - 1 / f) * 100).toFixed(0)}% < ${short(runnerUp.name)}`);
       }
+      winner = `**${winners.map((w) => short(w.name)).join(tie ? " ≈ " : " = ")}**`;
+      if (notes.length) winner += ` (${notes.join("; ")})`;
       winner = ` ${winner} |`;
     }
     lines.push(`| ${s.row} | ${cells.join(" | ")} |${winner}`);

@@ -14,11 +14,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/velox | Elysia | Hono | Express | Winner |
 |---|---|---|---|---|---|
-| Static value | 143,833 | **148,019** | 78,497 | 35,111 | **Elysia** (1.03× vs velox) |
-| Dynamic handler | 82,989 | **95,272** | 78,599 | 38,031 | **Elysia** (1.15× vs velox) |
-| Validation POST | 40,294 | **41,861** | 35,598 | 18,607 | **Elysia** (1.04× vs velox) |
+| Static value | **152,140** | **156,927** | 77,511 | 35,270 | **Elysia ≈ velox** (tie; 2.02× vs Hono) |
+| Dynamic handler | 84,364 | **97,436** | 76,939 | 35,098 | **Elysia** (1.16× vs velox) |
+| Validation POST | 37,033 | **41,378** | 34,393 | 18,967 | **Elysia** (1.12× vs velox) |
 
-*req/s — higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler.*
+*req/s, higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within 10% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.*
 
 ---
 
@@ -26,12 +26,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/veta | Zod | Yup | Joi | TypeBox | Winner |
 |---|---|---|---|---|---|---|
-| Simple validation | 19,873,240 | 4,877,990 | 141,554 | 823,523 | **264,840,346** | **TypeBox** (13.33× vs veta) |
-| Complex validation | **2,012,848** | 1,192,435 | 30,854 | 143,859 | 104,392 | **veta** (1.69× vs Zod) |
-| Error handling | **548,240** | 423,130 | 123,581 | 396,022 | 292,370 | **veta** (1.30× vs Zod) |
-| Coercion | 3,352,701 | **6,671,086** | 122,309 | 473,675 | 50,936 | **Zod** (1.99× vs veta) |
+| Simple validation | 18,423,108 | 5,488,482 | 140,264 | 762,323 | **214,360,546** | **TypeBox** (11.63× vs veta) |
+| Complex validation | **2,323,985** | 1,255,664 | 31,924 | 142,976 | 109,071 | **veta** (1.85× vs Zod) |
+| Error handling | **652,447** | 537,881 | 126,179 | 392,941 | 276,348 | **veta** (1.21× vs Zod) |
+| Coercion | 3,715,943 | **7,489,762** | 125,719 | 517,512 | 47,748 | **Zod** (2.02× vs veta) |
 
-*ops/s — higher is better. TypeBox uses the compiled validator (`Compile(schema)`).*
+*ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`).*
 
 ---
 
@@ -39,8 +39,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|
-| Encode (ops/s) | 1,843,655 | **4,010,274** | 303,536 | **JSON** (2.17× vs msgpack) |
-| Decode (ops/s) | 792,185 | **1,788,743** | 441,020 | **JSON** (2.26× vs msgpack) |
+| Encode (ops/s) | 1,716,265 | **3,954,127** | 309,499 | **JSON** (2.30× vs msgpack) |
+| Decode (ops/s) | 816,839 | **2,152,789** | 437,477 | **JSON** (2.64× vs msgpack) |
 | Wire size (bytes) | **133 B** | 178 B | **133 B** | **msgpack = @msgpack/msgpack** (25% < JSON) |
 
 *ops/s higher is better, wire size smaller is better.*
@@ -51,8 +51,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
 |---|---|---|---|---|---|
-| Encode (ops/s) | 3,250,010 | 2,472,029 | **6,763,252** | 422,503 | **JSON** (2.08× vs proto) |
-| Decode (ops/s) | 1,194,782 | 1,027,578 | **4,027,397** | 604,865 | **JSON** (3.37× vs proto) |
+| Encode (ops/s) | 3,927,886 | 2,561,064 | **6,136,293** | 344,704 | **JSON** (1.56× vs proto) |
+| Decode (ops/s) | 1,024,330 | 973,105 | **3,031,153** | 567,195 | **JSON** (2.96× vs proto) |
 | Wire size (bytes) | **65 B** | 111 B | 139 B | 111 B | **proto** (41% < msgpack) |
 
 *ops/s higher is better, wire size smaller is better.*
@@ -63,13 +63,13 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | bun:sqlite | Async SQLite | Async PostgreSQL |
 |---|---|---|---|
-| set('k', 'v') | 505,001 | 68,479 | 4,489 |
-| get() — hit | 987,856 | 83,540 | 13,357 |
-| get() — miss | 1,600,717 | 92,435 | 15,803 |
-| delete() | 637,634 | 116,772 | 3,777 |
-| increment() | 163,753 | 25,466 | 2,663 |
+| set('k', 'v') | 483,849 | 64,025 | 3,708 |
+| get() hit | 849,754 | 87,655 | 13,779 |
+| get() miss | 1,617,240 | 92,429 | 13,842 |
+| delete() | 687,771 | 84,051 | 3,457 |
+| increment() | 185,354 | 26,535 | 3,398 |
 
-*ops/s — higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.*
+*ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.*
 
 ---
 
@@ -77,22 +77,22 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/velox-ws-wire | JSON | Winner |
 |---|---|---|---|
-| PING encode | **2,922,073,976** | 15,712,848 | **velox-ws-wire** (185.97× vs JSON) |
-| PING decode | **59,602,834** | 13,763,257 | **velox-ws-wire** (4.33× vs JSON) |
-| PUBLISH encode | 5,275,369 | **7,155,569** | **JSON** (1.36× vs velox-ws-wire) |
-| PUBLISH decode | **3,841,812** | 3,566,514 | **velox-ws-wire** (1.08× vs JSON) |
-| REQUEST encode | 6,908,574 | **7,210,823** | **JSON** (1.04× vs velox-ws-wire) |
-| REQUEST decode | **6,354,584** | 3,569,569 | **velox-ws-wire** (1.78× vs JSON) |
-| RESPONSE encode | 7,687,559 | **8,059,591** | **JSON** (1.05× vs velox-ws-wire) |
-| RESPONSE decode | **6,818,096** | 4,447,934 | **velox-ws-wire** (1.53× vs JSON) |
-| SUBSCRIBE encode | 9,737,224 | **10,734,537** | **JSON** (1.10× vs velox-ws-wire) |
-| SUBSCRIBE decode | 6,275,248 | **8,509,636** | **JSON** (1.36× vs velox-ws-wire) |
+| PING encode | **2,850,784,808** | 18,773,909 | **velox-ws-wire** (151.85× vs JSON) |
+| PING decode | **58,761,954** | 12,365,724 | **velox-ws-wire** (4.75× vs JSON) |
+| PUBLISH encode | 4,973,845 | **7,416,433** | **JSON** (1.49× vs velox-ws-wire) |
+| PUBLISH decode | 3,927,874 | **4,146,078** | **JSON** (1.06× vs velox-ws-wire) |
+| REQUEST encode | 6,862,704 | **7,857,238** | **JSON** (1.15× vs velox-ws-wire) |
+| REQUEST decode | **6,293,957** | 3,785,552 | **velox-ws-wire** (1.66× vs JSON) |
+| RESPONSE encode | 7,118,112 | **7,604,677** | **JSON** (1.07× vs velox-ws-wire) |
+| RESPONSE decode | **6,154,640** | 3,697,403 | **velox-ws-wire** (1.67× vs JSON) |
+| SUBSCRIBE encode | 9,140,883 | **9,831,071** | **JSON** (1.08× vs velox-ws-wire) |
+| SUBSCRIBE decode | 5,820,662 | **7,682,969** | **JSON** (1.32× vs velox-ws-wire) |
 
-*ops/s — higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only.*
+*ops/s, higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only.*
 
 ---
 
-### Velox WS Wire — size
+### Velox WS Wire (size)
 
 | Benchmark | @coderbuzz/velox-ws-wire | JSON | Winner |
 |---|---|---|---|
@@ -102,7 +102,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 | RESPONSE | **37 B** | 84 B | **velox-ws-wire** (56% < JSON) |
 | SUBSCRIBE | **12 B** | 41 B | **velox-ws-wire** (71% < JSON) |
 
-*bytes — smaller is better.*
+*bytes, smaller is better.*
 
 ---
 
@@ -110,14 +110,14 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/sql | Kysely | Drizzle ORM | Winner |
 |---|---|---|---|---|
-| SELECT simple | **813,931** | 448,557 | 35,520 | **sql** (1.81× vs Kysely) |
-| SELECT JOIN | **482,598** | 262,740 | 16,325 | **sql** (1.84× vs Kysely) |
-| INSERT single | **1,448,095** | 251,186 | 45,068 | **sql** (5.76× vs Kysely) |
-| INSERT batch 100 | **59,013** | 9,861 | 721 | **sql** (5.98× vs Kysely) |
-| CTE | **320,055** | 156,995 | 39,028 | **sql** (2.04× vs Kysely) |
-| SELECT 10 conditions | **428,707** | 87,150 | 15,439 | **sql** (4.92× vs Kysely) |
+| SELECT simple | **792,122** | 461,596 | 37,972 | **sql** (1.72× vs Kysely) |
+| SELECT JOIN | **480,850** | 242,897 | 16,489 | **sql** (1.98× vs Kysely) |
+| INSERT single | **1,455,876** | 276,164 | 41,197 | **sql** (5.27× vs Kysely) |
+| INSERT batch 100 | **62,001** | 10,031 | 682 | **sql** (6.18× vs Kysely) |
+| CTE | **333,556** | 154,506 | 35,464 | **sql** (2.16× vs Kysely) |
+| SELECT 10 conditions | **425,298** | 95,739 | 16,114 | **sql** (4.44× vs Kysely) |
 
-*ops/s — higher is better. Compilation only, no DB execution.*
+*ops/s, higher is better. Compilation only, no DB execution.*
 
 ---
 
@@ -125,10 +125,10 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | KVS direct | WS RPC | HTTP REST |
 |---|---|---|---|
-| set('k','v') | 551,331 (100.0%) | 33,892 (6.1%) | 9,866 (1.8%) |
-| get('k') hit | 633,996 (100.0%) | 25,183 (4.0%) | 9,909 (1.6%) |
+| set('k','v') | 537,713 (100.0%) | 33,732 (6.3%) | 8,795 (1.6%) |
+| get('k') hit | 602,652 (100.0%) | 28,595 (4.7%) | 9,127 (1.5%) |
 
-*ops/s — higher is better. Sequential, one client; % is of direct in-process access.*
+*ops/s, higher is better. Sequential, one client; % is of direct in-process access.*
 
 ---
 <!-- results:end -->
