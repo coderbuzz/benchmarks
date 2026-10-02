@@ -20,10 +20,10 @@ const DELETE_ITERATIONS = { sync: 50_000, sqlite: 20_000, pg: 5_000 };
 const rec = new Recorder("kvs");
 const OPS = [
   ["set", "set('k', 'v')", "store.set(['k'], 'v')"],
-  ["get-hit", "get() — hit", "store.get(['x'])"],
-  ["get-miss", "get() — miss", "store.get(['nope'])"],
+  ["get-hit", "get() hit", "store.get(['x'])"],
+  ["get-miss", "get() miss", "store.get(['nope'])"],
   ["delete", "delete()", "store.delete(['del', i])  // key exists"],
-  ["increment", "increment()", "store.set(['counter'], (store.get(['counter'])?.value ?? 0) + 1)"],
+  ["increment", "increment()", "store.increment(['counter'])  // atomic, built-in"],
 ] as const;
 const suites = Object.fromEntries(OPS.map(([id, row, code]) => [id, rec.suite({
   id: `kvs-${id}`, group: "KVS", row, library: "@coderbuzz/kvs", type: "throughput",
@@ -32,13 +32,16 @@ const suites = Object.fromEntries(OPS.map(([id, row, code]) => [id, rec.suite({
 })])) as Record<(typeof OPS)[number][0], ReturnType<typeof rec.suite>>;
 
 async function main() {
-  header("KVS Throughput Benchmark", "@coderbuzz/kvs — bun:sqlite · Async SQLite · Async PostgreSQL");
+  header("KVS Throughput Benchmark", "@coderbuzz/kvs: bun:sqlite · Async SQLite · Async PostgreSQL");
 
   // --- bun:sqlite (sync) ---
   const syncStore = new KVStore(":memory:");
   syncStore.set(["x"], 1);
   expectOk("sync get hit", () => syncStore.get(["x"]), (e: any) => e?.value === 1);
   expectOk("sync get miss", () => syncStore.get(["nope"]), (e: any) => !e || e.value == null);
+  syncStore.set(["del", 0], 0);
+  syncStore.delete(["del", 0]);
+  expectOk("sync delete", () => syncStore.get(["del", 0]), (e: any) => !e || e.value == null);
 
   section("── bun:sqlite (KVStore) ──");
   const SYNC = "bun:sqlite";
@@ -50,10 +53,8 @@ async function main() {
     beforeRound: (n) => { for (let i = 0; i < n; i++) syncStore.set(["del", i], i); },
   }));
   syncStore.set(["counter"], 0);
-  suites.increment.add(SYNC, bench("increment", () => {
-    const entry = syncStore.get(["counter"]);
-    return syncStore.set(["counter"], ((entry?.value as number) ?? 0) + 1);
-  }));
+  expectOk("sync increment", () => syncStore.increment(["counter"]), (n) => n === 1);
+  suites.increment.add(SYNC, bench("increment", () => syncStore.increment(["counter"])));
   syncStore.close();
 
   // --- async backends ---
@@ -71,6 +72,11 @@ async function main() {
     await store.set(["x"], 1);
     const hit = await store.get(["x"]);
     if ((hit as any)?.value !== 1) throw new Error(`[sanity] ${name} get hit returned ${JSON.stringify(hit)}`);
+    const miss = await store.get(["nope"]);
+    if (miss && (miss as any).value != null) throw new Error(`[sanity] ${name} get miss returned ${JSON.stringify(miss)}`);
+    await store.set(["del", 0], 0);
+    await store.delete(["del", 0]);
+    if (((await store.get(["del", 0])) as any)?.value != null) throw new Error(`[sanity] ${name} delete left the key`);
 
     suites.set.add(name, await benchAsync("set", () => store.set(["k"], "v")));
     suites["get-hit"].add(name, await benchAsync("get hit", () => store.get(["x"])));
@@ -80,13 +86,12 @@ async function main() {
       beforeRound: async (n) => { for (let i = 0; i < n; i++) await store.set(["del", i], i); },
     }));
     await store.set(["counter"], 0);
-    suites.increment.add(name, await benchAsync("increment", async () => {
-      const entry = await store.get(["counter"]);
-      return store.set(["counter"], ((entry?.value as number) ?? 0) + 1);
-    }));
+    const first = await store.increment(["counter"]);
+    if (first !== 1) throw new Error(`[sanity] ${name} increment returned ${first}`);
+    suites.increment.add(name, await benchAsync("increment", () => store.increment(["counter"])));
     await store.close();
   }
-  if (backends.length === 1) console.log(`\n  ${color.yellow("⚠ PostgreSQL not available — skipping")}`);
+  if (backends.length === 1) console.log(`\n  ${color.yellow("⚠ PostgreSQL not available, skipping")}`);
 
   rec.save();
 }

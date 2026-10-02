@@ -5,7 +5,7 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import {
   eq, and, gt, gte, lt, lte, ne, like, inArray,
 } from "drizzle-orm";
-import { Kysely, SqliteDialect } from "kysely";
+import { Kysely, SqliteDialect, type QueryCreator } from "kysely";
 import { Recorder, bench, expectOk, header, section } from "../../_lib/harness";
 
 // --- @coderbuzz/sql setup ---
@@ -54,10 +54,11 @@ const rec = new Recorder("sql-compile");
 header("SQL Compile Benchmark", "query compilation throughput (no DB execution)");
 
 type Q = () => { sql: string };
-function benchGroup(id: string, title: string, code: string, cb: Q, dz: Q, ky: Q) {
-  // Sanity: every builder must produce SQL text.
+const paramCount = (r: any) => ((r.params ?? r.parameters) as unknown[]).length;
+function benchGroup(id: string, title: string, code: string, params: number, cb: Q, dz: Q, ky: Q) {
+  // Sanity: every builder must produce SQL text with the same number of bound parameters.
   for (const [n, q] of [["@coderbuzz/sql", cb], ["drizzle-orm", dz], ["kysely", ky]] as const) {
-    expectOk(`${title} ${n}`, q, (r: any) => typeof r?.sql === "string" && r.sql.length > 0);
+    expectOk(`${title} ${n}`, q, (r: any) => typeof r?.sql === "string" && r.sql.length > 0 && paramCount(r) === params);
   }
   section(`${title}:`);
   const s = rec.suite({
@@ -70,44 +71,45 @@ function benchGroup(id: string, title: string, code: string, cb: Q, dz: Q, ky: Q
   s.add("Drizzle ORM", bench("drizzle-orm", dz));
 }
 
-benchGroup("sql-simple", "SELECT simple", "db.select().from('users').where({ id: 1 }).toSQL()",
+benchGroup("sql-simple", "SELECT simple", "db.select().from('users').where({ id: 1 }).toSQL()", 1,
   () => cbDb.select().from("users").where({ id: 1 }).toSQL(),
   () => dzDb.select().from(users).where(eq(users.id, 1)).toSQL(),
   () => kyDb.selectFrom("users").selectAll().where("id", "=", 1).compile(),
 );
 
-benchGroup("sql-join", "SELECT JOIN", "db.select().from('users').inner_join('posts', 'users.id = posts.user_id').toSQL()",
+benchGroup("sql-join", "SELECT JOIN", "db.select().from('users').inner_join('posts', 'users.id = posts.user_id').toSQL()", 0,
   () => cbDb.select().from("users").inner_join("posts", "users.id = posts.user_id").toSQL(),
   () => dzDb.select().from(users).innerJoin(posts, eq(users.id, posts.user_id)).toSQL(),
   () => kyDb.selectFrom("users").innerJoin("posts", "users.id", "posts.user_id").selectAll().compile(),
 );
 
-benchGroup("sql-insert", "INSERT single", "db.insert_into('users').values([{ id: 1, name: 'Alice' }]).toSQL()",
+benchGroup("sql-insert", "INSERT single", "db.insert_into('users').values([{ id: 1, name: 'Alice' }]).toSQL()", 2,
   () => cbDb.insert_into("users").values([{ id: 1, name: "Alice" }]).toSQL(),
   () => dzDb.insert(users).values({ id: 1, name: "Alice" }).toSQL(),
   () => kyDb.insertInto("users").values({ id: 1, name: "Alice" } as any).compile(),
 );
 
-benchGroup("sql-batch", "INSERT batch 100", "db.insert_into('users').values(batchRows).toSQL()",
+benchGroup("sql-batch", "INSERT batch 100", "db.insert_into('users').values(batchRows).toSQL()", 200,
   () => cbDb.insert_into("users").values(batchRows).toSQL(),
   () => dzDb.insert(users).values(batchRows).toSQL(),
   () => kyDb.insertInto("users").values(batchRows as any).compile(),
 );
 
-const sq = dzDb.$with("active_users").as(
-  dzDb.select().from(users).where(eq(users.active, true)),
+// All three select only (id, name), inside and outside the CTE.
+const sq = dzDb.$with("active").as(
+  dzDb.select({ id: users.id, name: users.name }).from(users).where(eq(users.active, true)),
 );
-const kyCte = (qb: any) => qb.selectFrom("users").select(["id", "name"]).where("active", "=", 1);
+const kyCte = (qb: QueryCreator<DB>) => qb.selectFrom("users").select(["id", "name"]).where("active", "=", 1);
 
-benchGroup("sql-cte", "CTE", "db.with('active', q => q.select('id', 'name').from('users').where(eq('active', true))).select('id', 'name').from('active').toSQL()",
+benchGroup("sql-cte", "CTE", "db.with('active', q => q.select('id', 'name').from('users').where(eq('active', true))).select('id', 'name').from('active').toSQL()", 1,
   () => cbDb.with("active", (q: any) =>
     q.select("id", "name").from("users").where(sqlite.eq("active", true)),
   ).select("id", "name").from("active").toSQL(),
-  () => dzDb.with(sq).select().from(sq).toSQL(),
-  () => kyDb.with("sq", kyCte).selectFrom("sq").selectAll().compile(),
+  () => dzDb.with(sq).select({ id: sq.id, name: sq.name }).from(sq).toSQL(),
+  () => kyDb.with("active", kyCte).selectFrom("active").select(["id", "name"]).compile(),
 );
 
-benchGroup("sql-10-conditions", "SELECT 10 conditions", "db.select().from('users').where(and(eq(...), gt(...), lt(...), ne(...), like(...), gte(...), lte(...), inList(...), eq(...), eq(...))).toSQL()",
+benchGroup("sql-10-conditions", "SELECT 10 conditions", "db.select().from('users').where(and(eq(...), gt(...), lt(...), ne(...), like(...), gte(...), lte(...), inList(...), eq(...), eq(...))).toSQL()", 12,
   () => cbDb.select().from("users").where(
     sqlite.and(
       sqlite.eq("status", "active"), sqlite.gt("age", 18), sqlite.lt("age", 100),

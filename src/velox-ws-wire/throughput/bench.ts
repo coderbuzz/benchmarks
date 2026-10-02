@@ -9,7 +9,12 @@ const common = { library: "@coderbuzz/velox-ws-wire", group: "Velox WS Wire", ty
 for (const [id, label, wireEncode, jsonEncode] of frames) {
   const wireBuf = wireEncode();
   const json = jsonEncode();
-  expectOk(`${label} wire round-trip`, () => decode(wireBuf), (v: any) => v && typeof v.type === "number");
+  // Round-trip: every field except the numeric frame type must match the JSON frame.
+  const { type: _, ...fields } = JSON.parse(json);
+  expectOk(`${label} wire round-trip`, () => decode(wireBuf), (v: any) => {
+    const { type, ...rest } = v ?? {};
+    return typeof type === "number" && JSON.stringify(rest) === JSON.stringify(fields);
+  });
 
   section(`${label}:`);
   const enc = rec.suite({ ...common, id: `velox-ws-wire-${id}-encode`, row: `${label} encode`,

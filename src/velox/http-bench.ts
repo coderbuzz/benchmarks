@@ -40,24 +40,27 @@ const validRequest: Request = {
 const SCENARIOS: Record<string, Scenario> = {
   "static-value": {
     title: "Static Value Benchmark",
-    subtitle: "app.get('/hello', { message: ... }) — static response where the framework supports it",
-    suite: { id: "velox-static-value", row: "Static value", description: "GET /hello — inline JSON response (Velox/Elysia: static route value; Hono/Express: handler)", code: "app.get('/hello', { message: 'Hello, World' })" },
+    subtitle: "app.get('/hello', { message: ... }): static response where the framework supports it",
+    suite: { id: "velox-static-value", row: "Static value", description: "GET /hello: inline JSON response (Velox/Elysia: static route value; Hono/Express: handler)", code: "app.get('/hello', { message: 'Hello, World' })" },
     request: { method: "GET", path: "/hello", headers: {} },
   },
   dynamic: {
     title: "Dynamic Handler Benchmark",
-    subtitle: "app.get('/hello', () => ({ ... })) — handler returning JSON",
-    suite: { id: "velox-dynamic", row: "Dynamic handler", description: "GET /hello — handler function returning a JSON object (all frameworks)", code: "app.get('/hello', () => ({ message: 'Hello, World' }))" },
+    subtitle: "app.get('/hello', () => ({ ... })): handler returning JSON",
+    suite: { id: "velox-dynamic", row: "Dynamic handler", description: "GET /hello: handler function returning a JSON object (all frameworks)", code: "app.get('/hello', () => ({ message: 'Hello, World' }))" },
     request: { method: "GET", path: "/hello", headers: {} },
   },
   validation: {
     title: "Validation Benchmark",
-    subtitle: "POST /hello/:par1/:par2 — body + query + params + headers",
-    suite: { id: "velox-validation", row: "Validation POST", description: "POST /hello/:par1/:par2 — body + query + params + headers validation", code: "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)" },
+    subtitle: "POST /hello/:par1/:par2: body + query + params + headers",
+    suite: { id: "velox-validation", row: "Validation POST", description: "POST /hello/:par1/:par2: body + query + params + headers validation", code: "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)" },
     request: validRequest,
     wrkScript: "src/velox/validation/wrk-post.lua",
     invalid: [
       { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), enumKey: "Bar" }) },
+      { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1.5] }) },
+      { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1, 2, 3, 4] }) },
+      { ...validRequest, path: "/hello/test/abc?name=john&excitement=high" },
       { ...validRequest, headers: { "content-type": "application/json" } },
     ],
   },
@@ -141,7 +144,7 @@ for (const [name, label, file] of FRAMEWORKS) {
     }
     for (const bad of scenario.invalid ?? []) {
       const r = await send(bad);
-      if (r.status < 400) throw new Error(`[sanity] invalid request accepted (${r.status}): ${bad.body ?? JSON.stringify(bad.headers)}`);
+      if (r.status < 400) throw new Error(`[sanity] invalid request accepted (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
     }
     await load(scenario, WARMUP);
     let best = 0;

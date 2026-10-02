@@ -5,6 +5,7 @@
 // Usage: bun scripts/build-results.ts
 
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpus, platform } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
 import type { RawSuite } from "../src/_lib/harness";
@@ -34,16 +35,20 @@ interface GroupLayout {
   pctOfFirst?: boolean;
 }
 
+// HTTP results within this fraction of the best count as a tie. Between two full runs on the reference
+// machine the best-of-3 figure moved up to 8.1% (AGENTS.md, Methodology), so smaller gaps are noise.
+const HTTP_TIE = 0.1;
+
 const GROUPS: Record<string, GroupLayout> = {
-  "Velox": { note: "req/s — higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler." },
-  "Veta": { note: "ops/s — higher is better. TypeBox uses the compiled validator (`Compile(schema)`)." },
+  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.` },
+  "Veta": { note: "ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`)." },
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better." },
-  "KVS": { note: "ops/s — higher is better. Sequential, one caller. PostgreSQL runs in Docker (OrbStack) on the same machine.", winner: false },
-  "Velox WS Wire": { note: "ops/s — higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only." },
-  "Velox WS Wire — size": { note: "bytes — smaller is better." },
-  "SQL": { note: "ops/s — higher is better. Compilation only, no DB execution." },
-  "KVS Server": { note: "ops/s — higher is better. Sequential, one client; % is of direct in-process access.", winner: false, pctOfFirst: true },
+  "KVS": { note: "ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.", winner: false },
+  "Velox WS Wire": { note: "ops/s, higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only." },
+  "Velox WS Wire (size)": { note: "bytes, smaller is better." },
+  "SQL": { note: "ops/s, higher is better. Compilation only, no DB execution." },
+  "KVS Server": { note: "ops/s, higher is better. Sequential, one client; % is of direct in-process access.", winner: false, pctOfFirst: true },
 };
 
 // ------------------------------------------------------------------
@@ -60,7 +65,7 @@ function rank(suite: RawSuite) {
     return {
       name: e.name,
       value: e.value,
-      winner: e.value === best,
+      winner: suite.type === "http" ? ratio(best, e.value) <= 1 + HTTP_TIE : e.value === best,
       factorVsNext: next ? round3(ratio(e.value, next.value)) : null,
       factorVsBest: round3(ratio(best, e.value)),
     };
@@ -71,7 +76,7 @@ const raws = FILES.flatMap((f) => {
   try {
     return [JSON.parse(readFileSync(join(RAW, `${f}.json`), "utf8")) as { suites: RawSuite[] }];
   } catch {
-    console.warn(`⚠ results/raw/${f}.json missing — run its benchmark first`);
+    console.warn(`⚠ results/raw/${f}.json missing, run its benchmark first`);
     return [];
   }
 });
@@ -89,7 +94,10 @@ const packages: Record<string, string> = {};
 for (const name of Object.keys(pkg.dependencies)) {
   packages[name] = JSON.parse(readFileSync(join(ROOT, "node_modules", name, "package.json"), "utf8")).version;
 }
-const chip = (await $`sysctl -n machdep.cpu.brand_string`.quiet().nothrow().text()).trim() || process.arch;
+// macOS: sysctl brand string ("Apple M3"); elsewhere: the CPU model plus core count,
+// since a cloud VM's model name alone does not say how many cores the run had.
+const chip = (await $`sysctl -n machdep.cpu.brand_string`.quiet().nothrow().text()).trim()
+  || `${cpus()[0]?.model.trim() ?? "unknown CPU"}, ${cpus().length} cores, ${platform()}`;
 const now = new Date();
 const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 const date = process.env.RESULTS_DATE ?? localDate;
@@ -100,7 +108,7 @@ const output = {
     date,
     runtime: `Bun ${Bun.version}`,
     machine: `${chip} (${process.arch})`,
-    http: { tool: "oha", connections: 100, warmup: "3s", duration: "10s", runs: 3, take: "best" },
+    http: { tool: "oha", connections: 100, warmup: "3s", duration: "10s", runs: 3, take: "best", tieThreshold: HTTP_TIE },
     throughput: { warmupIterations: 1000, roundTargetMs: 300, rounds: 3, take: "best" },
     packages,
   },
@@ -146,7 +154,7 @@ for (const [group, layout] of Object.entries(GROUPS)) {
     const first = s.entries.find((e) => e.name === columns[0]);
     const cells = columns.map((c) => {
       const e = s.entries.find((x) => x.name === c);
-      if (!e) return "—";
+      if (!e) return "n/a";
       let cell = fmt(s, e.value);
       if (layout.pctOfFirst && first) cell += ` (${((e.value / first.value) * 100).toFixed(1)}%)`;
       return e.winner && withWinner ? `**${cell}**` : cell;
@@ -155,11 +163,14 @@ for (const [group, layout] of Object.entries(GROUPS)) {
     if (withWinner) {
       const winners = s.entries.filter((e) => e.winner);
       const runnerUp = s.entries.find((e) => !e.winner);
-      winner = `**${winners.map((w) => short(w.name)).join(" = ")}**`;
+      const tie = winners.some((w) => w.value !== winners[0]!.value);
+      const notes = tie ? ["tie"] : [];
       if (runnerUp) {
         const f = runnerUp.factorVsBest;
-        winner += s.higherIsBetter ? ` (${f.toFixed(2)}× vs ${short(runnerUp.name)})` : ` (${((1 - 1 / f) * 100).toFixed(0)}% < ${short(runnerUp.name)})`;
+        notes.push(s.higherIsBetter ? `${f.toFixed(2)}× vs ${short(runnerUp.name)}` : `${((1 - 1 / f) * 100).toFixed(0)}% < ${short(runnerUp.name)}`);
       }
+      winner = `**${winners.map((w) => short(w.name)).join(tie ? " ≈ " : " = ")}**`;
+      if (notes.length) winner += ` (${notes.join("; ")})`;
       winner = ` ${winner} |`;
     }
     lines.push(`| ${s.row} | ${cells.join(" | ")} |${winner}`);

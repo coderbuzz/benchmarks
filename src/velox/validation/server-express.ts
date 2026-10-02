@@ -7,7 +7,7 @@ app.use(express.json());
 const bodySchema = z.object({
   someKey: z.string().optional(),
   someOtherKey: z.number().optional(),
-  requiredKey: z.array(z.number()).max(3),
+  requiredKey: z.array(z.number().int()).max(3),
   nullableKey: z.number().nullable(),
   multipleTypesKey: z.union([z.boolean(), z.number()]),
   multipleRestrictedTypesKey: z.union([
