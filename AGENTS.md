@@ -26,7 +26,10 @@ Output is ANSI-colored, so run it directly in a terminal rather than through a p
 
 ## Cloud environment setup
 
-The container does not ship everything the benchmarks need. Before `bun run bench:all`:
+The container does not ship everything the benchmarks need. The SessionStart hook
+(`.claude/hooks/session-start.sh`, registered in `.claude/settings.json`) does all of the following at the start of
+every cloud session, and skips anything already done. Bump `BUN_VERSION` there when moving to a new Bun. The manual
+equivalent, for reference:
 
 ```bash
 # Bun: the image's bun may be older than the version in results. Install the target version
