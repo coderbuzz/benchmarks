@@ -9,7 +9,7 @@ app.post("/hello/:par1/:par2", {
   json: object({
     someKey: optional(string()),
     someOtherKey: optional(number()),
-    requiredKey: array(number(), { max: 3 }),
+    requiredKey: array(number({ integer: true }), { max: 3 }),
     nullableKey: nullable(number()),
     multipleTypesKey: union([boolean(), number()]),
     multipleRestrictedTypesKey: union([

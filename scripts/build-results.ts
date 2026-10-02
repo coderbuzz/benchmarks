@@ -5,6 +5,7 @@
 // Usage: bun scripts/build-results.ts
 
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpus, platform } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
 import type { RawSuite } from "../src/_lib/harness";
@@ -39,7 +40,7 @@ const GROUPS: Record<string, GroupLayout> = {
   "Veta": { note: "ops/s — higher is better. TypeBox uses the compiled validator (`Compile(schema)`)." },
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better." },
-  "KVS": { note: "ops/s — higher is better. Sequential, one caller. PostgreSQL runs in Docker (OrbStack) on the same machine.", winner: false },
+  "KVS": { note: "ops/s — higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.", winner: false },
   "Velox WS Wire": { note: "ops/s — higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only." },
   "Velox WS Wire — size": { note: "bytes — smaller is better." },
   "SQL": { note: "ops/s — higher is better. Compilation only, no DB execution." },
@@ -89,7 +90,10 @@ const packages: Record<string, string> = {};
 for (const name of Object.keys(pkg.dependencies)) {
   packages[name] = JSON.parse(readFileSync(join(ROOT, "node_modules", name, "package.json"), "utf8")).version;
 }
-const chip = (await $`sysctl -n machdep.cpu.brand_string`.quiet().nothrow().text()).trim() || process.arch;
+// macOS: sysctl brand string ("Apple M3"); elsewhere: the CPU model plus core count,
+// since a cloud VM's model name alone does not say how many cores the run had.
+const chip = (await $`sysctl -n machdep.cpu.brand_string`.quiet().nothrow().text()).trim()
+  || `${cpus()[0]?.model.trim() ?? "unknown CPU"}, ${cpus().length} cores, ${platform()}`;
 const now = new Date();
 const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 const date = process.env.RESULTS_DATE ?? localDate;

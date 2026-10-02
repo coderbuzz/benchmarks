@@ -168,7 +168,7 @@ app.get("/hello", () => ({ message: "Hello, World" }));
 app.post("/hello/:par1/:par2", {
   json: object({
     someKey: optional(string()),
-    requiredKey: array(number(), { max: 3 }),
+    requiredKey: array(number({ integer: true }), { max: 3 }),
     enumKey: union([literal("John"), literal("Foo")]),
   }),
   query: { name: optional(string()) },
@@ -215,9 +215,11 @@ express().post("/hello/:par1/:par2", (req, res) => {
 ```
 
 > Before each run the runner checks that every server answers the valid request with
-> `200 {"message":"Hello, World"}` and **rejects** an invalid body and a missing `x-foo`
-> header. Velox 0.7 passes a missing header to its validator as `""`, so the Velox server
-> uses `string({ min: 1 })` to make `x-foo` actually required.
+> `200 {"message":"Hello, World"}` and **rejects** an invalid enum, a non-integer or too-long
+> `requiredKey`, a non-numeric `:par2` and a missing `x-foo` header. All four use the same
+> rules (`requiredKey` integers, `par2` numeric). Hono's `tbValidator` cannot coerce, so its
+> `par2` is a numeric-pattern string. Velox 0.7 passes a missing header to its validator as
+> `""`, so the Velox server uses `string({ min: 1 })` to make `x-foo` actually required.
 
 ---
 
@@ -286,6 +288,7 @@ const kv = new KVStore("kv.db");
 kv.set(["users", "alice"], { name: "Alice", plan: "pro" });
 const entry = kv.get(["users", "alice"]);
 kv.delete(["users", "alice"]);
+kv.increment(["counter"]);                 // atomic, built-in
 
 // Async SQLite
 const asyncKV = new AsyncKVStore("kv.db");

@@ -58,6 +58,9 @@ const SCENARIOS: Record<string, Scenario> = {
     wrkScript: "src/velox/validation/wrk-post.lua",
     invalid: [
       { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), enumKey: "Bar" }) },
+      { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1.5] }) },
+      { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1, 2, 3, 4] }) },
+      { ...validRequest, path: "/hello/test/abc?name=john&excitement=high" },
       { ...validRequest, headers: { "content-type": "application/json" } },
     ],
   },
@@ -141,7 +144,7 @@ for (const [name, label, file] of FRAMEWORKS) {
     }
     for (const bad of scenario.invalid ?? []) {
       const r = await send(bad);
-      if (r.status < 400) throw new Error(`[sanity] invalid request accepted (${r.status}): ${bad.body ?? JSON.stringify(bad.headers)}`);
+      if (r.status < 400) throw new Error(`[sanity] invalid request accepted (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
     }
     await load(scenario, WARMUP);
     let best = 0;

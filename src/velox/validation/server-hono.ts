@@ -22,7 +22,9 @@ const query = t.Object({
 
 const params = t.Object({
   par1: t.Optional(t.String()),
-  par2: t.Optional(t.String()),
+  // tbValidator only checks (no coercion), so a numeric pattern stands in for the
+  // string→number coercion the other frameworks do on par2.
+  par2: t.Optional(t.String({ pattern: "^-?\\d+(\\.\\d+)?$" })),
 });
 
 const headers = t.Object({

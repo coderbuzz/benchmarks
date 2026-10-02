@@ -35,6 +35,7 @@ docker run -d --rm --name pg_sql_test \
 ```
 
 Wait until ready (`pg_isready -U testuser`).
+A native PostgreSQL with the same user / password / database works too (e.g. on a Linux box without Docker).
 Benchmark auto-skips PG if unavailable.
 
 ## BENCHMARKS
