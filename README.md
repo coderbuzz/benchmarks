@@ -266,10 +266,6 @@ import { encode, decode } from "@coderbuzz/msgpack";
 const buf = encode(obj);
 const val = decode(buf);
 
-// JSON
-const buf = JSON.stringify(obj);
-const val = JSON.parse(json);
-
 // @msgpack/msgpack
 import { encode, decode } from "@msgpack/msgpack";
 const buf = encode(obj);

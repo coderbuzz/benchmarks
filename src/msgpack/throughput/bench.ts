@@ -14,6 +14,8 @@ const obj = {
   nested: { a: { b: { c: [1, 2, 3, 4, 5] } } },
 };
 
+// JSON is only the round-trip reference here, not a contender: JSON.stringify returns a string
+// built natively by the engine, msgpack encoders return bytes built in JS (not like with like).
 const json = JSON.stringify(obj);
 const buf = encode(obj);
 const mpBuf = mpEncode(obj);
@@ -24,21 +26,19 @@ expectOk("@msgpack/msgpack round-trip", () => mpDecode(mpBuf), roundTrips);
 expectOk("cross-decode", () => mpDecode(buf), roundTrips);
 
 const rec = new Recorder("msgpack");
-header("Msgpack Throughput Benchmark", "nested object encode / decode + wire size");
+header("Msgpack Throughput Benchmark", "nested object encode / decode + wire size (msgpack libraries only)");
 const common = { library: "@coderbuzz/msgpack", group: "Msgpack" } as const;
 
 section("Encode:");
 const enc = rec.suite({ ...common, id: "msgpack-encode", row: "Encode (ops/s)", type: "throughput",
-  description: "Nested object to bytes/string", code: "encode(obj)", unit: "ops/s", higherIsBetter: true });
+  description: "Nested object to msgpack bytes", code: "encode(obj)", unit: "ops/s", higherIsBetter: true });
 enc.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => encode(obj)));
-enc.add("JSON", bench("JSON.stringify", () => JSON.stringify(obj)));
 enc.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpEncode(obj)));
 
 section("Decode:");
 const dec = rec.suite({ ...common, id: "msgpack-decode", row: "Decode (ops/s)", type: "throughput",
-  description: "Bytes/string to object", code: "decode(buf)", unit: "ops/s", higherIsBetter: true });
+  description: "Msgpack bytes to object", code: "decode(buf)", unit: "ops/s", higherIsBetter: true });
 dec.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => decode(buf)));
-dec.add("JSON", bench("JSON.parse", () => JSON.parse(json)));
 dec.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpDecode(mpBuf)));
 
 section("Wire size:");
@@ -46,7 +46,6 @@ const wire = rec.suite({ ...common, id: "msgpack-wire", row: "Wire size (bytes)"
   description: "Serialized byte size for nested object", code: "encode(obj).length", unit: "bytes", higherIsBetter: false });
 for (const [name, bytes] of [
   ["@coderbuzz/msgpack", buf.length],
-  ["JSON", Buffer.byteLength(json)],
   ["@msgpack/msgpack", mpBuf.length],
 ] as const) {
   console.log(`  ${name.padEnd(28)} ${String(bytes).padStart(6)} B`);
