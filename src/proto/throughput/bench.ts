@@ -24,6 +24,8 @@ const obj = {
   metadata: { createdAt: "2026-01-01T00:00:00.000Z", score: 95.5 },
 };
 
+// JSON is only the round-trip reference here, not a contender: JSON.stringify returns a string
+// built natively by the engine, the binary codecs return bytes built in JS (not like with like).
 const json = JSON.stringify(obj);
 const protoBuf = codec.encode(obj);
 const cbBuf = msgpackEncode(obj);
@@ -35,7 +37,7 @@ expectOk("@coderbuzz/msgpack round-trip", () => msgpackDecode(cbBuf), roundTrips
 expectOk("@msgpack/msgpack round-trip", () => mpDecode(mpBuf), roundTrips);
 
 const rec = new Recorder("proto");
-header("Proto Throughput Benchmark", "schema-compiled binary codec vs msgpack vs JSON");
+header("Proto Throughput Benchmark", "schema-compiled binary codec vs msgpack");
 const common = { library: "@coderbuzz/proto", group: "Proto" } as const;
 
 section("Encode:");
@@ -43,7 +45,6 @@ const enc = rec.suite({ ...common, id: "proto-encode", row: "Encode (ops/s)", ty
   description: "Binary codec compiled from a veta schema (no field names, no tags)", code: "codec.encode(obj)", unit: "ops/s", higherIsBetter: true });
 enc.add("@coderbuzz/proto", bench("proto encode", () => codec.encode(obj)));
 enc.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => msgpackEncode(obj)));
-enc.add("JSON", bench("JSON.stringify", () => JSON.stringify(obj)));
 enc.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpEncode(obj)));
 
 section("Decode:");
@@ -51,7 +52,6 @@ const dec = rec.suite({ ...common, id: "proto-decode", row: "Decode (ops/s)", ty
   description: "Binary codec decode from a veta schema", code: "codec.decode(buf)", unit: "ops/s", higherIsBetter: true });
 dec.add("@coderbuzz/proto", bench("proto decode", () => codec.decode(protoBuf)));
 dec.add("@coderbuzz/msgpack", bench("@coderbuzz/msgpack", () => msgpackDecode(cbBuf)));
-dec.add("JSON", bench("JSON.parse", () => JSON.parse(json)));
 dec.add("@msgpack/msgpack", bench("@msgpack/msgpack", () => mpDecode(mpBuf)));
 
 section("Wire size:");
@@ -60,7 +60,6 @@ const wire = rec.suite({ ...common, id: "proto-wire", row: "Wire size (bytes)", 
 for (const [name, bytes] of [
   ["@coderbuzz/proto", protoBuf.length],
   ["@coderbuzz/msgpack", cbBuf.length],
-  ["JSON", Buffer.byteLength(json)],
   ["@msgpack/msgpack", mpBuf.length],
 ] as const) {
   console.log(`  ${name.padEnd(28)} ${String(bytes).padStart(6)} B`);

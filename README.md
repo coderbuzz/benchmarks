@@ -14,9 +14,9 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/velox | Elysia | Hono | Express | Winner |
 |---|---|---|---|---|---|
-| Static value | **152,140** | **156,927** | 77,511 | 35,270 | **Elysia ≈ velox** (tie; 2.02× vs Hono) |
-| Dynamic handler | 84,364 | **97,436** | 76,939 | 35,098 | **Elysia** (1.16× vs velox) |
-| Validation POST | 37,033 | **41,378** | 34,393 | 18,967 | **Elysia** (1.12× vs velox) |
+| Static value | **152,152** | **145,875** | 75,379 | 37,005 | **velox ≈ Elysia** (tie; 2.02× vs Hono) |
+| Dynamic handler | **90,936** | **97,632** | 76,805 | 35,313 | **Elysia ≈ velox** (tie; 1.27× vs Hono) |
+| Validation POST | 34,429 | **41,780** | 33,003 | 17,057 | **Elysia** (1.21× vs velox) |
 
 *req/s, higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within 10% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.*
 
@@ -26,10 +26,10 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/veta | Zod | Yup | Joi | TypeBox | Winner |
 |---|---|---|---|---|---|---|
-| Simple validation | 18,423,108 | 5,488,482 | 140,264 | 762,323 | **214,360,546** | **TypeBox** (11.63× vs veta) |
-| Complex validation | **2,323,985** | 1,255,664 | 31,924 | 142,976 | 109,071 | **veta** (1.85× vs Zod) |
-| Error handling | **652,447** | 537,881 | 126,179 | 392,941 | 276,348 | **veta** (1.21× vs Zod) |
-| Coercion | 3,715,943 | **7,489,762** | 125,719 | 517,512 | 47,748 | **Zod** (2.02× vs veta) |
+| Simple validation | 15,967,827 | 4,847,821 | 123,516 | 699,986 | **172,721,630** | **TypeBox** (10.82× vs veta) |
+| Complex validation | **1,584,592** | 1,297,710 | 26,490 | 124,510 | 87,273 | **veta** (1.22× vs Zod) |
+| Error handling | **447,574** | 285,441 | 111,913 | 403,170 | 250,772 | **veta** (1.11× vs Joi) |
+| Coercion | 2,893,890 | **6,572,076** | 104,310 | 437,280 | 40,392 | **Zod** (2.27× vs veta) |
 
 *ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`).*
 
@@ -37,25 +37,25 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 ### Msgpack
 
-| Benchmark | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|
-| Encode (ops/s) | 1,716,265 | **3,954,127** | 309,499 | **JSON** (2.30× vs msgpack) |
-| Decode (ops/s) | 816,839 | **2,152,789** | 437,477 | **JSON** (2.64× vs msgpack) |
-| Wire size (bytes) | **133 B** | 178 B | **133 B** | **msgpack = @msgpack/msgpack** (25% < JSON) |
+| Benchmark | @coderbuzz/msgpack | @msgpack/msgpack | Winner |
+|---|---|---|---|
+| Encode (ops/s) | **1,487,163** | 299,133 | **msgpack** (4.97× vs @msgpack/msgpack) |
+| Decode (ops/s) | **740,971** | 412,433 | **msgpack** (1.80× vs @msgpack/msgpack) |
+| Wire size (bytes) | **133 B** | **133 B** | **msgpack = @msgpack/msgpack** |
 
-*ops/s higher is better, wire size smaller is better.*
+*ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender.*
 
 ---
 
 ### Proto
 
-| Benchmark | @coderbuzz/proto | @coderbuzz/msgpack | JSON | @msgpack/msgpack | Winner |
-|---|---|---|---|---|---|
-| Encode (ops/s) | 3,927,886 | 2,561,064 | **6,136,293** | 344,704 | **JSON** (1.56× vs proto) |
-| Decode (ops/s) | 1,024,330 | 973,105 | **3,031,153** | 567,195 | **JSON** (2.96× vs proto) |
-| Wire size (bytes) | **65 B** | 111 B | 139 B | 111 B | **proto** (41% < msgpack) |
+| Benchmark | @coderbuzz/proto | @coderbuzz/msgpack | @msgpack/msgpack | Winner |
+|---|---|---|---|---|
+| Encode (ops/s) | **3,099,194** | 2,183,886 | 402,944 | **proto** (1.42× vs msgpack) |
+| Decode (ops/s) | **1,140,454** | 982,451 | 568,550 | **proto** (1.16× vs msgpack) |
+| Wire size (bytes) | **65 B** | 111 B | 111 B | **proto** (41% < msgpack) |
 
-*ops/s higher is better, wire size smaller is better.*
+*ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender.*
 
 ---
 
@@ -63,11 +63,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | bun:sqlite | Async SQLite | Async PostgreSQL |
 |---|---|---|---|
-| set('k', 'v') | 483,849 | 64,025 | 3,708 |
-| get() hit | 849,754 | 87,655 | 13,779 |
-| get() miss | 1,617,240 | 92,429 | 13,842 |
-| delete() | 687,771 | 84,051 | 3,457 |
-| increment() | 185,354 | 26,535 | 3,398 |
+| set('k', 'v') | 423,784 | 56,831 | 4,544 |
+| get() hit | 711,611 | 69,943 | 12,839 |
+| get() miss | 1,254,545 | 79,026 | 13,644 |
+| delete() | 471,300 | 74,161 | 4,304 |
+| increment() | 116,572 | 21,532 | 3,835 |
 
 *ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.*
 
@@ -77,16 +77,16 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/velox-ws-wire | JSON | Winner |
 |---|---|---|---|
-| PING encode | **2,850,784,808** | 18,773,909 | **velox-ws-wire** (151.85× vs JSON) |
-| PING decode | **58,761,954** | 12,365,724 | **velox-ws-wire** (4.75× vs JSON) |
-| PUBLISH encode | 4,973,845 | **7,416,433** | **JSON** (1.49× vs velox-ws-wire) |
-| PUBLISH decode | 3,927,874 | **4,146,078** | **JSON** (1.06× vs velox-ws-wire) |
-| REQUEST encode | 6,862,704 | **7,857,238** | **JSON** (1.15× vs velox-ws-wire) |
-| REQUEST decode | **6,293,957** | 3,785,552 | **velox-ws-wire** (1.66× vs JSON) |
-| RESPONSE encode | 7,118,112 | **7,604,677** | **JSON** (1.07× vs velox-ws-wire) |
-| RESPONSE decode | **6,154,640** | 3,697,403 | **velox-ws-wire** (1.67× vs JSON) |
-| SUBSCRIBE encode | 9,140,883 | **9,831,071** | **JSON** (1.08× vs velox-ws-wire) |
-| SUBSCRIBE decode | 5,820,662 | **7,682,969** | **JSON** (1.32× vs velox-ws-wire) |
+| PING encode | **2,323,660,803** | 15,029,482 | **velox-ws-wire** (154.61× vs JSON) |
+| PING decode | **65,286,875** | 11,519,653 | **velox-ws-wire** (5.67× vs JSON) |
+| PUBLISH encode | 4,761,956 | **6,693,038** | **JSON** (1.41× vs velox-ws-wire) |
+| PUBLISH decode | **3,442,746** | 2,981,229 | **velox-ws-wire** (1.16× vs JSON) |
+| REQUEST encode | **6,313,688** | 5,582,265 | **velox-ws-wire** (1.13× vs JSON) |
+| REQUEST decode | **5,457,631** | 3,085,121 | **velox-ws-wire** (1.77× vs JSON) |
+| RESPONSE encode | 6,781,486 | **6,862,908** | **JSON** (1.01× vs velox-ws-wire) |
+| RESPONSE decode | **6,319,414** | 3,139,626 | **velox-ws-wire** (2.01× vs JSON) |
+| SUBSCRIBE encode | 8,832,313 | **10,954,891** | **JSON** (1.24× vs velox-ws-wire) |
+| SUBSCRIBE decode | 5,172,416 | **6,488,423** | **JSON** (1.25× vs velox-ws-wire) |
 
 *ops/s, higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only.*
 
@@ -110,12 +110,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/sql | Kysely | Drizzle ORM | Winner |
 |---|---|---|---|---|
-| SELECT simple | **792,122** | 461,596 | 37,972 | **sql** (1.72× vs Kysely) |
-| SELECT JOIN | **480,850** | 242,897 | 16,489 | **sql** (1.98× vs Kysely) |
-| INSERT single | **1,455,876** | 276,164 | 41,197 | **sql** (5.27× vs Kysely) |
-| INSERT batch 100 | **62,001** | 10,031 | 682 | **sql** (6.18× vs Kysely) |
-| CTE | **333,556** | 154,506 | 35,464 | **sql** (2.16× vs Kysely) |
-| SELECT 10 conditions | **425,298** | 95,739 | 16,114 | **sql** (4.44× vs Kysely) |
+| SELECT simple | **879,048** | 394,554 | 31,518 | **sql** (2.23× vs Kysely) |
+| SELECT JOIN | **419,691** | 203,528 | 14,687 | **sql** (2.06× vs Kysely) |
+| INSERT single | **1,176,667** | 235,835 | 38,902 | **sql** (4.99× vs Kysely) |
+| INSERT batch 100 | **55,088** | 8,452 | 644 | **sql** (6.52× vs Kysely) |
+| CTE | **261,343** | 127,432 | 24,240 | **sql** (2.05× vs Kysely) |
+| SELECT 10 conditions | **310,326** | 77,373 | 14,841 | **sql** (4.01× vs Kysely) |
 
 *ops/s, higher is better. Compilation only, no DB execution.*
 
@@ -125,8 +125,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | KVS direct | WS RPC | HTTP REST |
 |---|---|---|---|
-| set('k','v') | 537,713 (100.0%) | 33,732 (6.3%) | 8,795 (1.6%) |
-| get('k') hit | 602,652 (100.0%) | 28,595 (4.7%) | 9,127 (1.5%) |
+| set('k','v') | 401,729 (100.0%) | 26,825 (6.7%) | 9,444 (2.4%) |
+| get('k') hit | 593,960 (100.0%) | 27,391 (4.6%) | 9,497 (1.6%) |
 
 *ops/s, higher is better. Sequential, one client; % is of direct in-process access.*
 
@@ -265,10 +265,6 @@ C.Decode(C.Convert(data()))   // data() returns a fresh object: Convert mutates 
 import { encode, decode } from "@coderbuzz/msgpack";
 const buf = encode(obj);
 const val = decode(buf);
-
-// JSON
-const buf = JSON.stringify(obj);
-const val = JSON.parse(json);
 
 // @msgpack/msgpack
 import { encode, decode } from "@msgpack/msgpack";

@@ -42,8 +42,8 @@ const HTTP_TIE = 0.1;
 const GROUPS: Record<string, GroupLayout> = {
   "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.` },
   "Veta": { note: "ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`)." },
-  "Msgpack": { note: "ops/s higher is better, wire size smaller is better." },
-  "Proto": { note: "ops/s higher is better, wire size smaller is better." },
+  "Msgpack": { note: "ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
+  "Proto": { note: "ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
   "KVS": { note: "ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.", winner: false },
   "Velox WS Wire": { note: "ops/s, higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only." },
   "Velox WS Wire (size)": { note: "bytes, smaller is better." },

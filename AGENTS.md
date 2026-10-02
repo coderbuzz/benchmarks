@@ -77,8 +77,9 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
 - Measured variance on the reference machine (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
-  spread up to 10.1%; the reported best-of-3 figure moved up to 8.1% between the two runs. Micro-benchmark
-  variance is not measured (the harness reports only the best round). Re-measure after a Bun or machine change.
+  spread up to 10.1%; the reported best-of-3 figure moved up to 8.1% between the two runs. Micro-benchmarks
+  vary more: `@coderbuzz/msgpack` encode read 1.34M to 1.84M ops/s across five runs that day (27%), with
+  unchanged code. Re-measure after a Bun or machine change.
 
 ## Results
 

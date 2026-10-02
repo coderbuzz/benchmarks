@@ -10,7 +10,7 @@
         "@coderbuzz/msgpack": "^0.2.0",
         "@coderbuzz/proto": "^0.3.0",
         "@coderbuzz/sql": "^0.9.3",
-        "@coderbuzz/velox": "^0.7.0",
+        "@coderbuzz/velox": "^0.7.1",
         "@coderbuzz/velox-ws-wire": "^0.1.17",
         "@coderbuzz/veta": "^0.5.1",
         "@hono/typebox-validator": "^1.1.0",
@@ -47,7 +47,7 @@
 
     "@coderbuzz/sql": ["@coderbuzz/sql@0.9.3", "", { "dependencies": { "@coderbuzz/veta": "^0.5.1" }, "peerDependencies": { "better-sqlite3": ">=9.0.0", "mssql": ">=10.0.0", "mysql2": ">=3.0.0", "pg": ">=8.0.0" }, "optionalPeers": ["better-sqlite3", "mssql", "mysql2", "pg"] }, "sha512-ryZI7n87Ry6wL+3ZFx8GrTLWb247rigYLyfARLhK33mL84gMVUNTJ92KKEvVidffHhNLEteND5ltgI3zkERRBw=="],
 
-    "@coderbuzz/velox": ["@coderbuzz/velox@0.7.0", "", {}, "sha512-bDfI3Num/30Nn6WJytXcLQrMoZyA3uYVcp5IddjZ5r6V4IfUP/igBYi5R+16mflKUz0u4p1T3xCxOX9AIPHf9Q=="],
+    "@coderbuzz/velox": ["@coderbuzz/velox@0.7.1", "", {}, "sha512-2dfOWXbLHSPLnIEgwVuqaZrgVwuDTQzxN67etAduLj8KyynCyeveVtG7Y2arrKF2dstEhB8Eo3RfxsGXv0gLOw=="],
 
     "@coderbuzz/velox-ws-wire": ["@coderbuzz/velox-ws-wire@0.1.17", "", {}, "sha512-WsMUNIz9TM147N4zfO+TKLDGEQhFy57vizBdllDJxSHgyCWZ1EW41L1sxzuOpjBEDI26p0OuxMrIN5ge5GzvsA=="],
 
