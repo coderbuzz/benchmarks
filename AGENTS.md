@@ -1,6 +1,10 @@
 # `@coderbuzz/benchmarks` — Agent Instructions
 
-Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime, Apple Silicon.
+Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime.
+
+**Reference machine:** the Claude Code cloud environment, Linux x64, Intel Xeon @ 2.10GHz, 4 cores.
+Every published result comes from this machine so runs stay comparable. Do not publish results from a
+laptop or another host; run them there for local checks only.
 
 ## RUN COMMANDS
 
@@ -20,23 +24,27 @@ Output is ANSI-colored. Run directly in terminal — do NOT pipe.
 `oha` is NOT in `package.json` — must be pre-installed. `WRK=1` env var switches to `wrk`.
 `bun.lock` is committed: results must be reproducible against exact versions.
 
-## PostgreSQL dependency
+## Cloud environment setup
 
-AsyncKVStore PostgreSQL benchmark needs a running PG instance.
-System has **OrbStack** (Docker runtime). Start if needed:
+The container does not ship everything the benchmarks need. Before `bun run bench:all`:
 
 ```bash
-docker run -d --rm --name pg_sql_test \
-  -p 5432:5432 \
-  -e POSTGRES_USER=testuser \
-  -e POSTGRES_PASSWORD=testpw \
-  -e POSTGRES_DB=sql_test \
-  postgres:16-alpine
+# Bun: the image's bun may be older than the version in results. Install the target version
+# next to it and put it first on PATH (do not overwrite ~/.bun/bin/bun).
+npm i -g bun@1.4.2
+export PATH="$(npm prefix -g)/bin:$PATH"   # bun --version → 1.4.2
+
+# oha (HTTP load generator), built from crates.io, ~3 min
+cargo install oha --locked
+
+# PostgreSQL 16 is installed but stopped. Start it and create the bench user + database once.
+service postgresql start
+su postgres -c "psql -c \"CREATE USER testuser WITH PASSWORD 'testpw' SUPERUSER;\" -c \"CREATE DATABASE sql_test OWNER testuser;\""
+pg_isready
 ```
 
-Wait until ready (`pg_isready -U testuser`).
-A native PostgreSQL with the same user / password / database works too (e.g. on a Linux box without Docker).
-Benchmark auto-skips PG if unavailable.
+The KVS benchmark skips PostgreSQL when it is not reachable, so check that its output has the
+`Async PostgreSQL` section before publishing.
 
 ## BENCHMARKS
 
@@ -65,7 +73,7 @@ Benchmark auto-skips PG if unavailable.
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
-- Variance up to 8% between runs. Machine: Apple Silicon, Bun 1.4.x.
+- Variance up to 8% between runs. Machine: the reference machine above, Bun 1.4.x.
 
 ## RESULTS
 
