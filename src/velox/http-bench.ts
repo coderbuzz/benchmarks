@@ -40,20 +40,20 @@ const validRequest: Request = {
 const SCENARIOS: Record<string, Scenario> = {
   "static-value": {
     title: "Static Value Benchmark",
-    subtitle: "app.get('/hello', { message: ... }) — static response where the framework supports it",
-    suite: { id: "velox-static-value", row: "Static value", description: "GET /hello — inline JSON response (Velox/Elysia: static route value; Hono/Express: handler)", code: "app.get('/hello', { message: 'Hello, World' })" },
+    subtitle: "app.get('/hello', { message: ... }): static response where the framework supports it",
+    suite: { id: "velox-static-value", row: "Static value", description: "GET /hello: inline JSON response (Velox/Elysia: static route value; Hono/Express: handler)", code: "app.get('/hello', { message: 'Hello, World' })" },
     request: { method: "GET", path: "/hello", headers: {} },
   },
   dynamic: {
     title: "Dynamic Handler Benchmark",
-    subtitle: "app.get('/hello', () => ({ ... })) — handler returning JSON",
-    suite: { id: "velox-dynamic", row: "Dynamic handler", description: "GET /hello — handler function returning a JSON object (all frameworks)", code: "app.get('/hello', () => ({ message: 'Hello, World' }))" },
+    subtitle: "app.get('/hello', () => ({ ... })): handler returning JSON",
+    suite: { id: "velox-dynamic", row: "Dynamic handler", description: "GET /hello: handler function returning a JSON object (all frameworks)", code: "app.get('/hello', () => ({ message: 'Hello, World' }))" },
     request: { method: "GET", path: "/hello", headers: {} },
   },
   validation: {
     title: "Validation Benchmark",
-    subtitle: "POST /hello/:par1/:par2 — body + query + params + headers",
-    suite: { id: "velox-validation", row: "Validation POST", description: "POST /hello/:par1/:par2 — body + query + params + headers validation", code: "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)" },
+    subtitle: "POST /hello/:par1/:par2: body + query + params + headers",
+    suite: { id: "velox-validation", row: "Validation POST", description: "POST /hello/:par1/:par2: body + query + params + headers validation", code: "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)" },
     request: validRequest,
     wrkScript: "src/velox/validation/wrk-post.lua",
     invalid: [

@@ -137,24 +137,24 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 What each benchmark actually measures:
 
-### Velox — HTTP frameworks
+### Velox: HTTP frameworks
 
 ```ts
-// @coderbuzz/velox — GET /hello
+// @coderbuzz/velox: GET /hello
 import { AppServer } from "@coderbuzz/velox";
 const app = new AppServer({ port: 3000 });
 app.get("/hello", { message: "Hello, World" });
 app.run();
 
-// Elysia — GET /hello (static value)
+// Elysia: GET /hello (static value)
 import { Elysia } from "elysia";
 new Elysia().get("/hello", { message: "Hello, World" }).listen(3000);
 
-// Express — GET /hello
+// Express: GET /hello
 import express from "express";
 express().get("/hello", (_, res) => res.json({ message: "Hello, World" })).listen(3000);
 
-// Hono — GET /hello
+// Hono: GET /hello
 import { Hono } from "hono";
 const app = new Hono().get("/hello", (c) => c.json({ message: "Hello, World" }));
 Bun.serve({ fetch: app.fetch, port: 3000 });
@@ -164,7 +164,7 @@ app.get("/hello", () => ({ message: "Hello, World" }));
 ```
 
 ```ts
-// @coderbuzz/velox — POST /hello/:par1/:par2 with validation
+// @coderbuzz/velox: POST /hello/:par1/:par2 with validation
 app.post("/hello/:par1/:par2", {
   json: object({
     someKey: optional(string()),
@@ -173,14 +173,14 @@ app.post("/hello/:par1/:par2", {
   }),
   query: { name: optional(string()) },
   params: { par1: optional(string()), par2: optional(coerce(number())) },
-  headers: { "x-foo": string({ min: 1 }) },   // min: 1 — see note below
+  headers: { "x-foo": string({ min: 1 }) },   // min: 1, see note below
 }, async (ctx) => {
   const { params, query, headers } = ctx;     // Velox validates lazily: touch every part
   await ctx.json;
   return Response.json({ message: "Hello, World" });
 });
 
-// Elysia — POST /hello/:par1/:par2 with validation (built-in TypeBox)
+// Elysia: POST /hello/:par1/:par2 with validation (built-in TypeBox)
 import { Elysia, t } from "elysia";
 new Elysia().post("/hello/:par1/:par2", () => ({ message: "Hello, World" }), {
   body: t.Object({ someKey: t.Optional(t.String()), requiredKey: t.Array(t.Integer(), { maxItems: 3 }) }),
@@ -189,7 +189,7 @@ new Elysia().post("/hello/:par1/:par2", () => ({ message: "Hello, World" }), {
   headers: t.Object({ "x-foo": t.String() }),
 }).listen(3000);
 
-// Hono — POST /hello/:par1/:par2 with validation (TypeBox via @hono/typebox-validator)
+// Hono: POST /hello/:par1/:par2 with validation (TypeBox via @hono/typebox-validator)
 import { Hono } from "hono";
 import { tbValidator } from "@hono/typebox-validator";
 import t from "typebox";                       // TypeBox 1.x
@@ -202,7 +202,7 @@ app.post("/hello/:par1/:par2",
   (c) => c.json({ message: "Hello, World" }),
 );
 
-// Express — POST /hello/:par1/:par2 with validation (Zod)
+// Express: POST /hello/:par1/:par2 with validation (Zod)
 import express from "express";
 import { z } from "zod";
 express().post("/hello/:par1/:par2", (req, res) => {
@@ -223,34 +223,34 @@ express().post("/hello/:par1/:par2", (req, res) => {
 
 ---
 
-### Veta — Validation libraries
+### Veta: Validation libraries
 
 ```ts
-// @coderbuzz/veta — simple validation
+// @coderbuzz/veta: simple validation
 object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })
 
-// Zod — simple validation
+// Zod: simple validation
 z.object({ name: z.string().min(2).max(100), age: z.number().min(0).max(150), active: z.boolean() })
 
-// Joi — simple validation
+// Joi: simple validation
 Joi.object({ name: Joi.string().min(2).max(100).required(), age: Joi.number().min(0).max(150).required(), active: Joi.boolean().required() })
 
-// Yup — simple validation
+// Yup: simple validation
 yup.object({ name: yup.string().min(2).max(100).required(), age: yup.number().min(0).max(150).required(), active: yup.boolean().required() })
 
-// TypeBox 1.x — simple validation (compiled)
+// TypeBox 1.x: simple validation (compiled)
 const C = Compile(Type.Object({ name: Type.String({ minLength: 2, maxLength: 100 }), age: Type.Number({ minimum: 0, maximum: 150 }), active: Type.Boolean() }));
 C.Parse(data)
 ```
 
 ```ts
-// @coderbuzz/veta — coercion
+// @coderbuzz/veta: coercion
 object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) })
 
-// Zod — coercion
+// Zod: coercion
 z.object({ id: z.coerce.number(), active: z.coerce.boolean(), label: z.coerce.string(), born: z.coerce.date() })
 
-// TypeBox 1.x — coercion (no Type.Date in 1.x: Date via Codec)
+// TypeBox 1.x: coercion (no Type.Date in 1.x: Date via Codec)
 const C = Compile(Type.Object({ id: Type.Number(), active: Type.Boolean(), label: Type.String(),
   born: Type.Codec(Type.String()).Decode((v) => new Date(v)).Encode((d) => d.toISOString()) }));
 C.Decode(C.Convert(data()))   // data() returns a fresh object: Convert mutates its input
@@ -258,7 +258,7 @@ C.Decode(C.Convert(data()))   // data() returns a fresh object: Convert mutates 
 
 ---
 
-### Msgpack — Codec libraries
+### Msgpack: Codec libraries
 
 ```ts
 // @coderbuzz/msgpack
@@ -278,7 +278,7 @@ const val = decode(buf);
 
 ---
 
-### KVS — Sync/Async KV store
+### KVS: Sync/Async KV store
 
 ```ts
 import { KVStore, AsyncKVStore } from "@coderbuzz/kvs";
@@ -303,7 +303,7 @@ await pgKV.set(["users", "carol"], { name: "Carol" });
 
 ---
 
-### Proto — Binary codec
+### Proto: Binary codec
 
 ```ts
 import { object, string, number, boolean, array } from "@coderbuzz/veta";
@@ -322,7 +322,7 @@ const val = codec.decode(bytes);
 
 ---
 
-### Velox WS Wire — Binary WebSocket framing
+### Velox WS Wire: Binary WebSocket framing
 
 ```ts
 import { encodePing, encodePublish, decode } from "@coderbuzz/velox-ws-wire";
@@ -337,7 +337,7 @@ const json = JSON.stringify({ type: "publish", topic: "chat:room1", payload: "..
 
 ---
 
-### SQL — Query compilation
+### SQL: Query compilation
 
 ```ts
 // @coderbuzz/sql
@@ -366,7 +366,7 @@ const q3 = ky.selectFrom("users").selectAll().where("id", "=", 1).compile();
 
 ---
 
-### KVS Server — Transport overhead
+### KVS Server: Transport overhead
 
 ```ts
 import { createServer } from "@coderbuzz/kvs-server";
@@ -401,6 +401,7 @@ ws.send(JSON.stringify({ id: 1, method: "/kv/get", params: { key: ["k"] } }));  
 | Reported | best run | best round |
 | Sanity checks | 200 + expected body; invalid input must be rejected; any non-2xx fails the run | valid input accepted/coerced, invalid rejected, codecs round-trip |
 | Environment | `NODE_ENV=production`, server and load generator on the same machine | results written to a sink so the JIT cannot drop the call |
+| Machine | every published result comes from one reference machine: the Claude Code cloud environment (Linux x64, Intel Xeon @ 2.10GHz, 4 cores) | same machine |
 
 Knobs: `HTTP_RUNS`, `HTTP_DURATION`, `HTTP_WARMUP`, `BENCH_ROUNDS`, `BENCH_TARGET_MS`.
 

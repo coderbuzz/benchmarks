@@ -74,7 +74,7 @@ set.add("KVS direct", bench("KVS direct", () => store.set(["k"], "v")));
 set.add("WS RPC", await benchAsync("WS RPC", () => wsRpc("/kv/set", { key: ["k"], value: "v" })));
 set.add("HTTP REST", await benchAsync("HTTP REST", () => http("/kv/set", { key: ["k"], value: "v" })));
 
-section("get('k') — hit:");
+section("get('k') hit:");
 const get = rec.suite({ ...common, id: "kvs-server-get", row: "get('k') hit",
   description: "get(k) throughput: KVS direct vs WS RPC vs HTTP REST",
   code: "store.get(['k']) | wsRpc('/kv/get', ...) | fetch(POST /kv/get)" });

@@ -20,8 +20,8 @@ const DELETE_ITERATIONS = { sync: 50_000, sqlite: 20_000, pg: 5_000 };
 const rec = new Recorder("kvs");
 const OPS = [
   ["set", "set('k', 'v')", "store.set(['k'], 'v')"],
-  ["get-hit", "get() — hit", "store.get(['x'])"],
-  ["get-miss", "get() — miss", "store.get(['nope'])"],
+  ["get-hit", "get() hit", "store.get(['x'])"],
+  ["get-miss", "get() miss", "store.get(['nope'])"],
   ["delete", "delete()", "store.delete(['del', i])  // key exists"],
   ["increment", "increment()", "store.increment(['counter'])  // atomic, built-in"],
 ] as const;
@@ -32,7 +32,7 @@ const suites = Object.fromEntries(OPS.map(([id, row, code]) => [id, rec.suite({
 })])) as Record<(typeof OPS)[number][0], ReturnType<typeof rec.suite>>;
 
 async function main() {
-  header("KVS Throughput Benchmark", "@coderbuzz/kvs — bun:sqlite · Async SQLite · Async PostgreSQL");
+  header("KVS Throughput Benchmark", "@coderbuzz/kvs: bun:sqlite · Async SQLite · Async PostgreSQL");
 
   // --- bun:sqlite (sync) ---
   const syncStore = new KVStore(":memory:");
@@ -91,7 +91,7 @@ async function main() {
     suites.increment.add(name, await benchAsync("increment", () => store.increment(["counter"])));
     await store.close();
   }
-  if (backends.length === 1) console.log(`\n  ${color.yellow("⚠ PostgreSQL not available — skipping")}`);
+  if (backends.length === 1) console.log(`\n  ${color.yellow("⚠ PostgreSQL not available, skipping")}`);
 
   rec.save();
 }
