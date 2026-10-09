@@ -39,4 +39,10 @@ app.post("/hello/:par1/:par2", (req, res) => {
   res.json({ message: "Hello, World" });
 });
 
+// Express answers any thrown error with 500; a failed schema is the client's mistake.
+app.use((err: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err instanceof z.ZodError) return res.status(400).json({ issues: err.issues });
+  next(err);
+});
+
 app.listen(3000);
