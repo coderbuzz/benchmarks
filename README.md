@@ -10,7 +10,7 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 > Bun 1.4.2 · Intel(R) Xeon(R) Platinum 8255C CPU @ 2.50GHz, 4 cores, linux (x64) · generated from [`results/latest.json`](./results/latest.json) by `bun scripts/build-results.ts`
 
-> **Note:** Pre-release build from coderbuzz/codex b9ab697 (veta 0.6.0, velox 0.7.2 pending npm publish): veta and velox results (velox-*, veta-*) re-measured 2026-10-09 on a different VM than the reference machine (see machine field); all other groups keep their 2026-10-02 values, copied unchanged from the previous results/latest.json. Absolute numbers are not comparable with the 2026-10-02 reference-machine run; compare libraries within one run.
+> **Note:** Measured on the code published as veta 0.6.0 / velox 0.7.2 (codex b9ab697): veta and velox results (velox-*, veta-*) re-measured 2026-10-09 on a different VM than the reference machine (see machine field); all other groups keep their 2026-10-02 values, copied unchanged from the previous results/latest.json. Absolute numbers are not comparable with the 2026-10-02 reference-machine run; compare libraries within one run.
 
 ### Velox
 
