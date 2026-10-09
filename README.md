@@ -401,7 +401,7 @@ ws.send(JSON.stringify({ id: 1, method: "/kv/get", params: { key: ["k"] } }));  
 | Reported | best run | best round across all processes |
 | Sanity checks | 200 + expected body; invalid input must be rejected; any non-2xx fails the run | valid input accepted/coerced, invalid rejected, codecs round-trip |
 | Environment | `NODE_ENV=production`, server and load generator on the same machine | results written to a sink so the JIT cannot drop the call |
-| Machine | every published result comes from one reference machine: the Claude Code cloud environment (Linux x64, Intel Xeon @ 2.10GHz, 4 cores) | same machine |
+| Machine | the Claude Code cloud environment (Linux x64, 4 cores; Xeon clock varies by session, recorded in the header above and `meta.machine`). Each publish is one full `bench:all` run on one machine; compare absolute numbers across runs only when the machine matches | same machine |
 
 Knobs: `HTTP_RUNS`, `HTTP_DURATION`, `HTTP_WARMUP`, `BENCH_ROUNDS`, `BENCH_TARGET_MS`, `BENCH_PROCESSES` (`bench:all` only).
 
