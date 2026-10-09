@@ -397,13 +397,13 @@ ws.send(JSON.stringify({ id: 1, method: "/kv/get", params: { key: ["k"] } }));  
 | Tool | **oha** (default) or **wrk** (`WRK=1`) | `performance.now()` loop, [`src/_lib/harness.ts`](./src/_lib/harness.ts) |
 | Load | 100 connections, keep-alive | single caller |
 | Warmup | 3 s | 1,000 calls + calibration |
-| Measurement | 3 × 10 s runs | 3 rounds of ~300 ms each (iterations calibrated per case) |
-| Reported | best run | best round |
+| Measurement | 3 × 10 s runs | 3 processes × 3 rounds of ~300 ms each (iterations calibrated per case) |
+| Reported | best run | best round across all processes |
 | Sanity checks | 200 + expected body; invalid input must be rejected; any non-2xx fails the run | valid input accepted/coerced, invalid rejected, codecs round-trip |
 | Environment | `NODE_ENV=production`, server and load generator on the same machine | results written to a sink so the JIT cannot drop the call |
 | Machine | every published result comes from one reference machine: the Claude Code cloud environment (Linux x64, Intel Xeon @ 2.10GHz, 4 cores) | same machine |
 
-Knobs: `HTTP_RUNS`, `HTTP_DURATION`, `HTTP_WARMUP`, `BENCH_ROUNDS`, `BENCH_TARGET_MS`.
+Knobs: `HTTP_RUNS`, `HTTP_DURATION`, `HTTP_WARMUP`, `BENCH_ROUNDS`, `BENCH_TARGET_MS`, `BENCH_PROCESSES` (`bench:all` only).
 
 ---
 

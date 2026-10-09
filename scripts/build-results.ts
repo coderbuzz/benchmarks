@@ -109,7 +109,7 @@ const output = {
     runtime: `Bun ${Bun.version}`,
     machine: `${chip} (${process.arch})`,
     http: { tool: "oha", connections: 100, warmup: "3s", duration: "10s", runs: 3, take: "best", tieThreshold: HTTP_TIE },
-    throughput: { warmupIterations: 1000, roundTargetMs: 300, rounds: 3, take: "best" },
+    throughput: { warmupIterations: 1000, roundTargetMs: 300, rounds: 3, processes: Number(process.env.BENCH_PROCESSES ?? 3), take: "best" },
     packages,
     ...(process.env.RESULTS_NOTE ? { note: process.env.RESULTS_NOTE } : {}),
   },

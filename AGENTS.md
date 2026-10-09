@@ -73,6 +73,11 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
   Any non-2xx during a run fails it.
 - Micro-benchmarks (`src/_lib/harness.ts`): 1k warmup calls, iterations calibrated to ~300 ms per round,
   3 rounds, best taken. Results go to a sink (no dead-code elimination). Each file runs sanity checks first.
+  `bench:all` runs each micro-benchmark in `BENCH_PROCESSES` (default 3) separate processes and keeps the best
+  value per entry (`BENCH_MERGE=1` merges into the saved raw file). Rounds alone are not enough: some cases are
+  bimodal per process, fixed at warmup. On a non-reference VM (2026-10-09), five `veta:vs` processes with
+  unchanged code read Veta `is()` at 44M or 66-74M ops/s and TypeBox `Check` at 64-68M or 120-146M.
+  A single `bun run <bench>` is one process; for a publishable figure use the `bench:all` loop.
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
