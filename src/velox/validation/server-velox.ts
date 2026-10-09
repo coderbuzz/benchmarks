@@ -34,8 +34,7 @@ app.post("/hello/:par1/:par2", {
     par2: optional(coerce(number())),
   },
   headers: {
-    // Velox 0.7 passes a missing header to the validator as "", so a bare string()
-    // would accept a request without x-foo. min: 1 makes the header required.
+    // min: 1 also rejects an empty x-foo, not only a missing one.
     "x-foo": string({ min: 1 }),
   },
 }, async (ctx) => {

@@ -6,13 +6,13 @@
       "name": "benchmarks",
       "dependencies": {
         "@coderbuzz/kvs": "^0.6.0",
-        "@coderbuzz/kvs-server": "^6.1.0",
+        "@coderbuzz/kvs-server": "^6.1.3",
         "@coderbuzz/msgpack": "^0.2.0",
-        "@coderbuzz/proto": "^0.3.0",
-        "@coderbuzz/sql": "^0.9.3",
-        "@coderbuzz/velox": "^0.7.2",
+        "@coderbuzz/proto": "^0.3.2",
+        "@coderbuzz/sql": "^0.9.5",
+        "@coderbuzz/velox": "^0.8.0",
         "@coderbuzz/velox-ws-wire": "^0.1.17",
-        "@coderbuzz/veta": "^0.6.0",
+        "@coderbuzz/veta": "^0.6.1",
         "@hono/typebox-validator": "^1.1.0",
         "@msgpack/msgpack": "^3.1.3",
         "@sinclair/typebox": "^0.34.52",
@@ -39,19 +39,19 @@
 
     "@coderbuzz/kvs": ["@coderbuzz/kvs@0.6.0", "", {}, "sha512-KO69b3zujushRzy3DLBOD3737qoKWfSJXs7F4nJylNV+fveeQpm3q7G6s7pDZInVDuy4YQGn9kyjPO2dkrSFgQ=="],
 
-    "@coderbuzz/kvs-server": ["@coderbuzz/kvs-server@6.1.0", "", { "dependencies": { "@coderbuzz/veta": "^0.5.1" }, "peerDependencies": { "@coderbuzz/kvs": "^0.6.0", "@coderbuzz/velox": "^0.7.0" } }, "sha512-zG5TA/6bJwNM81NYA1a/fEuzIV28DDKfXMLcEu3UFDjQRBQyj6xzsk9p++csZQCevEx90mnKoEb7MptyYLIV4Q=="],
+    "@coderbuzz/kvs-server": ["@coderbuzz/kvs-server@6.1.3", "", { "dependencies": { "@coderbuzz/veta": "^0.6.1" }, "peerDependencies": { "@coderbuzz/kvs": "^0.6.0", "@coderbuzz/velox": "^0.8.0" } }, "sha512-l2t85xZcmeip4H6OM+BEjcknsUfys/ibc2wtmd3JFO5J4c2a0i6NbdOcLrcMr06Omlc96NT/3ITngh5qpXi60g=="],
 
     "@coderbuzz/msgpack": ["@coderbuzz/msgpack@0.2.0", "", {}, "sha512-OHubO6sj25Q0FygvyZuUn+IJBLr+CKW+qBhSYGKNu4xzN8ZsX5a/R3VZbnn5SLuuoyNmb0deHluV4vvkj5BmQw=="],
 
-    "@coderbuzz/proto": ["@coderbuzz/proto@0.3.0", "", { "dependencies": { "@coderbuzz/veta": "^0.5.1" } }, "sha512-l9GFhilLTwJ4Epr6Qq+Wam5Kb2DjDwdFEyjUl+OprY0t1HhTJdv+OwVoQ638hUpsvgRLoi62+gjWQmB+YQUBoQ=="],
+    "@coderbuzz/proto": ["@coderbuzz/proto@0.3.2", "", { "dependencies": { "@coderbuzz/veta": "^0.6.1" } }, "sha512-4yH0sYAqefDynBXdNdSOMpf2esFX4v6x2FbEwGVUDgvS8Y3f6FNHr1ZXQPG5uUBRu+L0dQ9tSSRPOUQNJ5cTbg=="],
 
-    "@coderbuzz/sql": ["@coderbuzz/sql@0.9.3", "", { "dependencies": { "@coderbuzz/veta": "^0.5.1" }, "peerDependencies": { "better-sqlite3": ">=9.0.0", "mssql": ">=10.0.0", "mysql2": ">=3.0.0", "pg": ">=8.0.0" }, "optionalPeers": ["better-sqlite3", "mssql", "mysql2", "pg"] }, "sha512-ryZI7n87Ry6wL+3ZFx8GrTLWb247rigYLyfARLhK33mL84gMVUNTJ92KKEvVidffHhNLEteND5ltgI3zkERRBw=="],
+    "@coderbuzz/sql": ["@coderbuzz/sql@0.9.5", "", { "dependencies": { "@coderbuzz/veta": "^0.6.1" }, "peerDependencies": { "better-sqlite3": ">=9.0.0", "mssql": ">=10.0.0", "mysql2": ">=3.0.0", "pg": ">=8.0.0" }, "optionalPeers": ["better-sqlite3", "mssql", "mysql2", "pg"] }, "sha512-B94uKvn8RS8c9LmGAAyGkTTdIFVM5bwLNG/yveB1/gPbYnJ/nn9wECC4/cpsb6YHR9ancPR0jp14dsiSKSqktw=="],
 
-    "@coderbuzz/velox": ["@coderbuzz/velox@0.7.2", "", {}, "sha512-kTITAhMS30d7ye54I9rPsjtimch9wfC5fTKByyfRaEYGrd6RxtxcAIiUHosDW+0XF2th2oHgg6vKbp7oQGosxA=="],
+    "@coderbuzz/velox": ["@coderbuzz/velox@0.8.0", "", {}, "sha512-B8zx7EW2XIA14Jwg4bLTZfvT6OdpTC4JSHhyimk8OdXw0YD12XsuHHdaO4XEZ8wyl6vmiOGkLDcAbbBK1Imc7w=="],
 
     "@coderbuzz/velox-ws-wire": ["@coderbuzz/velox-ws-wire@0.1.17", "", {}, "sha512-WsMUNIz9TM147N4zfO+TKLDGEQhFy57vizBdllDJxSHgyCWZ1EW41L1sxzuOpjBEDI26p0OuxMrIN5ge5GzvsA=="],
 
-    "@coderbuzz/veta": ["@coderbuzz/veta@0.6.0", "", {}, "sha512-0Q3pkUbFgw6VOhhalNeG2NpS2De/F4U6tWufwCki8pxw/muQzAWWbOWq1inbn7+zwyWDeXyVom6CVvHpMHn4pg=="],
+    "@coderbuzz/veta": ["@coderbuzz/veta@0.6.1", "", {}, "sha512-nsHauBvYAk1XvnCqkiqzrHOEH59WWGyDGo+Byml9RRGeP5BULW89RH6P3b9O2Jt6zDslKyHfZ9dkYAoN6y+2Iw=="],
 
     "@hapi/address": ["@hapi/address@5.1.1", "", { "dependencies": { "@hapi/hoek": "^11.0.2" } }, "sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA=="],
 
@@ -316,12 +316,6 @@
     "yup": ["yup@1.7.1", "", { "dependencies": { "property-expr": "^2.0.5", "tiny-case": "^1.0.3", "toposort": "^2.0.2", "type-fest": "^2.19.0" } }, "sha512-GKHFX2nXul2/4Dtfxhozv701jLQHdf6J34YDh2cEkpqoo8le5Mg6/LrdseVLrFarmFygZTlfIhHx/QKfb/QWXw=="],
 
     "zod": ["zod@4.6.5", "", {}, "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q=="],
-
-    "@coderbuzz/kvs-server/@coderbuzz/veta": ["@coderbuzz/veta@0.5.1", "", {}, "sha512-fiMsuVZvdTWEquTIYM++wZMYAAjQIojWL4/15rgYIDqxo5IqOqgsjH8XgR1vls9ouurmJelXxsa/cUrJwBQcBg=="],
-
-    "@coderbuzz/proto/@coderbuzz/veta": ["@coderbuzz/veta@0.5.1", "", {}, "sha512-fiMsuVZvdTWEquTIYM++wZMYAAjQIojWL4/15rgYIDqxo5IqOqgsjH8XgR1vls9ouurmJelXxsa/cUrJwBQcBg=="],
-
-    "@coderbuzz/sql/@coderbuzz/veta": ["@coderbuzz/veta@0.5.1", "", {}, "sha512-fiMsuVZvdTWEquTIYM++wZMYAAjQIojWL4/15rgYIDqxo5IqOqgsjH8XgR1vls9ouurmJelXxsa/cUrJwBQcBg=="],
 
     "body-parser/content-type": ["content-type@2.1.0", "", {}, "sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag=="],
 
