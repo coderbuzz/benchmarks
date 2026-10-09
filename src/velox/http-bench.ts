@@ -25,7 +25,7 @@ interface Scenario {
   suite: { id: string; row: string; description: string; code: string };
   request: Request;
   wrkScript?: string;
-  /** Requests that a validating server must reject (status >= 400). */
+  /** Requests that a validating server must reject with a 4xx (a 500 means the framework failed, not rejected). */
   invalid?: Request[];
 }
 
@@ -61,6 +61,7 @@ const SCENARIOS: Record<string, Scenario> = {
       { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1.5] }) },
       { ...validRequest, body: JSON.stringify({ ...JSON.parse(postBody), requiredKey: [1, 2, 3, 4] }) },
       { ...validRequest, path: "/hello/test/abc?name=john&excitement=high" },
+      { ...validRequest, body: "{oops" },
       { ...validRequest, headers: { "content-type": "application/json" } },
     ],
   },
@@ -144,7 +145,7 @@ for (const [name, label, file] of FRAMEWORKS) {
     }
     for (const bad of scenario.invalid ?? []) {
       const r = await send(bad);
-      if (r.status < 400) throw new Error(`[sanity] invalid request accepted (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
+      if (r.status < 400 || r.status > 499) throw new Error(`[sanity] invalid request not rejected with 4xx (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
     }
     await load(scenario, WARMUP);
     let best = 0;
