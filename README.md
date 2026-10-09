@@ -6,17 +6,19 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 ([raw](https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json)).
 
 <!-- results:start -->
-## Latest Results (2026-10-02)
+## Latest Results (2026-10-09)
 
-> Bun 1.4.2 · Intel(R) Xeon(R) Processor @ 2.10GHz, 4 cores, linux (x64) · generated from [`results/latest.json`](./results/latest.json) by `bun scripts/build-results.ts`
+> Bun 1.4.2 · Intel(R) Xeon(R) Platinum 8255C CPU @ 2.50GHz, 4 cores, linux (x64) · generated from [`results/latest.json`](./results/latest.json) by `bun scripts/build-results.ts`
+
+> **Note:** Pre-release build from coderbuzz/codex b9ab697 (veta 0.6.0, velox 0.7.2 pending npm publish): veta and velox results (velox-*, veta-*) re-measured 2026-10-09 on a different VM than the reference machine (see machine field); all other groups keep their 2026-10-02 values, copied unchanged from the previous results/latest.json. Absolute numbers are not comparable with the 2026-10-02 reference-machine run; compare libraries within one run.
 
 ### Velox
 
 | Benchmark | @coderbuzz/velox | Elysia | Hono | Express | Winner |
 |---|---|---|---|---|---|
-| Static value | **152,152** | **145,875** | 75,379 | 37,005 | **velox ≈ Elysia** (tie; 2.02× vs Hono) |
-| Dynamic handler | **90,936** | **97,632** | 76,805 | 35,313 | **Elysia ≈ velox** (tie; 1.27× vs Hono) |
-| Validation POST | 34,429 | **41,780** | 33,003 | 17,057 | **Elysia** (1.21× vs velox) |
+| Static value | **70,676** | **68,779** | 42,809 | 18,912 | **velox ≈ Elysia** (tie; 1.65× vs Hono) |
+| Dynamic handler | **50,977** | **50,677** | 43,525 | 18,735 | **velox ≈ Elysia** (tie; 1.17× vs Hono) |
+| Validation POST | **26,191** | 18,842 | 17,283 | 10,029 | **velox** (1.39× vs Elysia) |
 
 *req/s, higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within 10% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.*
 
@@ -26,12 +28,14 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/veta | Zod | Yup | Joi | TypeBox | Winner |
 |---|---|---|---|---|---|---|
-| Simple validation | 15,967,827 | 4,847,821 | 123,516 | 699,986 | **172,721,630** | **TypeBox** (10.82× vs veta) |
-| Complex validation | **1,584,592** | 1,297,710 | 26,490 | 124,510 | 87,273 | **veta** (1.22× vs Zod) |
-| Error handling | **447,574** | 285,441 | 111,913 | 403,170 | 250,772 | **veta** (1.11× vs Joi) |
-| Coercion | 2,893,890 | **6,572,076** | 104,310 | 437,280 | 40,392 | **Zod** (2.27× vs veta) |
+| Simple validation | 39,171,534 | 3,634,544 | 115,546 | 569,729 | **112,523,869** | **TypeBox** (2.87× vs veta) |
+| Complex validation | **3,572,545** | 1,071,024 | 26,429 | 111,510 | 66,958 | **veta** (3.34× vs Zod) |
+| Error handling | **373,434** | 253,797 | 81,141 | 288,721 | 185,576 | **veta** (1.29× vs Joi) |
+| Check (boolean) | **67,151,040** | 3,150,222 | 93,943 | 473,516 | 64,344,363 | **veta** (1.04× vs TypeBox) |
+| Error, first issue | **1,052,688** | 358,238 | 87,398 | 277,112 | 211,605 | **veta** (2.94× vs Zod) |
+| Coercion | **7,147,107** | 6,010,690 | 96,219 | 395,460 | 29,049 | **veta** (1.19× vs Zod) |
 
-*ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`).*
+*ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`). Veta rows Check (boolean) and Error, first issue use `is(schema, x)` and `safeParse(schema, x, undefined, { maxIssues: 1 })` where the installed veta has them (0.6+); the other rows use the throwing validator. Zod has no first-error mode.*
 
 ---
 

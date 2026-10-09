@@ -1,3 +1,4 @@
+import * as veta from "@coderbuzz/veta";
 import { object, number, string, boolean, optional, coerce } from "@coderbuzz/veta";
 import { z } from "zod";
 import * as yup from "yup";
@@ -142,6 +143,29 @@ expectFail("Yup invalid", () => yupSimple.validateSync(invalid));
 expectFail("Joi invalid", () => joiSimple.validate(invalid), joiErr);
 expectFail("TypeBox invalid", () => typeboxSimple.Parse(invalid));
 
+// Feature-detected: is() and safeParse(..., { maxIssues }) exist from veta 0.6. Older versions fall back to
+// try/catch around the throwing validator (check) or read the thrown error's message (first issue).
+const vetaIs: ((v: any, x: unknown) => boolean) | undefined = (veta as any).is;
+const vetaSafeParse: ((v: any, x: unknown, ctx?: unknown, o?: { maxIssues?: number }) => any) | undefined = (veta as any).safeParse;
+const FIRST = { maxIssues: 1 };
+const vetaCheck = (v: any, x: unknown) => vetaIs ? vetaIs(v, x) : (() => { try { v(x); return true; } catch { return false; } })();
+const vetaFirst = (v: any, x: unknown) => {
+  if (!vetaSafeParse) { try { v(x); return ""; } catch (e: any) { return e.message; } }
+  const r = vetaSafeParse(v, x, undefined, FIRST);
+  return r.ok ? "" : r.issues[0].message;
+};
+const vetaCheckLabel = vetaIs ? "is(schema, x)" : "try { schema(x) } catch";
+const vetaFirstLabel = vetaSafeParse ? "safeParse(schema, x, undefined, { maxIssues: 1 })" : "try { schema(x) } catch (e) { e.message }";
+
+// Sanity for the added modes: valid accepted, invalid rejected, first issue is a non-empty message.
+if (vetaCheck(vetaSimple, simpleData) !== true || vetaCheck(vetaSimple, invalid) !== false) throw new Error("[sanity] Veta check mode");
+if (typeboxSimple.Check(simpleData) !== true || typeboxSimple.Check(invalid) !== false) throw new Error("[sanity] TypeBox Check");
+if (!yupSimple.isValidSync(simpleData) || yupSimple.isValidSync(invalid)) throw new Error("[sanity] Yup isValidSync");
+if (!zodSimple.safeParse(simpleData).success || zodSimple.safeParse(invalid).success) throw new Error("[sanity] Zod safeParse");
+if (joiSimple.validate(simpleData).error !== undefined || joiSimple.validate(invalid).error === undefined) throw new Error("[sanity] Joi validate");
+if (vetaFirst(vetaSimple, simpleData) !== "" || !vetaFirst(vetaSimple, invalid)) throw new Error("[sanity] Veta first issue");
+if (!typeboxSimple.Errors(invalid)[0]?.message) throw new Error("[sanity] TypeBox Errors()[0]");
+
 const rec = new Recorder("veta-vs");
 header("Validation Benchmark", "Veta vs Zod / Yup / Joi / TypeBox");
 
@@ -183,5 +207,31 @@ error.add("Zod", bench("Zod throws", () => { try { zodSimple.parse(invalid); } c
 error.add("Yup", bench("Yup throws", () => { try { yupSimple.validateSync(invalid); } catch {} }));
 error.add("Joi", bench("Joi returns error", () => joiSimple.validate(invalid)));
 error.add("TypeBox", bench("TypeBox throws", () => { try { typeboxSimple.Parse(invalid); } catch {} }));
+
+section("Boolean check (valid input, no result object):");
+const check = rec.suite({
+  id: "veta-check", group: "Veta", row: "Check (boolean)", library: "@coderbuzz/veta", type: "throughput",
+  description: `Valid/invalid decision only, simple object. Veta uses ${vetaCheckLabel} (feature-detected: is() from veta 0.6, older versions try/catch); Zod safeParse().success, Yup isValidSync, Joi validate().error, TypeBox Check. Input is valid.`,
+  code: `${vetaCheckLabel} vs safeParse(x).success`,
+  unit: "ops/s", higherIsBetter: true,
+});
+check.add("@coderbuzz/veta", bench("Veta " + vetaCheckLabel, () => vetaCheck(vetaSimple, simpleData)));
+check.add("Zod", bench("Zod safeParse", () => zodSimple.safeParse(simpleData).success));
+check.add("Yup", bench("Yup isValidSync", () => yupSimple.isValidSync(simpleData)));
+check.add("Joi", bench("Joi validate", () => joiSimple.validate(simpleData).error === undefined));
+check.add("TypeBox", bench("TypeBox Check", () => typeboxSimple.Check(simpleData)));
+
+section("First issue only (invalid input):");
+const first = rec.suite({
+  id: "veta-error-first", group: "Veta", row: "Error, first issue", library: "@coderbuzz/veta", type: "throughput",
+  description: `Invalid input, read the first issue message only. Veta uses ${vetaFirstLabel}; Zod has no first-error mode and runs a full safeParse; Yup validateSync and Joi validate stop at the first error by default; TypeBox Errors()[0]`,
+  code: vetaFirstLabel,
+  unit: "ops/s", higherIsBetter: true,
+});
+first.add("@coderbuzz/veta", bench("Veta first issue", () => vetaFirst(vetaSimple, invalid)));
+first.add("Zod", bench("Zod safeParse", () => zodSimple.safeParse(invalid).error!.issues[0]!.message));
+first.add("Yup", bench("Yup validateSync", () => { try { yupSimple.validateSync(invalid); } catch (e: any) { return e.message; } }));
+first.add("Joi", bench("Joi validate", () => joiSimple.validate(invalid).error!.message));
+first.add("TypeBox", bench("TypeBox Errors", () => typeboxSimple.Errors(invalid)[0]!.message));
 
 rec.save();
