@@ -3,7 +3,7 @@
     "schemaVersion": 2,
     "date": "2026-10-09",
     "runtime": "Bun 1.4.2",
-    "machine": "Intel(R) Xeon(R) Processor @ 2.10GHz, 4 cores, linux (x64)",
+    "machine": "Intel(R) Xeon(R) Processor @ 2.80GHz, 4 cores, linux (x64)",
     "http": {
       "tool": "oha",
       "connections": 100,
@@ -17,6 +17,7 @@
       "warmupIterations": 1000,
       "roundTargetMs": 300,
       "rounds": 3,
+      "processes": 3,
       "take": "best"
     },
     "packages": {
@@ -41,7 +42,7 @@
       "yup": "1.7.1",
       "zod": "4.6.5"
     },
-    "note": "Measured on the npm releases velox 0.8.0 / veta 0.6.1 / proto 0.3.2 / kvs-server 6.1.3 / sql 0.9.5."
+    "note": "Measured on the npm releases velox 0.8.0 / veta 0.6.1 / proto 0.3.2 / kvs-server 6.1.3 / sql 0.9.5. From this run on, each micro-benchmark is the best of 3 separate processes (BENCH_PROCESSES=3)."
   },
   "suites": [
     {
@@ -57,31 +58,31 @@
       "entries": [
         {
           "name": "Elysia",
-          "value": 144682,
+          "value": 119400,
           "winner": true,
-          "factorVsNext": 1.046,
+          "factorVsNext": 1.03,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/velox",
-          "value": 138310,
+          "value": 115905,
           "winner": true,
-          "factorVsNext": 1.8,
-          "factorVsBest": 1.046
+          "factorVsNext": 2.061,
+          "factorVsBest": 1.03
         },
         {
           "name": "Hono",
-          "value": 76860,
+          "value": 56239,
           "winner": false,
-          "factorVsNext": 1.969,
-          "factorVsBest": 1.882
+          "factorVsNext": 2.534,
+          "factorVsBest": 2.123
         },
         {
           "name": "Express",
-          "value": 39039,
+          "value": 22192,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 3.706
+          "factorVsBest": 5.38
         }
       ]
     },
@@ -98,31 +99,31 @@
       "entries": [
         {
           "name": "Elysia",
-          "value": 100137,
+          "value": 66086,
           "winner": true,
-          "factorVsNext": 1.017,
+          "factorVsNext": 1.031,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/velox",
-          "value": 98460,
+          "value": 64074,
           "winner": true,
-          "factorVsNext": 1.231,
-          "factorVsBest": 1.017
+          "factorVsNext": 1.138,
+          "factorVsBest": 1.031
         },
         {
           "name": "Hono",
-          "value": 79985,
+          "value": 56281,
           "winner": false,
-          "factorVsNext": 1.997,
-          "factorVsBest": 1.252
+          "factorVsNext": 2.759,
+          "factorVsBest": 1.174
         },
         {
           "name": "Express",
-          "value": 40044,
+          "value": 20400,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 2.501
+          "factorVsBest": 3.24
         }
       ]
     },
@@ -139,31 +140,31 @@
       "entries": [
         {
           "name": "@coderbuzz/velox",
-          "value": 51216,
+          "value": 29554,
           "winner": true,
-          "factorVsNext": 1.274,
+          "factorVsNext": 1.353,
           "factorVsBest": 1
         },
         {
           "name": "Elysia",
-          "value": 40209,
+          "value": 21849,
           "winner": false,
-          "factorVsNext": 1.171,
-          "factorVsBest": 1.274
+          "factorVsNext": 1.17,
+          "factorVsBest": 1.353
         },
         {
           "name": "Hono",
-          "value": 34325,
+          "value": 18667,
           "winner": false,
-          "factorVsNext": 1.808,
-          "factorVsBest": 1.492
+          "factorVsNext": 1.754,
+          "factorVsBest": 1.583
         },
         {
           "name": "Express",
-          "value": 18981,
+          "value": 10641,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 2.698
+          "factorVsBest": 2.777
         }
       ]
     },
@@ -180,38 +181,38 @@
       "entries": [
         {
           "name": "TypeBox",
-          "value": 166800816,
+          "value": 148399318,
           "winner": true,
-          "factorVsNext": 3.173,
+          "factorVsNext": 3.624,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/veta",
-          "value": 52576700,
+          "value": 40945417,
           "winner": false,
-          "factorVsNext": 10.81,
-          "factorVsBest": 3.173
+          "factorVsNext": 9.426,
+          "factorVsBest": 3.624
         },
         {
           "name": "Zod",
-          "value": 4863554,
+          "value": 4343792,
           "winner": false,
-          "factorVsNext": 6.997,
-          "factorVsBest": 34.296
+          "factorVsNext": 7.369,
+          "factorVsBest": 34.164
         },
         {
           "name": "Joi",
-          "value": 695130,
+          "value": 589436,
           "winner": false,
-          "factorVsNext": 5.189,
-          "factorVsBest": 239.956
+          "factorVsNext": 5.397,
+          "factorVsBest": 251.765
         },
         {
           "name": "Yup",
-          "value": 133957,
+          "value": 109214,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1245.182
+          "factorVsBest": 1358.794
         }
       ]
     },
@@ -228,38 +229,38 @@
       "entries": [
         {
           "name": "@coderbuzz/veta",
-          "value": 5219809,
+          "value": 3962562,
           "winner": true,
-          "factorVsNext": 4.351,
+          "factorVsNext": 3.807,
           "factorVsBest": 1
         },
         {
           "name": "Zod",
-          "value": 1199716,
+          "value": 1040735,
           "winner": false,
-          "factorVsNext": 9.072,
-          "factorVsBest": 4.351
+          "factorVsNext": 8.989,
+          "factorVsBest": 3.807
         },
         {
           "name": "Joi",
-          "value": 132243,
+          "value": 115775,
           "winner": false,
-          "factorVsNext": 1.569,
-          "factorVsBest": 39.471
+          "factorVsNext": 1.503,
+          "factorVsBest": 34.226
         },
         {
           "name": "TypeBox",
-          "value": 84265,
+          "value": 77038,
           "winner": false,
-          "factorVsNext": 2.775,
-          "factorVsBest": 61.945
+          "factorVsNext": 3.077,
+          "factorVsBest": 51.436
         },
         {
           "name": "Yup",
-          "value": 30370,
+          "value": 25035,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 171.874
+          "factorVsBest": 158.281
         }
       ]
     },
@@ -276,38 +277,38 @@
       "entries": [
         {
           "name": "@coderbuzz/veta",
-          "value": 536808,
+          "value": 419298,
           "winner": true,
-          "factorVsNext": 1.522,
+          "factorVsNext": 1.349,
           "factorVsBest": 1
         },
         {
           "name": "Joi",
-          "value": 352680,
+          "value": 310815,
           "winner": false,
-          "factorVsNext": 1.06,
-          "factorVsBest": 1.522
+          "factorVsNext": 1.245,
+          "factorVsBest": 1.349
         },
         {
           "name": "Zod",
-          "value": 332794,
+          "value": 249740,
           "winner": false,
-          "factorVsNext": 1.607,
-          "factorVsBest": 1.613
+          "factorVsNext": 1.307,
+          "factorVsBest": 1.679
         },
         {
           "name": "TypeBox",
-          "value": 207115,
+          "value": 191010,
           "winner": false,
-          "factorVsNext": 1.854,
-          "factorVsBest": 2.592
+          "factorVsNext": 2.079,
+          "factorVsBest": 2.195
         },
         {
           "name": "Yup",
-          "value": 111689,
+          "value": 91866,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 4.806
+          "factorVsBest": 4.564
         }
       ]
     },
@@ -324,38 +325,38 @@
       "entries": [
         {
           "name": "TypeBox",
-          "value": 80273068,
+          "value": 233106019,
           "winner": true,
-          "factorVsNext": 1.591,
+          "factorVsNext": 4.585,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/veta",
-          "value": 50457686,
+          "value": 50842666,
           "winner": false,
-          "factorVsNext": 11.033,
-          "factorVsBest": 1.591
+          "factorVsNext": 12.536,
+          "factorVsBest": 4.585
         },
         {
           "name": "Zod",
-          "value": 4573293,
+          "value": 4055808,
           "winner": false,
-          "factorVsNext": 7.125,
-          "factorVsBest": 17.553
+          "factorVsNext": 8.088,
+          "factorVsBest": 57.475
         },
         {
           "name": "Joi",
-          "value": 641887,
+          "value": 501455,
           "winner": false,
-          "factorVsNext": 5.426,
-          "factorVsBest": 125.058
+          "factorVsNext": 4.718,
+          "factorVsBest": 464.859
         },
         {
           "name": "Yup",
-          "value": 118306,
+          "value": 106295,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 678.521
+          "factorVsBest": 2193.01
         }
       ]
     },
@@ -372,38 +373,38 @@
       "entries": [
         {
           "name": "@coderbuzz/veta",
-          "value": 1547750,
+          "value": 1242493,
           "winner": true,
-          "factorVsNext": 2.959,
+          "factorVsNext": 2.856,
           "factorVsBest": 1
         },
         {
           "name": "Zod",
-          "value": 523117,
+          "value": 434997,
           "winner": false,
-          "factorVsNext": 1.399,
-          "factorVsBest": 2.959
+          "factorVsNext": 1.389,
+          "factorVsBest": 2.856
         },
         {
           "name": "Joi",
-          "value": 374052,
+          "value": 313079,
           "winner": false,
-          "factorVsNext": 1.464,
-          "factorVsBest": 4.138
+          "factorVsNext": 1.476,
+          "factorVsBest": 3.969
         },
         {
           "name": "TypeBox",
-          "value": 255462,
+          "value": 212161,
           "winner": false,
-          "factorVsNext": 2.181,
-          "factorVsBest": 6.059
+          "factorVsNext": 2.16,
+          "factorVsBest": 5.856
         },
         {
           "name": "Yup",
-          "value": 117154,
+          "value": 98226,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 13.211
+          "factorVsBest": 12.649
         }
       ]
     },
@@ -420,38 +421,38 @@
       "entries": [
         {
           "name": "@coderbuzz/veta",
-          "value": 9389807,
+          "value": 8622437,
           "winner": true,
-          "factorVsNext": 1.301,
+          "factorVsNext": 1.264,
           "factorVsBest": 1
         },
         {
           "name": "Zod",
-          "value": 7214749,
+          "value": 6822832,
           "winner": false,
-          "factorVsNext": 17.227,
-          "factorVsBest": 1.301
+          "factorVsNext": 17.991,
+          "factorVsBest": 1.264
         },
         {
           "name": "Joi",
-          "value": 418809,
+          "value": 379230,
           "winner": false,
-          "factorVsNext": 3.923,
-          "factorVsBest": 22.42
+          "factorVsNext": 3.871,
+          "factorVsBest": 22.737
         },
         {
           "name": "Yup",
-          "value": 106765,
+          "value": 97956,
           "winner": false,
-          "factorVsNext": 2.658,
-          "factorVsBest": 87.948
+          "factorVsNext": 2.669,
+          "factorVsBest": 88.024
         },
         {
           "name": "TypeBox",
-          "value": 40172,
+          "value": 36700,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 233.74
+          "factorVsBest": 234.944
         }
       ]
     },
@@ -468,17 +469,17 @@
       "entries": [
         {
           "name": "@coderbuzz/msgpack",
-          "value": 1467669,
+          "value": 1225993,
           "winner": true,
-          "factorVsNext": 3.969,
+          "factorVsNext": 4.079,
           "factorVsBest": 1
         },
         {
           "name": "@msgpack/msgpack",
-          "value": 369788,
+          "value": 300593,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 3.969
+          "factorVsBest": 4.079
         }
       ]
     },
@@ -495,17 +496,17 @@
       "entries": [
         {
           "name": "@coderbuzz/msgpack",
-          "value": 784511,
+          "value": 653299,
           "winner": true,
-          "factorVsNext": 1.723,
+          "factorVsNext": 1.986,
           "factorVsBest": 1
         },
         {
           "name": "@msgpack/msgpack",
-          "value": 455191,
+          "value": 328954,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.723
+          "factorVsBest": 1.986
         }
       ]
     },
@@ -549,24 +550,24 @@
       "entries": [
         {
           "name": "@coderbuzz/proto",
-          "value": 3475009,
+          "value": 2684528,
           "winner": true,
-          "factorVsNext": 1.338,
+          "factorVsNext": 1.293,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/msgpack",
-          "value": 2597721,
+          "value": 2076478,
           "winner": false,
-          "factorVsNext": 6.181,
-          "factorVsBest": 1.338
+          "factorVsNext": 6.412,
+          "factorVsBest": 1.293
         },
         {
           "name": "@msgpack/msgpack",
-          "value": 420295,
+          "value": 323842,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 8.268
+          "factorVsBest": 8.29
         }
       ]
     },
@@ -583,24 +584,24 @@
       "entries": [
         {
           "name": "@coderbuzz/proto",
-          "value": 1217906,
+          "value": 1000012,
           "winner": true,
-          "factorVsNext": 1.133,
+          "factorVsNext": 1.075,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/msgpack",
-          "value": 1075252,
+          "value": 930200,
           "winner": false,
-          "factorVsNext": 1.862,
-          "factorVsBest": 1.133
+          "factorVsNext": 2.099,
+          "factorVsBest": 1.075
         },
         {
           "name": "@msgpack/msgpack",
-          "value": 577392,
+          "value": 443267,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 2.109
+          "factorVsBest": 2.256
         }
       ]
     },
@@ -651,24 +652,24 @@
       "entries": [
         {
           "name": "bun:sqlite",
-          "value": 440377,
+          "value": 388369,
           "winner": true,
-          "factorVsNext": 7.331,
+          "factorVsNext": 7.372,
           "factorVsBest": 1
         },
         {
           "name": "Async SQLite",
-          "value": 60071,
+          "value": 52683,
           "winner": false,
-          "factorVsNext": 15.45,
-          "factorVsBest": 7.331
+          "factorVsNext": 18.459,
+          "factorVsBest": 7.372
         },
         {
           "name": "Async PostgreSQL",
-          "value": 3888,
+          "value": 2854,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 113.266
+          "factorVsBest": 136.079
         }
       ]
     },
@@ -685,24 +686,24 @@
       "entries": [
         {
           "name": "bun:sqlite",
-          "value": 716618,
+          "value": 642643,
           "winner": true,
-          "factorVsNext": 9.299,
+          "factorVsNext": 10.179,
           "factorVsBest": 1
         },
         {
           "name": "Async SQLite",
-          "value": 77068,
+          "value": 63133,
           "winner": false,
-          "factorVsNext": 5.684,
-          "factorVsBest": 9.299
+          "factorVsNext": 7.477,
+          "factorVsBest": 10.179
         },
         {
           "name": "Async PostgreSQL",
-          "value": 13559,
+          "value": 8444,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 52.852
+          "factorVsBest": 76.106
         }
       ]
     },
@@ -719,24 +720,24 @@
       "entries": [
         {
           "name": "bun:sqlite",
-          "value": 1383584,
+          "value": 1272140,
           "winner": true,
-          "factorVsNext": 15.24,
+          "factorVsNext": 18.248,
           "factorVsBest": 1
         },
         {
           "name": "Async SQLite",
-          "value": 90786,
+          "value": 69714,
           "winner": false,
-          "factorVsNext": 6.929,
-          "factorVsBest": 15.24
+          "factorVsNext": 7.764,
+          "factorVsBest": 18.248
         },
         {
           "name": "Async PostgreSQL",
-          "value": 13103,
+          "value": 8979,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 105.593
+          "factorVsBest": 141.679
         }
       ]
     },
@@ -753,24 +754,24 @@
       "entries": [
         {
           "name": "bun:sqlite",
-          "value": 512111,
+          "value": 463174,
           "winner": true,
-          "factorVsNext": 5.987,
+          "factorVsNext": 7.602,
           "factorVsBest": 1
         },
         {
           "name": "Async SQLite",
-          "value": 85539,
+          "value": 60929,
           "winner": false,
-          "factorVsNext": 20.657,
-          "factorVsBest": 5.987
+          "factorVsNext": 20.148,
+          "factorVsBest": 7.602
         },
         {
           "name": "Async PostgreSQL",
-          "value": 4141,
+          "value": 3024,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 123.668
+          "factorVsBest": 153.166
         }
       ]
     },
@@ -787,24 +788,24 @@
       "entries": [
         {
           "name": "bun:sqlite",
-          "value": 142070,
+          "value": 132339,
           "winner": true,
-          "factorVsNext": 5.84,
+          "factorVsNext": 6.287,
           "factorVsBest": 1
         },
         {
           "name": "Async SQLite",
-          "value": 24326,
+          "value": 21051,
           "winner": false,
-          "factorVsNext": 6.398,
-          "factorVsBest": 5.84
+          "factorVsNext": 8.007,
+          "factorVsBest": 6.287
         },
         {
           "name": "Async PostgreSQL",
-          "value": 3802,
+          "value": 2629,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 37.367
+          "factorVsBest": 50.338
         }
       ]
     },
@@ -821,17 +822,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 2373559273,
+          "value": 2665316886,
           "winner": true,
-          "factorVsNext": 148.81,
+          "factorVsNext": 213.93,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 15950304,
+          "value": 12458843,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 148.81
+          "factorVsBest": 213.93
         }
       ]
     },
@@ -848,17 +849,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 69226467,
+          "value": 53437701,
           "winner": true,
-          "factorVsNext": 6.028,
+          "factorVsNext": 5.111,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 11484354,
+          "value": 10455491,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 6.028
+          "factorVsBest": 5.111
         }
       ]
     },
@@ -875,17 +876,17 @@
       "entries": [
         {
           "name": "JSON",
-          "value": 6451660,
+          "value": 5691972,
           "winner": true,
-          "factorVsNext": 1.389,
+          "factorVsNext": 1.381,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 4645504,
+          "value": 4120186,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.389
+          "factorVsBest": 1.381
         }
       ]
     },
@@ -902,17 +903,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 3474206,
+          "value": 3083574,
           "winner": true,
-          "factorVsNext": 1.145,
+          "factorVsNext": 1.098,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 3033170,
+          "value": 2808439,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.145
+          "factorVsBest": 1.098
         }
       ]
     },
@@ -929,17 +930,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 7391182,
+          "value": 5865009,
           "winner": true,
-          "factorVsNext": 1.1,
+          "factorVsNext": 1.056,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 6721882,
+          "value": 5552694,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.1
+          "factorVsBest": 1.056
         }
       ]
     },
@@ -956,17 +957,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 6408394,
+          "value": 5251775,
           "winner": true,
-          "factorVsNext": 2.046,
+          "factorVsNext": 1.875,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 3132574,
+          "value": 2800665,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 2.046
+          "factorVsBest": 1.875
         }
       ]
     },
@@ -982,18 +983,18 @@
       "higherIsBetter": true,
       "entries": [
         {
-          "name": "@coderbuzz/velox-ws-wire",
-          "value": 7906880,
+          "name": "JSON",
+          "value": 5772779,
           "winner": true,
-          "factorVsNext": 1.076,
+          "factorVsNext": 1.008,
           "factorVsBest": 1
         },
         {
-          "name": "JSON",
-          "value": 7350646,
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 5727779,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.076
+          "factorVsBest": 1.008
         }
       ]
     },
@@ -1010,17 +1011,17 @@
       "entries": [
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 6468063,
+          "value": 5212338,
           "winner": true,
-          "factorVsNext": 2.137,
+          "factorVsNext": 1.818,
           "factorVsBest": 1
         },
         {
           "name": "JSON",
-          "value": 3026944,
+          "value": 2866296,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 2.137
+          "factorVsBest": 1.818
         }
       ]
     },
@@ -1036,18 +1037,18 @@
       "higherIsBetter": true,
       "entries": [
         {
-          "name": "@coderbuzz/velox-ws-wire",
-          "value": 10096957,
+          "name": "JSON",
+          "value": 9275838,
           "winner": true,
-          "factorVsNext": 1.086,
+          "factorVsNext": 1.199,
           "factorVsBest": 1
         },
         {
-          "name": "JSON",
-          "value": 9294089,
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 7733281,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.086
+          "factorVsBest": 1.199
         }
       ]
     },
@@ -1064,17 +1065,17 @@
       "entries": [
         {
           "name": "JSON",
-          "value": 7393700,
+          "value": 7245365,
           "winner": true,
-          "factorVsNext": 1.411,
+          "factorVsNext": 1.216,
           "factorVsBest": 1
         },
         {
           "name": "@coderbuzz/velox-ws-wire",
-          "value": 5241883,
+          "value": 5957088,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 1.411
+          "factorVsBest": 1.216
         }
       ]
     },
@@ -1226,24 +1227,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 892226,
+          "value": 730018,
           "winner": true,
-          "factorVsNext": 2.308,
+          "factorVsNext": 2.214,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 386536,
+          "value": 329767,
           "winner": false,
-          "factorVsNext": 12.231,
-          "factorVsBest": 2.308
+          "factorVsNext": 11.528,
+          "factorVsBest": 2.214
         },
         {
           "name": "Drizzle ORM",
-          "value": 31604,
+          "value": 28606,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 28.231
+          "factorVsBest": 25.52
         }
       ]
     },
@@ -1260,24 +1261,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 429194,
+          "value": 388506,
           "winner": true,
-          "factorVsNext": 1.887,
+          "factorVsNext": 2.049,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 227499,
+          "value": 189608,
           "winner": false,
-          "factorVsNext": 14.993,
-          "factorVsBest": 1.887
+          "factorVsNext": 13.828,
+          "factorVsBest": 2.049
         },
         {
           "name": "Drizzle ORM",
-          "value": 15174,
+          "value": 13712,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 28.285
+          "factorVsBest": 28.333
         }
       ]
     },
@@ -1294,24 +1295,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 1179221,
+          "value": 1166107,
           "winner": true,
-          "factorVsNext": 5.041,
+          "factorVsNext": 6.124,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 233934,
+          "value": 190417,
           "winner": false,
-          "factorVsNext": 6.514,
-          "factorVsBest": 5.041
+          "factorVsNext": 5.427,
+          "factorVsBest": 6.124
         },
         {
           "name": "Drizzle ORM",
-          "value": 35911,
+          "value": 35090,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 32.837
+          "factorVsBest": 33.232
         }
       ]
     },
@@ -1328,24 +1329,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 57494,
+          "value": 51053,
           "winner": true,
-          "factorVsNext": 7.315,
+          "factorVsNext": 6.868,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 7860,
+          "value": 7434,
           "winner": false,
-          "factorVsNext": 11.408,
-          "factorVsBest": 7.315
+          "factorVsNext": 13.443,
+          "factorVsBest": 6.868
         },
         {
           "name": "Drizzle ORM",
-          "value": 689,
+          "value": 553,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 83.446
+          "factorVsBest": 92.32
         }
       ]
     },
@@ -1362,24 +1363,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 296815,
+          "value": 254705,
           "winner": true,
-          "factorVsNext": 2.226,
+          "factorVsNext": 2.255,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 133328,
+          "value": 112974,
           "winner": false,
-          "factorVsNext": 3.933,
-          "factorVsBest": 2.226
+          "factorVsNext": 4.46,
+          "factorVsBest": 2.255
         },
         {
           "name": "Drizzle ORM",
-          "value": 33904,
+          "value": 25328,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 8.755
+          "factorVsBest": 10.056
         }
       ]
     },
@@ -1396,24 +1397,24 @@
       "entries": [
         {
           "name": "@coderbuzz/sql",
-          "value": 339167,
+          "value": 334875,
           "winner": true,
-          "factorVsNext": 4.106,
+          "factorVsNext": 4.782,
           "factorVsBest": 1
         },
         {
           "name": "Kysely",
-          "value": 82595,
+          "value": 70027,
           "winner": false,
-          "factorVsNext": 6.333,
-          "factorVsBest": 4.106
+          "factorVsNext": 5.797,
+          "factorVsBest": 4.782
         },
         {
           "name": "Drizzle ORM",
-          "value": 13043,
+          "value": 12079,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 26.004
+          "factorVsBest": 27.724
         }
       ]
     },
@@ -1430,24 +1431,24 @@
       "entries": [
         {
           "name": "KVS direct",
-          "value": 443497,
+          "value": 399791,
           "winner": true,
-          "factorVsNext": 17.277,
+          "factorVsNext": 24.889,
           "factorVsBest": 1
         },
         {
           "name": "WS RPC",
-          "value": 25670,
+          "value": 16063,
           "winner": false,
-          "factorVsNext": 2.357,
-          "factorVsBest": 17.277
+          "factorVsNext": 2.077,
+          "factorVsBest": 24.889
         },
         {
           "name": "HTTP REST",
-          "value": 10893,
+          "value": 7732,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 40.714
+          "factorVsBest": 51.706
         }
       ]
     },
@@ -1464,24 +1465,24 @@
       "entries": [
         {
           "name": "KVS direct",
-          "value": 502120,
+          "value": 504919,
           "winner": true,
-          "factorVsNext": 19.292,
+          "factorVsNext": 28.869,
           "factorVsBest": 1
         },
         {
           "name": "WS RPC",
-          "value": 26028,
+          "value": 17490,
           "winner": false,
-          "factorVsNext": 2.69,
-          "factorVsBest": 19.292
+          "factorVsNext": 2.469,
+          "factorVsBest": 28.869
         },
         {
           "name": "HTTP REST",
-          "value": 9676,
+          "value": 7084,
           "winner": false,
           "factorVsNext": null,
-          "factorVsBest": 51.893
+          "factorVsBest": 71.276
         }
       ]
     }
