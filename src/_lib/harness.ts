@@ -2,7 +2,10 @@
 //
 // - Warmup, then calibrate the iteration count so each timed round lasts ~TARGET_MS.
 // - ROUNDS timed rounds, best (highest ops/s) is reported.
-// - Every result is written to a module-level sink so the JIT cannot drop the call.
+// - Every result is written to a sink so the JIT cannot drop the call.
+// - Each bench() gets its own timing loop. A shared loop sees every closure at one call site, and
+//   after a few sections its JIT state, not the code under test, set the number: identical code read
+//   65M to 509M ops/s depending on what ran before it.
 // - Suites are saved to results/raw/<file>.json and assembled by scripts/build-results.ts.
 // - BENCH_MERGE=1 keeps the better of this run and the saved file per entry, so separate
 //   processes can be combined (scripts/run-all.sh); one process can sit in a slow JIT mode.
@@ -14,8 +17,6 @@ const ROUNDS = Number(process.env.BENCH_ROUNDS ?? 3);
 const TARGET_MS = Number(process.env.BENCH_TARGET_MS ?? 300);
 const WARMUP = 1_000;
 const MIN_ITERATIONS = 1_000;
-
-export let sink: unknown;
 
 export interface BenchOptions {
   /** Fixed iteration count per round (skips calibration). */
@@ -38,16 +39,30 @@ function report(label: string, ops: number, iterations: number) {
   console.log(`  ${label.padEnd(28)} ${ops.toLocaleString().padStart(14)} ops/s  ${c.dim(`(best of ${ROUNDS} × ${iterations.toLocaleString()})`)}`);
 }
 
-function runSync(fn: (i: number) => unknown, n: number): number {
+export let sink: unknown;
+const box: { sink: unknown } = { sink: undefined };
+let loops = 0;
+
+type SyncLoop = (fn: (i: number) => unknown, n: number) => number;
+type AsyncLoop = (fn: (i: number) => Promise<unknown>, n: number) => Promise<number>;
+const AsyncFunction = (async () => {}).constructor as FunctionConstructor;
+
+// The source is unique per loop: JSC shares compiled code between identical function sources,
+// which would make the loops one shared loop again.
+function syncLoop(label: string): SyncLoop {
+  return new Function("box", `return function runSync(fn, n) { // ${label.replace(/[\r\n]/g, " ")} #${loops++}
   const start = performance.now();
-  for (let i = 0; i < n; i++) sink = fn(i);
+  for (let i = 0; i < n; i++) box.sink = fn(i);
   return performance.now() - start;
+};`)(box);
 }
 
-async function runAsync(fn: (i: number) => Promise<unknown>, n: number): Promise<number> {
+function asyncLoop(label: string): AsyncLoop {
+  const loop = new AsyncFunction("box", "fn", "n", `// ${label.replace(/[\r\n]/g, " ")} #${loops++}
   const start = performance.now();
-  for (let i = 0; i < n; i++) sink = await fn(i);
-  return performance.now() - start;
+  for (let i = 0; i < n; i++) box.sink = await fn(i);
+  return performance.now() - start;`);
+  return (fn, n) => loop(box, fn, n);
 }
 
 function scale(n: number, elapsed: number): number {
@@ -55,6 +70,7 @@ function scale(n: number, elapsed: number): number {
 }
 
 export function bench(label: string, fn: (i: number) => unknown, opts: BenchOptions = {}): number {
+  const runSync = syncLoop(label);
   let n = opts.iterations ?? 0;
   if (!n) {
     runSync(fn, WARMUP);
@@ -71,12 +87,14 @@ export function bench(label: string, fn: (i: number) => unknown, opts: BenchOpti
     opts.beforeRound?.(n);
     best = Math.max(best, n / runSync(fn, n));
   }
+  sink = box.sink;
   const ops = Math.round(best * 1000);
   report(label, ops, n);
   return ops;
 }
 
 export async function benchAsync(label: string, fn: (i: number) => Promise<unknown>, opts: BenchOptions = {}): Promise<number> {
+  const runAsync = asyncLoop(label);
   let n = opts.iterations ?? 0;
   if (!n) {
     await runAsync(fn, WARMUP);
@@ -93,6 +111,7 @@ export async function benchAsync(label: string, fn: (i: number) => Promise<unkno
     await opts.beforeRound?.(n);
     best = Math.max(best, n / (await runAsync(fn, n)));
   }
+  sink = box.sink;
   const ops = Math.round(best * 1000);
   report(label, ops, n);
   return ops;

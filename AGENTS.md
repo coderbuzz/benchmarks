@@ -73,10 +73,19 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
   Any non-2xx during a run fails it.
 - Micro-benchmarks (`src/_lib/harness.ts`): 1k warmup calls, iterations calibrated to ~300 ms per round,
   3 rounds, best taken. Results go to a sink (no dead-code elimination). Each file runs sanity checks first.
+  Every `bench()`/`benchAsync()` gets its own timing loop, built with `new Function` from a source unique to
+  that bench. Until 2026-10-10 one loop served a whole file: its call site saw every closure, and its JIT state
+  after the earlier sections set the result (identical code read 65M to 509M ops/s between processes; the
+  veta Check row's winner was close to random). Identical source would share compiled code, so keep it unique.
+- A pure, non-allocating call on a constant input can be hoisted out of a monomorphic loop. Give such rows
+  inputs that change per call (the veta Simple and Check rows alternate two valid objects via `i & 1`), the
+  same for every library in the suite.
   `bench:all` runs each micro-benchmark in `BENCH_PROCESSES` (default 3) separate processes and keeps the best
   value per entry (`BENCH_MERGE=1` merges into the saved raw file). Rounds alone are not enough: some cases are
   bimodal per process, fixed at warmup. On a non-reference VM (2026-10-09), five `veta:vs` processes with
-  unchanged code read Veta `is()` at 44M or 66-74M ops/s and TypeBox `Check` at 64-68M or 120-146M.
+  unchanged code read Veta `is()` at 44M or 66-74M ops/s and TypeBox `Check` at 64-68M or 120-146M. Most of that was
+  the shared timing loop (fixed 2026-10-10, below); with one loop per bench three processes read 102.0-102.5M
+  and 78.9-81.7M. Keep the separate processes anyway.
   A single `bun run <bench>` is one process; for a publishable figure use the `bench:all` loop.
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
