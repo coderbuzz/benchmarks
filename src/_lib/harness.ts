@@ -4,8 +4,10 @@
 // - ROUNDS timed rounds, best (highest ops/s) is reported.
 // - Every result is written to a module-level sink so the JIT cannot drop the call.
 // - Suites are saved to results/raw/<file>.json and assembled by scripts/build-results.ts.
+// - BENCH_MERGE=1 keeps the better of this run and the saved file per entry, so separate
+//   processes can be combined (scripts/run-all.sh); one process can sit in a slow JIT mode.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROUNDS = Number(process.env.BENCH_ROUNDS ?? 3);
@@ -162,6 +164,16 @@ export class Recorder {
     const dir = join(import.meta.dir, "../../results/raw");
     mkdirSync(dir, { recursive: true });
     const path = join(dir, `${this.file}.json`);
+    if (process.env.BENCH_MERGE === "1" && existsSync(path)) {
+      const prev = (JSON.parse(readFileSync(path, "utf8")) as { suites: RawSuite[] }).suites;
+      for (const s of this.suites) {
+        const old = prev.find((p) => p.id === s.id);
+        for (const e of s.entries) {
+          const o = old?.entries.find((x) => x.name === e.name)?.value;
+          if (o !== undefined) e.value = s.higherIsBetter ? Math.max(e.value, o) : Math.min(e.value, o);
+        }
+      }
+    }
     writeFileSync(path, JSON.stringify({ file: this.file, date: new Date().toISOString(), suites: this.suites }, null, 2) + "\n");
     console.log(`\n${c.green("✓")} ${c.dim(`saved ${path.replace(join(import.meta.dir, "../../"), "")}`)}`);
   }
