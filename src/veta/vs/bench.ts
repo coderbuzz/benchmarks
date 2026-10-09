@@ -108,6 +108,8 @@ const typeboxComplex = Compile(Type.Object({
 }));
 
 const simpleData = { name: "Alice", age: 30, active: true };
+// Two valid inputs, alternated per call: with one constant input the JIT may hoist a pure check out of the loop.
+const simpleInputs = [simpleData, { name: "Bob", age: 41, active: false }];
 // Fresh object per call: TypeBox's Convert mutates its input, and a pre-coerced
 // object would let every later library skip the coercion work.
 const complexData = () => ({
@@ -148,7 +150,8 @@ expectFail("TypeBox invalid", () => typeboxSimple.Parse(invalid));
 const vetaIs: ((v: any, x: unknown) => boolean) | undefined = (veta as any).is;
 const vetaSafeParse: ((v: any, x: unknown, ctx?: unknown, o?: { maxIssues?: number }) => any) | undefined = (veta as any).safeParse;
 const FIRST = { maxIssues: 1 };
-const vetaCheck = (v: any, x: unknown) => vetaIs ? vetaIs(v, x) : (() => { try { v(x); return true; } catch { return false; } })();
+// is() itself when present, so Veta is called as directly as TypeBox's Check.
+const vetaCheck = vetaIs ?? ((v: any, x: unknown) => { try { v(x); return true; } catch { return false; } });
 const vetaFirst = (v: any, x: unknown) => {
   if (!vetaSafeParse) { try { v(x); return ""; } catch (e: any) { return e.message; } }
   const r = vetaSafeParse(v, x, undefined, FIRST);
@@ -158,6 +161,10 @@ const vetaCheckLabel = vetaIs ? "is(schema, x)" : "try { schema(x) } catch";
 const vetaFirstLabel = vetaSafeParse ? "safeParse(schema, x, undefined, { maxIssues: 1 })" : "try { schema(x) } catch (e) { e.message }";
 
 // Sanity for the added modes: valid accepted, invalid rejected, first issue is a non-empty message.
+for (const x of simpleInputs) {
+  if (vetaCheck(vetaSimple, x) !== true || typeboxSimple.Check(x) !== true || !zodSimple.safeParse(x).success) throw new Error("[sanity] valid input rejected");
+  if (!yupSimple.isValidSync(x) || joiSimple.validate(x).error !== undefined) throw new Error("[sanity] valid input rejected");
+}
 if (vetaCheck(vetaSimple, simpleData) !== true || vetaCheck(vetaSimple, invalid) !== false) throw new Error("[sanity] Veta check mode");
 if (typeboxSimple.Check(simpleData) !== true || typeboxSimple.Check(invalid) !== false) throw new Error("[sanity] TypeBox Check");
 if (!yupSimple.isValidSync(simpleData) || yupSimple.isValidSync(invalid)) throw new Error("[sanity] Yup isValidSync");
@@ -176,11 +183,11 @@ const simple = rec.suite({
   code: "object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })",
   unit: "ops/s", higherIsBetter: true,
 });
-simple.add("@coderbuzz/veta", bench("Veta", () => vetaSimple(simpleData)));
-simple.add("Zod", bench("Zod", () => zodSimple.parse(simpleData)));
-simple.add("Yup", bench("Yup", () => yupSimple.validateSync(simpleData)));
-simple.add("Joi", bench("Joi", () => joiSimple.validate(simpleData)));
-simple.add("TypeBox", bench("TypeBox (Compile)", () => typeboxSimple.Parse(simpleData)));
+simple.add("@coderbuzz/veta", bench("Veta", (i) => vetaSimple(simpleInputs[i & 1])));
+simple.add("Zod", bench("Zod", (i) => zodSimple.parse(simpleInputs[i & 1])));
+simple.add("Yup", bench("Yup", (i) => yupSimple.validateSync(simpleInputs[i & 1])));
+simple.add("Joi", bench("Joi", (i) => joiSimple.validate(simpleInputs[i & 1])));
+simple.add("TypeBox", bench("TypeBox (Compile)", (i) => typeboxSimple.Parse(simpleInputs[i & 1])));
 
 section("Complex nested object with coercion:");
 const complex = rec.suite({
@@ -211,15 +218,15 @@ error.add("TypeBox", bench("TypeBox throws", () => { try { typeboxSimple.Parse(i
 section("Boolean check (valid input, no result object):");
 const check = rec.suite({
   id: "veta-check", group: "Veta", row: "Check (boolean)", library: "@coderbuzz/veta", type: "throughput",
-  description: `Valid/invalid decision only, simple object. Veta uses ${vetaCheckLabel} (feature-detected: is() from veta 0.6, older versions try/catch); Zod safeParse().success, Yup isValidSync, Joi validate().error, TypeBox Check. Input is valid.`,
+  description: `Valid/invalid decision only, simple object. Veta uses ${vetaCheckLabel} (feature-detected: is() from veta 0.6, older versions try/catch); Zod safeParse().success, Yup isValidSync, Joi validate().error, TypeBox Check. Input is valid: two objects, alternated per call.`,
   code: `${vetaCheckLabel} vs safeParse(x).success`,
   unit: "ops/s", higherIsBetter: true,
 });
-check.add("@coderbuzz/veta", bench("Veta " + vetaCheckLabel, () => vetaCheck(vetaSimple, simpleData)));
-check.add("Zod", bench("Zod safeParse", () => zodSimple.safeParse(simpleData).success));
-check.add("Yup", bench("Yup isValidSync", () => yupSimple.isValidSync(simpleData)));
-check.add("Joi", bench("Joi validate", () => joiSimple.validate(simpleData).error === undefined));
-check.add("TypeBox", bench("TypeBox Check", () => typeboxSimple.Check(simpleData)));
+check.add("@coderbuzz/veta", bench("Veta " + vetaCheckLabel, (i) => vetaCheck(vetaSimple, simpleInputs[i & 1])));
+check.add("Zod", bench("Zod safeParse", (i) => zodSimple.safeParse(simpleInputs[i & 1]).success));
+check.add("Yup", bench("Yup isValidSync", (i) => yupSimple.isValidSync(simpleInputs[i & 1])));
+check.add("Joi", bench("Joi validate", (i) => joiSimple.validate(simpleInputs[i & 1]).error === undefined));
+check.add("TypeBox", bench("TypeBox Check", (i) => typeboxSimple.Check(simpleInputs[i & 1])));
 
 section("First issue only (invalid input):");
 const first = rec.suite({
