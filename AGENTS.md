@@ -2,9 +2,11 @@
 
 Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime.
 
-**Reference machine:** the Claude Code cloud environment, Linux x64, Intel Xeon @ 2.10GHz, 4 cores.
-Every published result comes from this machine so runs stay comparable. Do not publish results from a
-laptop or another host; run them there for local checks only.
+**Reference machine:** the Claude Code cloud environment (Linux x64, 4 cores). Its Xeon clock varies between
+sessions (2.10GHz and 2.80GHz seen, same family 6 model 85); every run records the CPU in `meta.machine` and the
+README header. Publish only full `bench:all` runs, so every table comes from one machine and one run, and never
+mix groups from different runs. Compare absolute numbers across runs only when `meta.machine` matches. Do not
+publish results from a laptop or another host; run them there for local checks only.
 
 ## Run commands
 
@@ -90,7 +92,7 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
-- Measured variance on the reference machine (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
+- Measured variance on the reference machine, 2.10GHz CPU (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
   spread up to 10.1%; the reported best-of-3 figure moved up to 8.1% between the two runs. Micro-benchmarks
   vary more: `@coderbuzz/msgpack` encode read 1.34M to 1.84M ops/s across five runs that day (27%), with
   unchanged code. Re-measure after a Bun or machine change.
