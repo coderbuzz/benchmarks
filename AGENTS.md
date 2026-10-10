@@ -89,6 +89,8 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
   the shared timing loop (fixed 2026-10-10, below); with one loop per bench three processes read 102.0-102.5M
   and 78.9-81.7M. Keep the separate processes anyway.
   A single `bun run <bench>` is one process; for a publishable figure use the `bench:all` loop.
+- No suite for an operation with no work in it: `encodePing()` returns a pre-built buffer, so PING has a decode
+  and a wire-size row but no encode row.
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
@@ -114,7 +116,7 @@ Two formats, two audiences, one source (`results/raw/*.json`, gitignored):
   has `winner`, `factorVsNext` (`null` for last), `factorVsBest`. In HTTP suites every entry within
   `meta.http.tieThreshold` (0.1) of the best is a winner, since smaller gaps are run-to-run noise; in other suites
   only the best value wins.
-- Suites compare like with like: one suite per operation (e.g. `kvs-set`, `velox-ws-wire-ping-encode`).
+- Suites compare like with like: one suite per operation (e.g. `kvs-set`, `velox-ws-wire-publish-encode`).
 - Consumption pattern: `fetch('https://raw.githubusercontent.com/coderbuzz/benchmarks/main/results/latest.json')` → `data.suites.find(s => s.id === 'veta-simple').entries.find(e => e.winner)`.
 
 ## Git workflow (required)

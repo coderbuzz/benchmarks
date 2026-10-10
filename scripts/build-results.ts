@@ -45,7 +45,7 @@ const GROUPS: Record<string, GroupLayout> = {
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
   "KVS": { note: "ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.", winner: false },
-  "Velox WS Wire": { note: "ops/s, higher is better. `encodePing()` returns a shared pre-built buffer, so PING encode measures call overhead only." },
+  "Velox WS Wire": { note: "ops/s, higher is better. PING has no encode row: `encodePing()` returns a shared pre-built buffer, so there is no encoding to measure." },
   "Velox WS Wire (size)": { note: "bytes, smaller is better." },
   "SQL": { note: "ops/s, higher is better. Compilation only, no DB execution." },
   "KVS Server": { note: "ops/s, higher is better. Sequential, one client; % is of direct in-process access.", winner: false, pctOfFirst: true },
