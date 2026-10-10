@@ -11,7 +11,7 @@ import { $ } from "bun";
 import { join } from "node:path";
 import { Recorder, color, header } from "../_lib/harness";
 
-const RUNS = Number(process.env.HTTP_RUNS ?? 5);
+const RUNS = Number(process.env.HTTP_RUNS ?? 4);
 const DURATION = process.env.HTTP_DURATION ?? "10s";
 const WARMUP = process.env.HTTP_WARMUP ?? "3s";
 const CONNECTIONS = 100;
