@@ -1,8 +1,11 @@
 // HTTP benchmark runner: bun src/velox/http-bench.ts <static-value|dynamic|validation>
 //
-// Per framework: spawn server (NODE_ENV=production) → wait until it answers → sanity-check
-// the response (and, for validation, that invalid input is rejected) → warmup → RUNS timed
-// runs with oha (or wrk with WRK=1) → best req/s. Any non-2xx response fails the run.
+// RUNS rounds. Each round runs every framework once, in an order rotated by one per round
+// (round 1: Velox first, round 2: Elysia first, ...), so no framework always runs first or
+// right after another. Each run is a fresh server process (NODE_ENV=production) → wait until
+// it answers → sanity-check the response (and, for validation, that invalid input is
+// rejected) → warmup → one timed run with oha (or wrk with WRK=1). Reported: best run per
+// framework. Any non-2xx response fails the run.
 
 import { $ } from "bun";
 import { join } from "node:path";
@@ -130,38 +133,45 @@ const suite = rec.suite({
   ...scenario.suite, group: "Velox", library: "@coderbuzz/velox", type: "http",
   unit: "req/s", higherIsBetter: true,
 });
-const results: [string, number][] = [];
+const best = new Map<string, number>(FRAMEWORKS.map(([name]) => [name, 0]));
+const runs = new Map<string, number[]>(FRAMEWORKS.map(([name]) => [name, []]));
 
-for (const [name, label, file] of FRAMEWORKS) {
+async function timedRun([name, label, file]: (typeof FRAMEWORKS)[number]) {
   await freePort();
-  console.log(`\n  ${color.bold(color.yellow(`▸ ${label}`))}`);
   const proc = Bun.spawn(["bun", join(import.meta.dir, scenarioName, file)], {
     cwd: ROOT, env: { ...process.env, NODE_ENV: "production" }, stdout: "ignore", stderr: "inherit",
   });
   try {
     const first = await waitReady(proc, scenario.request);
     if (first.status !== 200 || JSON.stringify(JSON.parse(first.body)) !== EXPECTED) {
-      throw new Error(`[sanity] unexpected response ${first.status}: ${first.body}`);
+      throw new Error(`[sanity] ${label}: unexpected response ${first.status}: ${first.body}`);
     }
     for (const bad of scenario.invalid ?? []) {
       const r = await send(bad);
-      if (r.status < 400 || r.status > 499) throw new Error(`[sanity] invalid request not rejected with 4xx (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
+      if (r.status < 400 || r.status > 499) throw new Error(`[sanity] ${label}: invalid request not rejected with 4xx (${r.status}): ${bad.path} ${JSON.stringify(bad.headers)} ${bad.body ?? ""}`);
     }
     await load(scenario, WARMUP);
-    let best = 0;
-    for (let i = 1; i <= RUNS; i++) {
-      const rps = await load(scenario, DURATION);
-      best = Math.max(best, rps);
-      console.log(`    run ${i}: ${Math.round(rps).toLocaleString().padStart(10)} req/s`);
-    }
-    console.log(`    ${color.green("best")}: ${Math.round(best).toLocaleString().padStart(9)} req/s`);
-    results.push([label, best]);
-    suite.add(name, Math.round(best));
+    const rps = await load(scenario, DURATION);
+    runs.get(name)!.push(rps);
+    best.set(name, Math.max(best.get(name)!, rps));
+    console.log(`    ${label.padEnd(10)} ${Math.round(rps).toLocaleString().padStart(10)} req/s`);
   } finally {
     proc.kill();
     await proc.exited;
     await freePort();
   }
+}
+
+for (let round = 0; round < RUNS; round++) {
+  console.log(`\n  ${color.bold(color.yellow(`▸ round ${round + 1}`))}`);
+  for (let i = 0; i < FRAMEWORKS.length; i++) await timedRun(FRAMEWORKS[(round + i) % FRAMEWORKS.length]);
+}
+
+const results: [string, number][] = [];
+for (const [name, label] of FRAMEWORKS) {
+  results.push([label, best.get(name)!]);
+  suite.add(name, Math.round(best.get(name)!));
+  console.log(`  ${label.padEnd(10)} runs: ${runs.get(name)!.map((v) => Math.round(v).toLocaleString()).join(", ")}`);
 }
 
 console.log(`\n  ${color.bold("Summary (best of runs):")}`);
