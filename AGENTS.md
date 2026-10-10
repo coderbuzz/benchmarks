@@ -2,14 +2,19 @@
 
 Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime.
 
-**Reference machine:** the Claude Code cloud environment (Linux x64, 4 cores). Its CPU varies between sessions:
-2.10GHz and 2.80GHz Xeons (family 6 model 85) and a 2.10GHz family 6 model 207. The model name alone does not tell
-them apart: the 2026-10-10 run (#41, model 207) read about 13% higher on micro-benchmarks and 9% on HTTP than #39,
-whose `meta.machine` label was identical. The clock is no guide either: the 2.80GHz machine was the slowest on HTTP.
-Every run records the CPU in `meta.machine` and the README header, including family, model and stepping since
-2026-10-10. Publish only full `bench:all` runs, so every table comes from one machine and one run, and never
-mix groups from different runs. Compare absolute numbers across runs only when `meta.machine` matches. Do not
-publish results from a laptop or another host; run them there for local checks only.
+**Reference machine:** one fixed dev VM since 2026-10-10: Intel Xeon Platinum 8255C @ 2.50GHz (family 6 model 85
+stepping 5), 4 cores, 7 GB, Linux x64, PostgreSQL 16 in Docker on the same VM. Published results come only from
+this VM, so every run is on the same CPU. Before that the reference was the Claude Code cloud environment, whose
+CPU changed between sessions (2.10GHz and 2.80GHz Xeons, family 6 model 85 or 207; the same model name read 13%
+apart), so its runs could not be compared with each other. Cloud sessions and laptops are for local checks only.
+
+The VM is shared with other agent sessions. Start a run only when it is quiet: `uptime` load average below 0.5
+and no build, test or other benchmark running (`ps -eo pcpu,comm --sort=-pcpu | head`). Re-run if the load rose
+during it.
+
+Every run records the CPU in `meta.machine` and the README header, including family, model and stepping. Publish
+only full `bench:all` runs, so every table comes from one machine and one run, and never mix groups from
+different runs. Compare absolute numbers across runs only when `meta.machine` matches.
 
 ## Run commands
 
@@ -29,27 +34,23 @@ Output is ANSI-colored, so run it directly in a terminal rather than through a p
 `oha` is not in `package.json`; install it first (see below). The `WRK=1` env var switches to `wrk`.
 `bun.lock` is committed: results must be reproducible against exact versions.
 
-## Cloud environment setup
-
-The container does not ship everything the benchmarks need. The SessionStart hook
-(`.claude/hooks/session-start.sh`, registered in `.claude/settings.json`) does all of the following at the start of
-every cloud session, and skips anything already done. Bump `BUN_VERSION` there when moving to a new Bun. The manual
-equivalent, for reference:
+## Reference VM setup
 
 ```bash
-# Bun: the image's bun may be older than the version in results. Install the target version
-# next to it and put it first on PATH (do not overwrite ~/.bun/bin/bun).
-npm i -g bun@1.4.3
-export PATH="$(npm prefix -g)/bin:$PATH"   # bun --version → 1.4.3
+# Bun at the version the results should be on, first on PATH
+bun --version
 
-# oha (HTTP load generator), built from crates.io, ~3 min
-cargo install oha --locked
+# oha (HTTP load generator)
+oha --version          # install: cargo install oha --locked
 
-# PostgreSQL 16 is installed but stopped. Start it and create the bench user + database once.
-service postgresql start
-su postgres -c "psql -c \"CREATE USER testuser WITH PASSWORD 'testpw' SUPERUSER;\" -c \"CREATE DATABASE sql_test OWNER testuser;\""
-pg_isready
+# PostgreSQL 16 for the KVS benchmark, in Docker, with the bench user and database
+docker run -d --name pg_bench -e POSTGRES_USER=testuser -e POSTGRES_PASSWORD=testpw -e POSTGRES_DB=sql_test \
+  -p 5432:5432 postgres:16-alpine
+docker exec pg_bench pg_isready -U testuser     # stop afterwards: docker rm -f pg_bench
 ```
+
+Claude Code cloud sessions prepare the same tools through the SessionStart hook
+(`.claude/hooks/session-start.sh`; bump `BUN_VERSION` there when moving to a new Bun), for local checks only.
 
 The KVS benchmark skips PostgreSQL when it is not reachable, so check that its output has the
 `Async PostgreSQL` section before publishing.
@@ -97,7 +98,7 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
-- Measured variance on the reference machine, 2.10GHz CPU (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
+- Measured variance on the earlier cloud reference machine, 2.10GHz CPU (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
   spread up to 10.1%; the reported best-of-3 figure moved up to 8.1% between the two runs. Micro-benchmarks
   vary more: `@coderbuzz/msgpack` encode read 1.34M to 1.84M ops/s across five runs that day (27%), with
   unchanged code. Re-measure after a Bun or machine change.
