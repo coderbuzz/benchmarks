@@ -17,10 +17,14 @@ for (const [id, label, wireEncode, jsonEncode] of frames) {
   });
 
   section(`${label}:`);
-  const enc = rec.suite({ ...common, id: `velox-ws-wire-${id}-encode`, row: `${label} encode`,
-    description: `${label} frame encode: binary wire vs JSON.stringify${id === "ping" ? " (encodePing() returns a shared pre-built buffer: measures call overhead only)" : ""}`, code: wireEncode.toString().replace(/^\(\) => /, "") });
-  enc.add("@coderbuzz/velox-ws-wire", bench("wire encode", wireEncode));
-  enc.add("JSON", bench("JSON encode", jsonEncode));
+  // encodePing() returns a shared pre-built buffer: there is no encoding to measure, and against
+  // JSON.stringify it read as a 151x "win". PING keeps its decode row and its wire-size row.
+  if (id !== "ping") {
+    const enc = rec.suite({ ...common, id: `velox-ws-wire-${id}-encode`, row: `${label} encode`,
+      description: `${label} frame encode: binary wire vs JSON.stringify`, code: wireEncode.toString().replace(/^\(\) => /, "") });
+    enc.add("@coderbuzz/velox-ws-wire", bench("wire encode", wireEncode));
+    enc.add("JSON", bench("JSON encode", jsonEncode));
+  }
 
   const dec = rec.suite({ ...common, id: `velox-ws-wire-${id}-decode`, row: `${label} decode`,
     description: `${label} frame decode: binary wire vs JSON.parse`, code: "decode(buf)" });
