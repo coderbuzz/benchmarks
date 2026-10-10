@@ -96,8 +96,13 @@ for (const name of Object.keys(pkg.dependencies)) {
 }
 // macOS: sysctl brand string ("Apple M3"); elsewhere: the CPU model plus core count,
 // since a cloud VM's model name alone does not say how many cores the run had.
+// Linux: family/model/stepping too. A cloud VM reports the same model name ("Xeon @ 2.10GHz") on
+// different CPU generations (model 85 and 207 seen), which run at different speeds.
+const cpuinfo = platform() === "linux" ? readFileSync("/proc/cpuinfo", "utf8") : "";
+const cpuField = (key: string) => cpuinfo.match(new RegExp(`^${key}\\s*:\\s*(\\S+)`, "m"))?.[1];
+const cpuId = cpuField("cpu family") ? `, family ${cpuField("cpu family")} model ${cpuField("model")} stepping ${cpuField("stepping")}` : "";
 const chip = (await $`sysctl -n machdep.cpu.brand_string`.quiet().nothrow().text()).trim()
-  || `${cpus()[0]?.model.trim() ?? "unknown CPU"}, ${cpus().length} cores, ${platform()}`;
+  || `${cpus()[0]?.model.trim() ?? "unknown CPU"}${cpuId}, ${cpus().length} cores, ${platform()}`;
 const now = new Date();
 const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 const date = process.env.RESULTS_DATE ?? localDate;
