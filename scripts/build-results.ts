@@ -40,7 +40,7 @@ interface GroupLayout {
 const HTTP_TIE = 0.1;
 
 const GROUPS: Record<string, GroupLayout> = {
-  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.` },
+  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on one machine moved the best-of-3 figure by up to 8.1%.` },
   "Veta": { note: "ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`). Veta rows Check (boolean) and Error, first issue use `is(schema, x)` and `safeParse(schema, x, undefined, { maxIssues: 1 })` where the installed veta has them (0.6+); the other rows use the throwing validator. Zod has no first-error mode. Simple validation compares different work: Veta returns a new object with unknown keys stripped, TypeBox `Parse` checks and returns the input object itself. The like-for-like row for `Parse` is Check (boolean)." },
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
