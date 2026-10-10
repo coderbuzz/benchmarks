@@ -76,7 +76,7 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
 
 ## Methodology (required)
 
-- HTTP (`src/velox/http-bench.ts`): `oha -c 100`, 3 s warmup, 3 × 10 s runs, best taken. `NODE_ENV=production`.
+- HTTP (`src/velox/http-bench.ts`): `oha -c 100`, 4 interleaved rounds of 10 s, best taken. Each round runs every framework once, the order rotated by one per round (with 4 frameworks each one takes every position once), and each run starts a fresh server with its own 3 s warmup. Until 2026-10-10 each framework ran 3 runs in a row with Velox always first. On one cloud machine (2026-10-10, 3 × 15 s, three repetitions per harness) the interleaved Velox/Elysia static-value ratio spanned 0.988-1.043 against 0.934-1.067 in fixed order; single runs of one framework still vary about 10%, and 15 s runs did not narrow that against 10 s. `NODE_ENV=production`.
   Before load, each server must answer `200 {"message":"Hello, World"}` and (validation) reject invalid input.
   Any non-2xx during a run fails it.
 - Micro-benchmarks (`src/_lib/harness.ts`): 1k warmup calls, iterations calibrated to ~300 ms per round,

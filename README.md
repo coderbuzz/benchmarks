@@ -8,17 +8,17 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 <!-- results:start -->
 ## Latest Results (2026-10-10)
 
-> Bun 1.4.3 · Intel(R) Xeon(R) Processor @ 2.80GHz, family 6 model 85 stepping 7, 4 cores, linux (x64) · generated from [`results/latest.json`](./results/latest.json) by `bun scripts/build-results.ts`
+> Bun 1.4.3 · Intel(R) Xeon(R) Processor @ 2.10GHz, family 6 model 207 stepping 2, 4 cores, linux (x64) · generated from [`results/latest.json`](./results/latest.json) by `bun scripts/build-results.ts`
 
 ### Velox
 
 | Benchmark | @coderbuzz/velox | Elysia | Hono | Express | Winner |
 |---|---|---|---|---|---|
-| Static value | **120,280** | **131,525** | 54,310 | 20,493 | **Elysia ≈ velox** (tie; 2.42× vs Hono) |
-| Dynamic handler | **61,925** | **61,591** | 55,418 | 22,698 | **velox ≈ Elysia** (tie; 1.12× vs Hono) |
-| Validation POST | **30,335** | 23,328 | 18,831 | 10,599 | **velox** (1.30× vs Elysia) |
+| Static value | **144,500** | **148,511** | 68,464 | 32,631 | **Elysia ≈ velox** (tie; 2.17× vs Hono) |
+| Dynamic handler | **83,437** | **85,729** | 68,946 | 34,330 | **Elysia ≈ velox** (tie; 1.24× vs Hono) |
+| Validation POST | **49,135** | 40,362 | 34,337 | 17,165 | **velox** (1.22× vs Elysia) |
 
-*req/s, higher is better. `oha -c 100`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within 10% of the best are a tie (≈): repeat runs on the reference machine moved the best-of-3 figure by up to 8.1%.*
+*req/s, higher is better. `oha -c 100`, 3 s warmup, best of 4 interleaved rounds of 10 s (each round runs every framework once, order rotated, fresh server and warmup per run). Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within 10% of the best are a tie (≈): two full runs on one machine moved the best-of-3 figure by up to 8.1%.*
 
 ---
 
@@ -26,12 +26,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/veta | Zod | Yup | Joi | TypeBox | Winner |
 |---|---|---|---|---|---|---|
-| Simple validation | 54,584,976 | 3,690,894 | 109,723 | 575,836 | **97,191,408** | **TypeBox** (1.78× vs veta) |
-| Complex validation | **4,595,582** | 1,000,657 | 23,702 | 111,691 | 72,709 | **veta** (4.59× vs Zod) |
-| Error handling | **416,501** | 268,671 | 81,281 | 387,893 | 195,382 | **veta** (1.07× vs Joi) |
-| Check (boolean) | **136,759,440** | 3,597,203 | 90,903 | 493,039 | 103,598,997 | **veta** (1.32× vs TypeBox) |
-| Error, first issue | **1,347,411** | 519,406 | 89,310 | 362,686 | 210,387 | **veta** (2.59× vs Zod) |
-| Coercion | **16,168,330** | 6,320,467 | 97,988 | 378,806 | 34,956 | **veta** (2.56× vs Zod) |
+| Simple validation | 67,708,726 | 4,304,874 | 134,997 | 639,214 | **118,447,117** | **TypeBox** (1.75× vs veta) |
+| Complex validation | **5,505,089** | 1,099,849 | 29,779 | 143,167 | 107,000 | **veta** (5.00× vs Zod) |
+| Error handling | **467,680** | 369,344 | 108,413 | 464,134 | 290,006 | **veta** (1.01× vs Joi) |
+| Check (boolean) | **134,687,306** | 4,413,598 | 127,520 | 645,797 | 131,597,003 | **veta** (1.02× vs TypeBox) |
+| Error, first issue | **1,791,261** | 661,948 | 119,007 | 454,235 | 337,394 | **veta** (2.71× vs Zod) |
+| Coercion | **15,062,693** | 6,845,922 | 122,657 | 491,798 | 46,919 | **veta** (2.20× vs Zod) |
 
 *ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`). Veta rows Check (boolean) and Error, first issue use `is(schema, x)` and `safeParse(schema, x, undefined, { maxIssues: 1 })` where the installed veta has them (0.6+); the other rows use the throwing validator. Zod has no first-error mode. Simple validation compares different work: Veta returns a new object with unknown keys stripped, TypeBox `Parse` checks and returns the input object itself. The like-for-like row for `Parse` is Check (boolean).*
 
@@ -41,8 +41,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/msgpack | @msgpack/msgpack | Winner |
 |---|---|---|---|
-| Encode (ops/s) | **1,225,347** | 331,176 | **msgpack** (3.70× vs @msgpack/msgpack) |
-| Decode (ops/s) | **591,409** | 323,918 | **msgpack** (1.83× vs @msgpack/msgpack) |
+| Encode (ops/s) | **1,569,821** | 392,698 | **msgpack** (4.00× vs @msgpack/msgpack) |
+| Decode (ops/s) | **705,649** | 390,302 | **msgpack** (1.81× vs @msgpack/msgpack) |
 | Wire size (bytes) | **133 B** | **133 B** | **msgpack = @msgpack/msgpack** |
 
 *ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender.*
@@ -53,8 +53,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/proto | @coderbuzz/msgpack | @msgpack/msgpack | Winner |
 |---|---|---|---|---|
-| Encode (ops/s) | **2,932,763** | 1,959,562 | 444,880 | **proto** (1.50× vs msgpack) |
-| Decode (ops/s) | **905,331** | 839,657 | 412,165 | **proto** (1.08× vs msgpack) |
+| Encode (ops/s) | **3,438,643** | 2,352,692 | 463,809 | **proto** (1.46× vs msgpack) |
+| Decode (ops/s) | **977,992** | 888,507 | 494,173 | **proto** (1.10× vs msgpack) |
 | Wire size (bytes) | **65 B** | 111 B | 111 B | **proto** (41% < msgpack) |
 
 *ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender.*
@@ -65,11 +65,11 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | bun:sqlite | Async SQLite | Async PostgreSQL |
 |---|---|---|---|
-| set('k', 'v') | 365,937 | 50,889 | 2,941 |
-| get() hit | 582,139 | 66,637 | 9,191 |
-| get() miss | 1,259,964 | 73,679 | 10,371 |
-| delete() | 480,161 | 62,647 | 3,027 |
-| increment() | 121,395 | 17,368 | 2,648 |
+| set('k', 'v') | 496,026 | 67,638 | 3,130 |
+| get() hit | 816,544 | 81,345 | 13,953 |
+| get() miss | 1,637,397 | 88,147 | 14,074 |
+| delete() | 642,858 | 85,164 | 3,206 |
+| increment() | 149,381 | 24,823 | 2,909 |
 
 *ops/s, higher is better. Sequential, one caller. PostgreSQL runs on the same machine. `increment()` is the store's atomic built-in.*
 
@@ -79,15 +79,15 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/velox-ws-wire | JSON | Winner |
 |---|---|---|---|
-| PING decode | **43,517,937** | 9,345,378 | **velox-ws-wire** (4.66× vs JSON) |
-| PUBLISH encode | 3,842,401 | **5,391,552** | **JSON** (1.40× vs velox-ws-wire) |
-| PUBLISH decode | 2,950,022 | **3,491,027** | **JSON** (1.18× vs velox-ws-wire) |
-| REQUEST encode | **5,677,548** | 5,561,789 | **velox-ws-wire** (1.02× vs JSON) |
-| REQUEST decode | **4,939,009** | 3,491,763 | **velox-ws-wire** (1.41× vs JSON) |
-| RESPONSE encode | 5,569,661 | **5,576,698** | **JSON** (1.00× vs velox-ws-wire) |
-| RESPONSE decode | **5,180,646** | 3,658,251 | **velox-ws-wire** (1.42× vs JSON) |
-| SUBSCRIBE encode | 7,861,344 | **10,284,290** | **JSON** (1.31× vs velox-ws-wire) |
-| SUBSCRIBE decode | 6,126,000 | **7,983,128** | **JSON** (1.30× vs velox-ws-wire) |
+| PING decode | **50,624,915** | 11,951,125 | **velox-ws-wire** (4.24× vs JSON) |
+| PUBLISH encode | 4,892,214 | **7,496,237** | **JSON** (1.53× vs velox-ws-wire) |
+| PUBLISH decode | 3,536,125 | **5,088,305** | **JSON** (1.44× vs velox-ws-wire) |
+| REQUEST encode | **7,963,851** | 7,510,444 | **velox-ws-wire** (1.06× vs JSON) |
+| REQUEST decode | **5,525,515** | 5,134,573 | **velox-ws-wire** (1.08× vs JSON) |
+| RESPONSE encode | 7,227,367 | **7,582,541** | **JSON** (1.05× vs velox-ws-wire) |
+| RESPONSE decode | **6,363,905** | 5,070,914 | **velox-ws-wire** (1.25× vs JSON) |
+| SUBSCRIBE encode | 9,030,827 | **10,709,784** | **JSON** (1.19× vs velox-ws-wire) |
+| SUBSCRIBE decode | 5,178,916 | **9,584,390** | **JSON** (1.85× vs velox-ws-wire) |
 
 *ops/s, higher is better. PING has no encode row: `encodePing()` returns a shared pre-built buffer, so there is no encoding to measure.*
 
@@ -111,12 +111,12 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | @coderbuzz/sql | Kysely | Drizzle ORM | Winner |
 |---|---|---|---|---|
-| SELECT simple | **684,901** | 331,204 | 28,258 | **sql** (2.07× vs Kysely) |
-| SELECT JOIN | **344,165** | 177,057 | 11,837 | **sql** (1.94× vs Kysely) |
-| INSERT single | **1,089,364** | 205,742 | 31,137 | **sql** (5.29× vs Kysely) |
-| INSERT batch 100 | **46,259** | 7,242 | 520 | **sql** (6.39× vs Kysely) |
-| CTE | **210,058** | 110,003 | 24,185 | **sql** (1.91× vs Kysely) |
-| SELECT 10 conditions | **281,191** | 72,561 | 10,412 | **sql** (3.88× vs Kysely) |
+| SELECT simple | **784,401** | 441,204 | 37,394 | **sql** (1.78× vs Kysely) |
+| SELECT JOIN | **452,855** | 234,748 | 16,133 | **sql** (1.93× vs Kysely) |
+| INSERT single | **1,333,779** | 264,265 | 41,452 | **sql** (5.05× vs Kysely) |
+| INSERT batch 100 | **55,200** | 9,658 | 638 | **sql** (5.71× vs Kysely) |
+| CTE | **281,607** | 142,259 | 30,578 | **sql** (1.98× vs Kysely) |
+| SELECT 10 conditions | **376,015** | 90,671 | 16,606 | **sql** (4.15× vs Kysely) |
 
 *ops/s, higher is better. Compilation only, no DB execution.*
 
@@ -126,8 +126,8 @@ Public benchmark suite for [@coderbuzz](https://github.com/coderbuzz) packages.
 
 | Benchmark | KVS direct | WS RPC | HTTP REST |
 |---|---|---|---|
-| set('k','v') | 376,288 (100.0%) | 47,292 (12.6%) | 6,012 (1.6%) |
-| get('k') hit | 458,049 (100.0%) | 51,074 (11.2%) | 6,146 (1.3%) |
+| set('k','v') | 531,960 (100.0%) | 84,658 (15.9%) | 8,436 (1.6%) |
+| get('k') hit | 650,013 (100.0%) | 80,852 (12.4%) | 8,746 (1.3%) |
 
 *ops/s, higher is better. Sequential, one client; % is of direct in-process access.*
 
@@ -394,7 +394,7 @@ ws.send(JSON.stringify({ id: 1, method: "/kv/get", params: { key: ["k"] } }));  
 | Tool | **oha** (default) or **wrk** (`WRK=1`) | `performance.now()` loop, [`src/_lib/harness.ts`](./src/_lib/harness.ts) |
 | Load | 100 connections, keep-alive | single caller |
 | Warmup | 3 s | 1,000 calls + calibration |
-| Measurement | 3 × 10 s runs | 3 processes × 3 rounds of ~300 ms each (iterations calibrated per case) |
+| Measurement | 4 interleaved rounds × 10 s (order rotated, fresh server per run) | 3 processes × 3 rounds of ~300 ms each (iterations calibrated per case) |
 | Reported | best run | best round across all processes |
 | Sanity checks | 200 + expected body; invalid input must be rejected; any non-2xx fails the run | valid input accepted/coerced, invalid rejected, codecs round-trip |
 | Environment | `NODE_ENV=production`, server and load generator on the same machine | results written to a sink so the JIT cannot drop the call |

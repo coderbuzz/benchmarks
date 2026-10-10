@@ -38,9 +38,11 @@ interface GroupLayout {
 // HTTP results within this fraction of the best count as a tie. Between two full runs on the reference
 // machine the best-of-3 figure moved up to 8.1% (AGENTS.md, Methodology), so smaller gaps are noise.
 const HTTP_TIE = 0.1;
+// Same default as src/velox/http-bench.ts; both read HTTP_RUNS from the bench:all environment.
+const HTTP_RUNS = Number(process.env.HTTP_RUNS ?? 4);
 
 const GROUPS: Record<string, GroupLayout> = {
-  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of 3 × 10 s runs. Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): repeat runs on one machine moved the best-of-3 figure by up to 8.1%.` },
+  "Velox": { note: `req/s, higher is better. \`oha -c 100\`, 3 s warmup, best of ${HTTP_RUNS} interleaved rounds of 10 s (each round runs every framework once, order rotated, fresh server and warmup per run). Static value: Velox/Elysia use a static route value, Hono/Express a handler. Results within ${HTTP_TIE * 100}% of the best are a tie (≈): two full runs on one machine moved the best-of-3 figure by up to 8.1%.` },
   "Veta": { note: "ops/s, higher is better. TypeBox uses the compiled validator (`Compile(schema)`). Veta rows Check (boolean) and Error, first issue use `is(schema, x)` and `safeParse(schema, x, undefined, { maxIssues: 1 })` where the installed veta has them (0.6+); the other rows use the throwing validator. Zod has no first-error mode. Simple validation compares different work: Veta returns a new object with unknown keys stripped, TypeBox `Parse` checks and returns the input object itself. The like-for-like row for `Parse` is Check (boolean)." },
   "Msgpack": { note: "ops/s higher is better, wire size smaller is better. Msgpack libraries only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
   "Proto": { note: "ops/s higher is better, wire size smaller is better. Binary codecs only: JSON.stringify returns an engine-native string, not bytes encoded in JS, so it is not a like-with-like contender." },
@@ -113,7 +115,7 @@ const output = {
     date,
     runtime: `Bun ${Bun.version}`,
     machine: `${chip} (${process.arch})`,
-    http: { tool: "oha", connections: 100, warmup: "3s", duration: "10s", runs: 3, take: "best", tieThreshold: HTTP_TIE },
+    http: { tool: "oha", connections: 100, warmup: "3s", duration: "10s", runs: HTTP_RUNS, take: "best", tieThreshold: HTTP_TIE },
     throughput: { warmupIterations: 1000, roundTargetMs: 300, rounds: 3, processes: Number(process.env.BENCH_PROCESSES ?? 3), take: "best" },
     packages,
     ...(process.env.RESULTS_NOTE ? { note: process.env.RESULTS_NOTE } : {}),
