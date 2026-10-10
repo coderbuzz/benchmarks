@@ -7,7 +7,7 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
-BUN_VERSION="1.4.2"
+BUN_VERSION="1.4.3"
 cd "${CLAUDE_PROJECT_DIR:-$(dirname "$0")/../..}"
 
 # Bun: install the target version as a global npm package (the image's ~/.bun/bin/bun may be
