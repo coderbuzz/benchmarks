@@ -2,19 +2,21 @@
 
 Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime.
 
-**Reference machine:** one fixed dev VM since 2026-10-10: Intel Xeon Platinum 8255C @ 2.50GHz (family 6 model 85
-stepping 5), 4 cores, 7 GB, Linux x64, PostgreSQL 16 in Docker on the same VM. Published results come only from
-this VM, so every run is on the same CPU. Before that the reference was the Claude Code cloud environment, whose
-CPU changed between sessions (2.10GHz and 2.80GHz Xeons, family 6 model 85 or 207; the same model name read 13%
-apart), so its runs could not be compared with each other. Cloud sessions and laptops are for local checks only.
+**Machine:** a published run may come from any machine (owner decision, 2026-10-10), for example a Claude Code
+cloud session or the dev VM. What makes it publishable is the record, not the host: one full `bench:all` on one
+machine, with PostgreSQL on that same machine, and the machine written to `meta.machine` and the README header
+(CPU name, family/model/stepping, cores, OS and arch). The PR names the machine too. Never mix groups from
+different runs.
 
-The VM is shared with other agent sessions. Start a run only when it is quiet: `uptime` load average below 0.5
-and no build, test or other benchmark running (`ps -eo pcpu,comm --sort=-pcpu | head`). Re-run if the load rose
-during it.
+Compare absolute numbers across runs only when `meta.machine` matches. Winners can move with the CPU, not only with
+the code: on 2026-10-10 velox-ws-wire subscribe/publish encode went to JSON on two cloud Xeons (2.10GHz model 207,
+2.80GHz model 85) and to Wire on the dev VM (Platinum 8255C @ 2.50GHz model 85, about 2x slower on HTTP). Cloud
+sessions do not always land on the same CPU; the model name alone does not tell them apart (the same "Xeon @
+2.10GHz" label read 13% apart), so family/model/stepping is recorded.
 
-Every run records the CPU in `meta.machine` and the README header, including family, model and stepping. Publish
-only full `bench:all` runs, so every table comes from one machine and one run, and never mix groups from
-different runs. Compare absolute numbers across runs only when `meta.machine` matches.
+On a shared machine (the dev VM runs other agent sessions), start only when it is quiet: `uptime` load average
+below 0.5 and no build, test or other benchmark running (`ps -eo pcpu,comm --sort=-pcpu | head`). Re-run if the
+load rose during it.
 
 ## Run commands
 
@@ -34,7 +36,7 @@ Output is ANSI-colored, so run it directly in a terminal rather than through a p
 `oha` is not in `package.json`; install it first (see below). The `WRK=1` env var switches to `wrk`.
 `bun.lock` is committed: results must be reproducible against exact versions.
 
-## Reference VM setup
+## Machine setup (dev VM)
 
 ```bash
 # Bun at the version the results should be on, first on PATH
@@ -50,7 +52,7 @@ docker exec pg_bench pg_isready -U testuser     # stop afterwards: docker rm -f 
 ```
 
 Claude Code cloud sessions prepare the same tools through the SessionStart hook
-(`.claude/hooks/session-start.sh`; bump `BUN_VERSION` there when moving to a new Bun), for local checks only.
+(`.claude/hooks/session-start.sh`; bump `BUN_VERSION` there when moving to a new Bun).
 
 The KVS benchmark skips PostgreSQL when it is not reachable, so check that its output has the
 `Async PostgreSQL` section before publishing.
@@ -88,7 +90,7 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
   same for every library in the suite.
   `bench:all` runs each micro-benchmark in `BENCH_PROCESSES` (default 3) separate processes and keeps the best
   value per entry (`BENCH_MERGE=1` merges into the saved raw file). Rounds alone are not enough: some cases are
-  bimodal per process, fixed at warmup. On a non-reference VM (2026-10-09), five `veta:vs` processes with
+  bimodal per process, fixed at warmup. On the dev VM (2026-10-09), five `veta:vs` processes with
   unchanged code read Veta `is()` at 44M or 66-74M ops/s and TypeBox `Check` at 64-68M or 120-146M. Most of that was
   the shared timing loop (fixed 2026-10-10, below); with one loop per bench three processes read 102.0-102.5M
   and 78.9-81.7M. Keep the separate processes anyway.
@@ -98,7 +100,7 @@ The KVS benchmark skips PostgreSQL when it is not reachable, so check that its o
 - Every bench input that a library might mutate (TypeBox `Convert`) is a fresh object per call, for all libs.
 - New benchmarks: use the harness, record suites with `Recorder`, add the raw file name to `FILES` in
   `scripts/build-results.ts` (and a `GROUPS` layout if it is a new README table).
-- Measured variance on the earlier cloud reference machine, 2.10GHz CPU (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
+- Measured variance on a cloud machine, 2.10GHz CPU (two full runs, 2026-10-02, Bun 1.4.2): single 10 s HTTP runs
   spread up to 10.1%; the reported best-of-3 figure moved up to 8.1% between the two runs. Micro-benchmarks
   vary more: `@coderbuzz/msgpack` encode read 1.34M to 1.84M ops/s across five runs that day (27%), with
   unchanged code. Re-measure after a Bun or machine change.

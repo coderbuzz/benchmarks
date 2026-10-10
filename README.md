@@ -398,7 +398,7 @@ ws.send(JSON.stringify({ id: 1, method: "/kv/get", params: { key: ["k"] } }));  
 | Reported | best run | best round across all processes |
 | Sanity checks | 200 + expected body; invalid input must be rejected; any non-2xx fails the run | valid input accepted/coerced, invalid rejected, codecs round-trip |
 | Environment | `NODE_ENV=production`, server and load generator on the same machine | results written to a sink so the JIT cannot drop the call |
-| Machine | one fixed VM since 2026-10-10: Intel Xeon Platinum 8255C @ 2.50GHz, 4 cores, Linux x64 (recorded in the header above and `meta.machine`). Earlier runs came from a cloud environment whose CPU varied by session. Each publish is one full `bench:all` run on one machine; compare absolute numbers across runs only when the machine matches | same machine |
+| Machine | whichever machine ran it, recorded in the header above and `meta.machine` (CPU with family/model/stepping, cores, OS). Each publish is one full `bench:all` run on one machine; compare absolute numbers across runs only when the machine matches, since winners can move with the CPU | same machine |
 
 Knobs: `HTTP_RUNS`, `HTTP_DURATION`, `HTTP_WARMUP`, `BENCH_ROUNDS`, `BENCH_TARGET_MS`, `BENCH_PROCESSES` (`bench:all` only).
 
