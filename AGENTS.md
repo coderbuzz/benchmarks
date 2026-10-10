@@ -2,9 +2,12 @@
 
 Benchmark `@coderbuzz/*` packages vs alternatives. Bun runtime.
 
-**Reference machine:** the Claude Code cloud environment (Linux x64, 4 cores). Its Xeon clock varies between
-sessions (2.10GHz and 2.80GHz seen, same family 6 model 85); every run records the CPU in `meta.machine` and the
-README header. Publish only full `bench:all` runs, so every table comes from one machine and one run, and never
+**Reference machine:** the Claude Code cloud environment (Linux x64, 4 cores). Its CPU varies between sessions:
+2.10GHz and 2.80GHz Xeons (family 6 model 85) and a 2.10GHz family 6 model 207. The model name alone does not tell
+them apart: the 2026-10-10 run (#41, model 207) read about 13% higher on micro-benchmarks and 9% on HTTP than #39,
+whose `meta.machine` label was identical. The clock is no guide either: the 2.80GHz machine was the slowest on HTTP.
+Every run records the CPU in `meta.machine` and the README header, including family, model and stepping since
+2026-10-10. Publish only full `bench:all` runs, so every table comes from one machine and one run, and never
 mix groups from different runs. Compare absolute numbers across runs only when `meta.machine` matches. Do not
 publish results from a laptop or another host; run them there for local checks only.
 
