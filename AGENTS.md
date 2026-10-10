@@ -39,8 +39,8 @@ equivalent, for reference:
 ```bash
 # Bun: the image's bun may be older than the version in results. Install the target version
 # next to it and put it first on PATH (do not overwrite ~/.bun/bin/bun).
-npm i -g bun@1.4.2
-export PATH="$(npm prefix -g)/bin:$PATH"   # bun --version → 1.4.2
+npm i -g bun@1.4.3
+export PATH="$(npm prefix -g)/bin:$PATH"   # bun --version → 1.4.3
 
 # oha (HTTP load generator), built from crates.io, ~3 min
 cargo install oha --locked
