@@ -20,11 +20,11 @@
   },
   "dependencies": {
     "@coderbuzz/kvs": "^0.6.0",
-    "@coderbuzz/kvs-server": "^6.1.4",
+    "@coderbuzz/kvs-server": "^6.1.5",
     "@coderbuzz/msgpack": "^0.2.0",
     "@coderbuzz/proto": "^0.3.3",
     "@coderbuzz/sql": "^0.9.6",
-    "@coderbuzz/velox": "^0.8.0",
+    "@coderbuzz/velox": "^0.9.0",
     "@coderbuzz/velox-ws-wire": "^0.1.17",
     "@coderbuzz/veta": "^0.6.2",
     "@hono/typebox-validator": "^1.1.0",
