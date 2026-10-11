@@ -1,0 +1,1462 @@
+{
+  "meta": {
+    "schemaVersion": 2,
+    "date": "2026-10-11",
+    "runtime": "Bun 1.4.3",
+    "machine": "Intel(R) Xeon(R) Processor @ 2.80GHz, family 6 model 85 stepping 7, 4 cores, linux (x64)",
+    "http": {
+      "tool": "oha",
+      "connections": 100,
+      "warmup": "3s",
+      "duration": "10s",
+      "runs": 4,
+      "take": "best",
+      "tieThreshold": 0.1
+    },
+    "throughput": {
+      "warmupIterations": 1000,
+      "roundTargetMs": 300,
+      "rounds": 3,
+      "processes": 3,
+      "take": "best"
+    },
+    "packages": {
+      "@coderbuzz/kvs": "0.6.0",
+      "@coderbuzz/kvs-server": "6.1.5",
+      "@coderbuzz/msgpack": "0.2.0",
+      "@coderbuzz/proto": "0.3.3",
+      "@coderbuzz/sql": "0.9.6",
+      "@coderbuzz/velox": "0.9.0",
+      "@coderbuzz/velox-ws-wire": "0.1.17",
+      "@coderbuzz/veta": "0.6.2",
+      "@hono/typebox-validator": "1.1.0",
+      "@msgpack/msgpack": "3.1.3",
+      "@sinclair/typebox": "0.34.52",
+      "drizzle-orm": "0.45.3",
+      "elysia": "1.4.30",
+      "express": "5.2.1",
+      "hono": "4.13.12",
+      "joi": "18.2.9",
+      "kysely": "0.29.6",
+      "typebox": "1.3.34",
+      "yup": "1.7.1",
+      "zod": "4.6.5"
+    }
+  },
+  "suites": [
+    {
+      "id": "velox-static-value",
+      "group": "Velox",
+      "row": "Static value",
+      "library": "@coderbuzz/velox",
+      "type": "http",
+      "description": "GET /hello: inline JSON response (Velox/Elysia: static route value; Hono/Express: handler)",
+      "code": "app.get('/hello', { message: 'Hello, World' })",
+      "unit": "req/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox",
+          "value": 124956,
+          "winner": true,
+          "factorVsNext": 1.096,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Elysia",
+          "value": 114005,
+          "winner": true,
+          "factorVsNext": 2.415,
+          "factorVsBest": 1.096
+        },
+        {
+          "name": "Hono",
+          "value": 47206,
+          "winner": false,
+          "factorVsNext": 2.32,
+          "factorVsBest": 2.647
+        },
+        {
+          "name": "Express",
+          "value": 20346,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 6.142
+        }
+      ]
+    },
+    {
+      "id": "velox-dynamic",
+      "group": "Velox",
+      "row": "Dynamic handler",
+      "library": "@coderbuzz/velox",
+      "type": "http",
+      "description": "GET /hello: handler function returning a JSON object (all frameworks)",
+      "code": "app.get('/hello', () => ({ message: 'Hello, World' }))",
+      "unit": "req/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "Elysia",
+          "value": 56690,
+          "winner": true,
+          "factorVsNext": 1.041,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/velox",
+          "value": 54460,
+          "winner": true,
+          "factorVsNext": 1.16,
+          "factorVsBest": 1.041
+        },
+        {
+          "name": "Hono",
+          "value": 46957,
+          "winner": false,
+          "factorVsNext": 2.461,
+          "factorVsBest": 1.207
+        },
+        {
+          "name": "Express",
+          "value": 19081,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 2.971
+        }
+      ]
+    },
+    {
+      "id": "velox-validation",
+      "group": "Velox",
+      "row": "Validation POST",
+      "library": "@coderbuzz/velox",
+      "type": "http",
+      "description": "POST /hello/:par1/:par2: body + query + params + headers validation",
+      "code": "app.post('/hello/:par1/:par2', { json, query, params, headers }, handler)",
+      "unit": "req/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox",
+          "value": 28472,
+          "winner": true,
+          "factorVsNext": 1.392,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Elysia",
+          "value": 20452,
+          "winner": false,
+          "factorVsNext": 1.207,
+          "factorVsBest": 1.392
+        },
+        {
+          "name": "Hono",
+          "value": 16948,
+          "winner": false,
+          "factorVsNext": 1.856,
+          "factorVsBest": 1.68
+        },
+        {
+          "name": "Express",
+          "value": 9131,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 3.118
+        }
+      ]
+    },
+    {
+      "id": "veta-simple",
+      "group": "Veta",
+      "row": "Simple validation",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "Simple object validation: { name: string, age: number, active: boolean }",
+      "code": "object({ name: string({ min: 2, max: 100 }), age: number({ min: 0, max: 150 }), active: boolean() })",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "TypeBox",
+          "value": 96049578,
+          "winner": true,
+          "factorVsNext": 2.375,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/veta",
+          "value": 40438236,
+          "winner": false,
+          "factorVsNext": 14.148,
+          "factorVsBest": 2.375
+        },
+        {
+          "name": "Zod",
+          "value": 2858182,
+          "winner": false,
+          "factorVsNext": 6.538,
+          "factorVsBest": 33.605
+        },
+        {
+          "name": "Joi",
+          "value": 437134,
+          "winner": false,
+          "factorVsNext": 4.975,
+          "factorVsBest": 219.726
+        },
+        {
+          "name": "Yup",
+          "value": 87860,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1093.212
+        }
+      ]
+    },
+    {
+      "id": "veta-complex",
+      "group": "Veta",
+      "row": "Complex validation",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "Complex nested object with string→number coercion (fresh input object per call)",
+      "code": "object({ id: coerce(number()), profile: { displayName: string(), email: string({ pattern: /@/ }), tags: [string()], scores: [coerce(number())] }, metadata: {...} })",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/veta",
+          "value": 3925657,
+          "winner": true,
+          "factorVsNext": 5.106,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Zod",
+          "value": 768858,
+          "winner": false,
+          "factorVsNext": 9.07,
+          "factorVsBest": 5.106
+        },
+        {
+          "name": "Joi",
+          "value": 84766,
+          "winner": false,
+          "factorVsNext": 1.152,
+          "factorVsBest": 46.312
+        },
+        {
+          "name": "TypeBox",
+          "value": 73589,
+          "winner": false,
+          "factorVsNext": 3.666,
+          "factorVsBest": 53.346
+        },
+        {
+          "name": "Yup",
+          "value": 20075,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 195.55
+        }
+      ]
+    },
+    {
+      "id": "veta-error",
+      "group": "Veta",
+      "row": "Error handling",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "Invalid input rejection (throw + catch; Joi returns { error })",
+      "code": "try { schema(invalid) } catch {}",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/veta",
+          "value": 390586,
+          "winner": true,
+          "factorVsNext": 1.187,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Joi",
+          "value": 328996,
+          "winner": false,
+          "factorVsNext": 1.414,
+          "factorVsBest": 1.187
+        },
+        {
+          "name": "Zod",
+          "value": 232602,
+          "winner": false,
+          "factorVsNext": 1.318,
+          "factorVsBest": 1.679
+        },
+        {
+          "name": "TypeBox",
+          "value": 176507,
+          "winner": false,
+          "factorVsNext": 2.321,
+          "factorVsBest": 2.213
+        },
+        {
+          "name": "Yup",
+          "value": 76063,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 5.135
+        }
+      ]
+    },
+    {
+      "id": "veta-check",
+      "group": "Veta",
+      "row": "Check (boolean)",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "Valid/invalid decision only, simple object. Veta uses is(schema, x) (feature-detected: is() from veta 0.6, older versions try/catch); Zod safeParse().success, Yup isValidSync, Joi validate().error, TypeBox Check. Input is valid: two objects, alternated per call.",
+      "code": "is(schema, x) vs safeParse(x).success",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/veta",
+          "value": 113710475,
+          "winner": true,
+          "factorVsNext": 1.125,
+          "factorVsBest": 1
+        },
+        {
+          "name": "TypeBox",
+          "value": 101074191,
+          "winner": false,
+          "factorVsNext": 33.273,
+          "factorVsBest": 1.125
+        },
+        {
+          "name": "Zod",
+          "value": 3037684,
+          "winner": false,
+          "factorVsNext": 7.025,
+          "factorVsBest": 37.433
+        },
+        {
+          "name": "Joi",
+          "value": 432428,
+          "winner": false,
+          "factorVsNext": 4.825,
+          "factorVsBest": 262.958
+        },
+        {
+          "name": "Yup",
+          "value": 89620,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1268.807
+        }
+      ]
+    },
+    {
+      "id": "veta-error-first",
+      "group": "Veta",
+      "row": "Error, first issue",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "Invalid input, read the first issue message only. Veta uses safeParse(schema, x, undefined, { maxIssues: 1 }); Zod has no first-error mode and runs a full safeParse; Yup validateSync and Joi validate stop at the first error by default; TypeBox Errors()[0]",
+      "code": "safeParse(schema, x, undefined, { maxIssues: 1 })",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/veta",
+          "value": 1239872,
+          "winner": true,
+          "factorVsNext": 2.779,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Zod",
+          "value": 446116,
+          "winner": false,
+          "factorVsNext": 1.382,
+          "factorVsBest": 2.779
+        },
+        {
+          "name": "Joi",
+          "value": 322842,
+          "winner": false,
+          "factorVsNext": 1.519,
+          "factorVsBest": 3.84
+        },
+        {
+          "name": "TypeBox",
+          "value": 212586,
+          "winner": false,
+          "factorVsNext": 2.426,
+          "factorVsBest": 5.832
+        },
+        {
+          "name": "Yup",
+          "value": 87614,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 14.152
+        }
+      ]
+    },
+    {
+      "id": "veta-coerce",
+      "group": "Veta",
+      "row": "Coercion",
+      "library": "@coderbuzz/veta",
+      "type": "throughput",
+      "description": "String to number/boolean/date coercion (fresh input object per call)",
+      "code": "object({ id: coerce(number()), active: coerce(boolean()), label: coerce(string()), born: coerce(date()) })",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/veta",
+          "value": 12325686,
+          "winner": true,
+          "factorVsNext": 2.61,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Zod",
+          "value": 4722975,
+          "winner": false,
+          "factorVsNext": 15.293,
+          "factorVsBest": 2.61
+        },
+        {
+          "name": "Joi",
+          "value": 308834,
+          "winner": false,
+          "factorVsNext": 3.843,
+          "factorVsBest": 39.91
+        },
+        {
+          "name": "Yup",
+          "value": 80359,
+          "winner": false,
+          "factorVsNext": 2.441,
+          "factorVsBest": 153.383
+        },
+        {
+          "name": "TypeBox",
+          "value": 32927,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 374.334
+        }
+      ]
+    },
+    {
+      "id": "msgpack-encode",
+      "group": "Msgpack",
+      "row": "Encode (ops/s)",
+      "library": "@coderbuzz/msgpack",
+      "type": "throughput",
+      "description": "Nested object to msgpack bytes",
+      "code": "encode(obj)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 1145654,
+          "winner": true,
+          "factorVsNext": 3.468,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 330378,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 3.468
+        }
+      ]
+    },
+    {
+      "id": "msgpack-decode",
+      "group": "Msgpack",
+      "row": "Decode (ops/s)",
+      "library": "@coderbuzz/msgpack",
+      "type": "throughput",
+      "description": "Msgpack bytes to object",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 519539,
+          "winner": true,
+          "factorVsNext": 1.609,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 322905,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.609
+        }
+      ]
+    },
+    {
+      "id": "msgpack-wire",
+      "group": "Msgpack",
+      "row": "Wire size (bytes)",
+      "library": "@coderbuzz/msgpack",
+      "type": "wire-size",
+      "description": "Serialized byte size for nested object",
+      "code": "encode(obj).length",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 133,
+          "winner": true,
+          "factorVsNext": 1,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 133,
+          "winner": true,
+          "factorVsNext": null,
+          "factorVsBest": 1
+        }
+      ]
+    },
+    {
+      "id": "proto-encode",
+      "group": "Proto",
+      "row": "Encode (ops/s)",
+      "library": "@coderbuzz/proto",
+      "type": "throughput",
+      "description": "Binary codec compiled from a veta schema (no field names, no tags)",
+      "code": "codec.encode(obj)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/proto",
+          "value": 2440544,
+          "winner": true,
+          "factorVsNext": 1.38,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 1768796,
+          "winner": false,
+          "factorVsNext": 4.105,
+          "factorVsBest": 1.38
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 430912,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 5.664
+        }
+      ]
+    },
+    {
+      "id": "proto-decode",
+      "group": "Proto",
+      "row": "Decode (ops/s)",
+      "library": "@coderbuzz/proto",
+      "type": "throughput",
+      "description": "Binary codec decode from a veta schema",
+      "code": "codec.decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/proto",
+          "value": 862132,
+          "winner": true,
+          "factorVsNext": 1.199,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 718961,
+          "winner": false,
+          "factorVsNext": 1.644,
+          "factorVsBest": 1.199
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 437444,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.971
+        }
+      ]
+    },
+    {
+      "id": "proto-wire",
+      "group": "Proto",
+      "row": "Wire size (bytes)",
+      "library": "@coderbuzz/proto",
+      "type": "wire-size",
+      "description": "Serialized byte size",
+      "code": "codec.encode(obj).length",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/proto",
+          "value": 65,
+          "winner": true,
+          "factorVsNext": 1.708,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/msgpack",
+          "value": 111,
+          "winner": false,
+          "factorVsNext": 1,
+          "factorVsBest": 1.708
+        },
+        {
+          "name": "@msgpack/msgpack",
+          "value": 111,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.708
+        }
+      ]
+    },
+    {
+      "id": "kvs-set",
+      "group": "KVS",
+      "row": "set('k', 'v')",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "set('k', 'v') throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)",
+      "code": "store.set(['k'], 'v')",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "bun:sqlite",
+          "value": 346065,
+          "winner": true,
+          "factorVsNext": 7.661,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Async SQLite",
+          "value": 45171,
+          "winner": false,
+          "factorVsNext": 17.427,
+          "factorVsBest": 7.661
+        },
+        {
+          "name": "Async PostgreSQL",
+          "value": 2592,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 133.513
+        }
+      ]
+    },
+    {
+      "id": "kvs-get-hit",
+      "group": "KVS",
+      "row": "get() hit",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "get() hit throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)",
+      "code": "store.get(['x'])",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "bun:sqlite",
+          "value": 568138,
+          "winner": true,
+          "factorVsNext": 9.984,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Async SQLite",
+          "value": 56903,
+          "winner": false,
+          "factorVsNext": 6.648,
+          "factorVsBest": 9.984
+        },
+        {
+          "name": "Async PostgreSQL",
+          "value": 8559,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 66.379
+        }
+      ]
+    },
+    {
+      "id": "kvs-get-miss",
+      "group": "KVS",
+      "row": "get() miss",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "get() miss throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)",
+      "code": "store.get(['nope'])",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "bun:sqlite",
+          "value": 1127643,
+          "winner": true,
+          "factorVsNext": 18.473,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Async SQLite",
+          "value": 61043,
+          "winner": false,
+          "factorVsNext": 6.211,
+          "factorVsBest": 18.473
+        },
+        {
+          "name": "Async PostgreSQL",
+          "value": 9828,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 114.738
+        }
+      ]
+    },
+    {
+      "id": "kvs-delete",
+      "group": "KVS",
+      "row": "delete()",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "delete() throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)",
+      "code": "store.delete(['del', i])  // key exists",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "bun:sqlite",
+          "value": 453814,
+          "winner": true,
+          "factorVsNext": 7.828,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Async SQLite",
+          "value": 57970,
+          "winner": false,
+          "factorVsNext": 23.328,
+          "factorVsBest": 7.828
+        },
+        {
+          "name": "Async PostgreSQL",
+          "value": 2485,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 182.621
+        }
+      ]
+    },
+    {
+      "id": "kvs-increment",
+      "group": "KVS",
+      "row": "increment()",
+      "library": "@coderbuzz/kvs",
+      "type": "throughput",
+      "description": "increment() throughput per backend: KVStore (bun:sqlite, sync) · AsyncKVStore (SQLite) · AsyncKVStore (PostgreSQL)",
+      "code": "store.increment(['counter'])  // atomic, built-in",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "bun:sqlite",
+          "value": 118455,
+          "winner": true,
+          "factorVsNext": 8.487,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Async SQLite",
+          "value": 13957,
+          "winner": false,
+          "factorVsNext": 5.348,
+          "factorVsBest": 8.487
+        },
+        {
+          "name": "Async PostgreSQL",
+          "value": 2610,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 45.385
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-ping-decode",
+      "group": "Velox WS Wire",
+      "row": "PING decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "PING frame decode: binary wire vs JSON.parse",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 42012698,
+          "winner": true,
+          "factorVsNext": 4.284,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 9806209,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 4.284
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-publish-encode",
+      "group": "Velox WS Wire",
+      "row": "PUBLISH encode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "PUBLISH frame encode: binary wire vs JSON.stringify",
+      "code": "encodePublish(topic, payload)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "JSON",
+          "value": 4921649,
+          "winner": true,
+          "factorVsNext": 1.389,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 3542876,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.389
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-publish-decode",
+      "group": "Velox WS Wire",
+      "row": "PUBLISH decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "PUBLISH frame decode: binary wire vs JSON.parse",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "JSON",
+          "value": 3501836,
+          "winner": true,
+          "factorVsNext": 1.169,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 2994453,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.169
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-request-encode",
+      "group": "Velox WS Wire",
+      "row": "REQUEST encode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "REQUEST frame encode: binary wire vs JSON.stringify",
+      "code": "encodeRequest(corrId, payload)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 5238346,
+          "winner": true,
+          "factorVsNext": 1.108,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 4726233,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.108
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-request-decode",
+      "group": "Velox WS Wire",
+      "row": "REQUEST decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "REQUEST frame decode: binary wire vs JSON.parse",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 4929742,
+          "winner": true,
+          "factorVsNext": 1.456,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 3385870,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.456
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-response-encode",
+      "group": "Velox WS Wire",
+      "row": "RESPONSE encode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "RESPONSE frame encode: binary wire vs JSON.stringify",
+      "code": "encodeResponse(corrId, payload)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 6638061,
+          "winner": true,
+          "factorVsNext": 1.323,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 5018005,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.323
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-response-decode",
+      "group": "Velox WS Wire",
+      "row": "RESPONSE decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "RESPONSE frame decode: binary wire vs JSON.parse",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 4838164,
+          "winner": true,
+          "factorVsNext": 1.499,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 3228000,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.499
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-subscribe-encode",
+      "group": "Velox WS Wire",
+      "row": "SUBSCRIBE encode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "SUBSCRIBE frame encode: binary wire vs JSON.stringify",
+      "code": "encodeSubscribe(topic)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "JSON",
+          "value": 8454269,
+          "winner": true,
+          "factorVsNext": 1.225,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 6900682,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.225
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-subscribe-decode",
+      "group": "Velox WS Wire",
+      "row": "SUBSCRIBE decode",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "throughput",
+      "description": "SUBSCRIBE frame decode: binary wire vs JSON.parse",
+      "code": "decode(buf)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "JSON",
+          "value": 7750058,
+          "winner": true,
+          "factorVsNext": 1.418,
+          "factorVsBest": 1
+        },
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 5464495,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 1.418
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-ping-size",
+      "group": "Velox WS Wire (size)",
+      "row": "PING",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "PING frame size: binary wire vs JSON",
+      "code": "encodePing()",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 1,
+          "winner": true,
+          "factorVsNext": 15,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 15,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 15
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-publish-size",
+      "group": "Velox WS Wire (size)",
+      "row": "PUBLISH",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "PUBLISH frame size: binary wire vs JSON",
+      "code": "encodePublish(topic, payload)",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 44,
+          "winner": true,
+          "factorVsNext": 2.091,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 92,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 2.091
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-request-size",
+      "group": "Velox WS Wire (size)",
+      "row": "REQUEST",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "REQUEST frame size: binary wire vs JSON",
+      "code": "encodeRequest(corrId, payload)",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 37,
+          "winner": true,
+          "factorVsNext": 2.243,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 83,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 2.243
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-response-size",
+      "group": "Velox WS Wire (size)",
+      "row": "RESPONSE",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "RESPONSE frame size: binary wire vs JSON",
+      "code": "encodeResponse(corrId, payload)",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 37,
+          "winner": true,
+          "factorVsNext": 2.27,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 84,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 2.27
+        }
+      ]
+    },
+    {
+      "id": "velox-ws-wire-subscribe-size",
+      "group": "Velox WS Wire (size)",
+      "row": "SUBSCRIBE",
+      "library": "@coderbuzz/velox-ws-wire",
+      "type": "wire-size",
+      "description": "SUBSCRIBE frame size: binary wire vs JSON",
+      "code": "encodeSubscribe(topic)",
+      "unit": "bytes",
+      "higherIsBetter": false,
+      "entries": [
+        {
+          "name": "@coderbuzz/velox-ws-wire",
+          "value": 12,
+          "winner": true,
+          "factorVsNext": 3.417,
+          "factorVsBest": 1
+        },
+        {
+          "name": "JSON",
+          "value": 41,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 3.417
+        }
+      ]
+    },
+    {
+      "id": "sql-simple",
+      "group": "SQL",
+      "row": "SELECT simple",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT simple: query builder → SQL string + params",
+      "code": "db.select().from('users').where({ id: 1 }).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 617464,
+          "winner": true,
+          "factorVsNext": 2.158,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 286134,
+          "winner": false,
+          "factorVsNext": 12.022,
+          "factorVsBest": 2.158
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 23801,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 25.943
+        }
+      ]
+    },
+    {
+      "id": "sql-join",
+      "group": "SQL",
+      "row": "SELECT JOIN",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT JOIN: query builder → SQL string + params",
+      "code": "db.select().from('users').inner_join('posts', 'users.id = posts.user_id').toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 329429,
+          "winner": true,
+          "factorVsNext": 1.936,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 170138,
+          "winner": false,
+          "factorVsNext": 14.947,
+          "factorVsBest": 1.936
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 11383,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 28.94
+        }
+      ]
+    },
+    {
+      "id": "sql-insert",
+      "group": "SQL",
+      "row": "INSERT single",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "INSERT single: query builder → SQL string + params",
+      "code": "db.insert_into('users').values([{ id: 1, name: 'Alice' }]).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 903337,
+          "winner": true,
+          "factorVsNext": 5.111,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 176733,
+          "winner": false,
+          "factorVsNext": 6.59,
+          "factorVsBest": 5.111
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 26819,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 33.683
+        }
+      ]
+    },
+    {
+      "id": "sql-batch",
+      "group": "SQL",
+      "row": "INSERT batch 100",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "INSERT batch 100: query builder → SQL string + params",
+      "code": "db.insert_into('users').values(batchRows).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 37749,
+          "winner": true,
+          "factorVsNext": 5.093,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 7412,
+          "winner": false,
+          "factorVsNext": 16.471,
+          "factorVsBest": 5.093
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 450,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 83.887
+        }
+      ]
+    },
+    {
+      "id": "sql-cte",
+      "group": "SQL",
+      "row": "CTE",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "CTE: query builder → SQL string + params",
+      "code": "db.with('active', q => q.select('id', 'name').from('users').where(eq('active', true))).select('id', 'name').from('active').toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 182258,
+          "winner": true,
+          "factorVsNext": 1.778,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 102485,
+          "winner": false,
+          "factorVsNext": 4.374,
+          "factorVsBest": 1.778
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 23433,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 7.778
+        }
+      ]
+    },
+    {
+      "id": "sql-10-conditions",
+      "group": "SQL",
+      "row": "SELECT 10 conditions",
+      "library": "@coderbuzz/sql",
+      "type": "throughput",
+      "description": "SELECT 10 conditions: query builder → SQL string + params",
+      "code": "db.select().from('users').where(and(eq(...), gt(...), lt(...), ne(...), like(...), gte(...), lte(...), inList(...), eq(...), eq(...))).toSQL()",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "@coderbuzz/sql",
+          "value": 252755,
+          "winner": true,
+          "factorVsNext": 3.772,
+          "factorVsBest": 1
+        },
+        {
+          "name": "Kysely",
+          "value": 67007,
+          "winner": false,
+          "factorVsNext": 6.073,
+          "factorVsBest": 3.772
+        },
+        {
+          "name": "Drizzle ORM",
+          "value": 11034,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 22.907
+        }
+      ]
+    },
+    {
+      "id": "kvs-server-set",
+      "group": "KVS Server",
+      "row": "set('k','v')",
+      "library": "@coderbuzz/kvs-server",
+      "type": "throughput",
+      "description": "set(k, v) throughput: KVS direct vs WS RPC vs HTTP REST",
+      "code": "store.set(['k'], 'v') | wsRpc('/kv/set', ...) | fetch(POST /kv/set)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "KVS direct",
+          "value": 357510,
+          "winner": true,
+          "factorVsNext": 7.711,
+          "factorVsBest": 1
+        },
+        {
+          "name": "WS RPC",
+          "value": 46361,
+          "winner": false,
+          "factorVsNext": 7.914,
+          "factorVsBest": 7.711
+        },
+        {
+          "name": "HTTP REST",
+          "value": 5858,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 61.029
+        }
+      ]
+    },
+    {
+      "id": "kvs-server-get",
+      "group": "KVS Server",
+      "row": "get('k') hit",
+      "library": "@coderbuzz/kvs-server",
+      "type": "throughput",
+      "description": "get(k) throughput: KVS direct vs WS RPC vs HTTP REST",
+      "code": "store.get(['k']) | wsRpc('/kv/get', ...) | fetch(POST /kv/get)",
+      "unit": "ops/s",
+      "higherIsBetter": true,
+      "entries": [
+        {
+          "name": "KVS direct",
+          "value": 441618,
+          "winner": true,
+          "factorVsNext": 9.068,
+          "factorVsBest": 1
+        },
+        {
+          "name": "WS RPC",
+          "value": 48700,
+          "winner": false,
+          "factorVsNext": 8.667,
+          "factorVsBest": 9.068
+        },
+        {
+          "name": "HTTP REST",
+          "value": 5619,
+          "winner": false,
+          "factorVsNext": null,
+          "factorVsBest": 78.594
+        }
+      ]
+    }
+  ]
+}
