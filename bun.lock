@@ -6,11 +6,11 @@
       "name": "benchmarks",
       "dependencies": {
         "@coderbuzz/kvs": "^0.6.0",
-        "@coderbuzz/kvs-server": "^6.1.4",
+        "@coderbuzz/kvs-server": "^6.1.5",
         "@coderbuzz/msgpack": "^0.2.0",
         "@coderbuzz/proto": "^0.3.3",
         "@coderbuzz/sql": "^0.9.6",
-        "@coderbuzz/velox": "^0.8.0",
+        "@coderbuzz/velox": "^0.9.0",
         "@coderbuzz/velox-ws-wire": "^0.1.17",
         "@coderbuzz/veta": "^0.6.2",
         "@hono/typebox-validator": "^1.1.0",
@@ -39,7 +39,7 @@
 
     "@coderbuzz/kvs": ["@coderbuzz/kvs@0.6.0", "", {}, "sha512-KO69b3zujushRzy3DLBOD3737qoKWfSJXs7F4nJylNV+fveeQpm3q7G6s7pDZInVDuy4YQGn9kyjPO2dkrSFgQ=="],
 
-    "@coderbuzz/kvs-server": ["@coderbuzz/kvs-server@6.1.4", "", { "dependencies": { "@coderbuzz/veta": "^0.6.2" }, "peerDependencies": { "@coderbuzz/kvs": "^0.6.0", "@coderbuzz/velox": "^0.8.0" } }, "sha512-6RfBTu9UWtQJ0+T1zp6mEwZTX5aIx2aOZngfLR+gjQSwjJNHB1NSLnQTulLITMEcpYcyqO94xVAj6AeTtWpdzQ=="],
+    "@coderbuzz/kvs-server": ["@coderbuzz/kvs-server@6.1.5", "", { "dependencies": { "@coderbuzz/veta": "^0.6.2" }, "peerDependencies": { "@coderbuzz/kvs": "^0.6.0", "@coderbuzz/velox": "^0.9.0" } }, "sha512-FVpFC+TVDR78ymm22Cpbrr29REMz/p0qEh9oDXyFae5blD4u8Y/UuahtcPktBdYOBXcZTPsWWeBZ7RMkWG+KWQ=="],
 
     "@coderbuzz/msgpack": ["@coderbuzz/msgpack@0.2.0", "", {}, "sha512-OHubO6sj25Q0FygvyZuUn+IJBLr+CKW+qBhSYGKNu4xzN8ZsX5a/R3VZbnn5SLuuoyNmb0deHluV4vvkj5BmQw=="],
 
@@ -47,7 +47,7 @@
 
     "@coderbuzz/sql": ["@coderbuzz/sql@0.9.6", "", { "dependencies": { "@coderbuzz/veta": "^0.6.2" }, "peerDependencies": { "better-sqlite3": ">=9.0.0", "mssql": ">=10.0.0", "mysql2": ">=3.0.0", "pg": ">=8.0.0" }, "optionalPeers": ["better-sqlite3", "mssql", "mysql2", "pg"] }, "sha512-TQizSQogFzSWKrIAA5+zBA2vNaQO6ItvXdrhvl5uew4Kf275wu8Rk/3Mykq/WQQ+vYVsL8dXG1mJ5pIYLj3ijA=="],
 
-    "@coderbuzz/velox": ["@coderbuzz/velox@0.8.0", "", {}, "sha512-B8zx7EW2XIA14Jwg4bLTZfvT6OdpTC4JSHhyimk8OdXw0YD12XsuHHdaO4XEZ8wyl6vmiOGkLDcAbbBK1Imc7w=="],
+    "@coderbuzz/velox": ["@coderbuzz/velox@0.9.0", "", {}, "sha512-NWZYV//5nB8ePDEez+7CoohSOXWbnejz+3P24YxN/sSHXqw6iz1ryHoZZncQK4loiL9hBNrnUsIiyqnL/ZVFuA=="],
 
     "@coderbuzz/velox-ws-wire": ["@coderbuzz/velox-ws-wire@0.1.17", "", {}, "sha512-WsMUNIz9TM147N4zfO+TKLDGEQhFy57vizBdllDJxSHgyCWZ1EW41L1sxzuOpjBEDI26p0OuxMrIN5ge5GzvsA=="],
 
